@@ -47,18 +47,23 @@ All subagent roles referenced in this workflow are defined as custom agents unde
 If important files are specified in [inputs], read them. Combine with [key md files] understanding.
 
 ### Step 2 — Parallel Planning & Review
-**[PARALLEL EXECUTION — launch ALL FIVE subagents in parallel via VS Code Copilot `agent` tool]**
+**[PARALLEL EXECUTION — launch ALL three subagents in parallel via VS Code Copilot `agent` tool]**
 
 | Subagent | Agent | Role | Task |
 |----------|-------|------|------|
-| Plan A | **Focus Analyst** (`agents/focus-analyst.agent.md`) | Focus mode | Read [key md files]. Identify associated scripts/files, read them. Draft [plan 1] + [diagram 1] integrating new functionalities while keeping codebase stable. |
-| Plan B | **Broad Analyst** (`agents/broad-analyst.agent.md`) | Broad mode | Read [key md files]. Follow pipeline upstream->downstream, read all scripts. Draft [plan 2] + [diagram 2] integrating new functionalities. |
+| Plan A | **Focus Analyst** (`agents/focus-analyst.agent.md`) | Focus mode | Read [key md files]. Identify highly associated scripts/files, read them. Draft [plan 1] + [diagram 1] for integrating new functionalities while keeping codebase stable. |
+| Plan B | **Broad Analyst** (`agents/broad-analyst.agent.md`) | Broad mode | Read [key md files]. Follow pipeline upstream->downstream, read all scripts. Draft [plan 2] + [diagram 2] for integrating new functionalities. |
 | Plan C | **Free Analyst** (`agents/free-analyst.agent.md`) | Free mode | Read [key md files]. Decide own reading strategy. Draft [plan 3] with integration approach. |
-| Advocate | **Devils Advocate** (`agents/devils-advocate.agent.md`) | Critical challenger | Read [key md files] + all relevant scripts. Identify overlooked side effects, integration risks, incorrect assumptions, regressions. Return [challenge report]. |
-| Resource | **Online Researcher** (`agents/online-researcher.agent.md`) | Resource lookup | Read [key md files]. Identify extra needs for skills, tools, and packages. Search online for reliable resources and solutions. Return [online resource]. |
+
 
 ### Step 3 — Synthesize Final Plan
 Main agent reviews [plan 1], [plan 2], [plan 3], [diagram 1], [diagram 2], [challenge report], and [online resource], and reads necessary files. Reject incorrect/redundant parts. Incorporate valid criticisms from [challenge report] and relevant findings from [online resource]. Draft [final plan] that is feasible, stable, and 100% correct.
+
+
+### Step 3.5 — Final Plan Refinement
+**[PARALLEL EXECUTION — launch ALL two subagents in parallel via VS Code Copilot `agent` tool]**
+| Advocate | **Devils Advocate** (`agents/devils-advocate.agent.md`) | Critical challenger | Read [key md files] + all relevant scripts. Identify overlooked side effects, integration risks, incorrect assumptions, regressions. Return [challenge report]. |
+| Resource | **Online Researcher** (`agents/online-researcher.agent.md`) | Resource lookup | Read [key md files]. Identify extra needs for skills, tools, and packages. Search online for reliable resources and solutions. Return [online resource]. |
 
 **If user requested no code changes → STOP here and print [final plan].**
 
