@@ -1,0 +1,975 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>harness_coding_instructions</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f7f9;
+      --surface: #ffffff;
+      --surface-strong: #f0f3f6;
+      --ink: #17212b;
+      --muted: #5d6875;
+      --line: #d8dee6;
+      --teal: #007c89;
+      --green: #2f7d32;
+      --amber: #a16207;
+      --blue: #2867b2;
+      --red: #b42318;
+      --shadow: 0 18px 45px rgba(23, 33, 43, 0.08);
+      --radius: 8px;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      line-height: 1.5;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    code,
+    pre {
+      font-family: var(--mono);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 260px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 24px 18px;
+      border-right: 1px solid var(--line);
+      background: #ffffff;
+      overflow-y: auto;
+    }
+
+    .brand {
+      margin-bottom: 26px;
+    }
+
+    .brand-mark {
+      display: inline-grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      margin-bottom: 12px;
+      border: 1px solid var(--line);
+      background: var(--surface-strong);
+      color: var(--teal);
+      font-weight: 800;
+      border-radius: 8px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 16px;
+      letter-spacing: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .brand p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .nav {
+      display: grid;
+      gap: 4px;
+    }
+
+    .nav a {
+      display: block;
+      padding: 8px 10px;
+      border-left: 3px solid transparent;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .nav a:hover,
+    .nav a:focus {
+      border-left-color: var(--teal);
+      background: var(--surface-strong);
+      color: var(--ink);
+      outline: none;
+    }
+
+    main {
+      min-width: 0;
+    }
+
+    .hero {
+      min-height: 86vh;
+      display: grid;
+      grid-template-columns: minmax(0, 0.95fr) minmax(360px, 1.05fr);
+      gap: 32px;
+      align-items: center;
+      padding: 52px clamp(22px, 4vw, 64px) 28px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      color: var(--teal);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .hero h2 {
+      margin: 0;
+      max-width: 720px;
+      font-size: clamp(34px, 5vw, 68px);
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+
+    .hero-copy {
+      max-width: 720px;
+      margin: 20px 0 0;
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .command-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 28px;
+      max-width: 720px;
+    }
+
+    .command {
+      min-width: 0;
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      background: var(--surface-strong);
+      border-radius: var(--radius);
+    }
+
+    .command span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .command code {
+      display: block;
+      margin-top: 6px;
+      color: var(--ink);
+      font-size: 13px;
+      white-space: nowrap;
+      overflow-x: auto;
+    }
+
+    .hero-visual {
+      align-self: stretch;
+      min-height: 520px;
+      display: grid;
+      align-content: center;
+      gap: 14px;
+      padding: 22px;
+      border: 1px solid var(--line);
+      background: #fbfcfd;
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+    }
+
+    .diagram-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .diagram-node {
+      min-height: 84px;
+      display: grid;
+      align-content: center;
+      gap: 5px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      background: #ffffff;
+      border-radius: var(--radius);
+    }
+
+    .diagram-node strong {
+      font-size: 14px;
+    }
+
+    .diagram-node span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .diagram-node.router {
+      grid-column: 1 / -1;
+      border-color: rgba(0, 124, 137, 0.45);
+      background: #eef8f9;
+    }
+
+    .diagram-node.memory {
+      grid-column: 1 / -1;
+      border-color: rgba(47, 125, 50, 0.42);
+      background: #f1f8f2;
+    }
+
+    .flow-line {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .flow-line:before,
+    .flow-line:after {
+      content: "";
+      height: 1px;
+      background: var(--line);
+    }
+
+    .flow-line span {
+      padding: 0 10px;
+    }
+
+    .content {
+      padding: 42px clamp(22px, 4vw, 64px) 80px;
+    }
+
+    .section {
+      max-width: 1180px;
+      margin: 0 auto 54px;
+    }
+
+    .section h2 {
+      margin: 0 0 14px;
+      font-size: clamp(24px, 3vw, 34px);
+      letter-spacing: 0;
+    }
+
+    .section > p {
+      max-width: 820px;
+      margin: 0 0 22px;
+      color: var(--muted);
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    .stat {
+      padding: 18px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      border-radius: var(--radius);
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 28px;
+      line-height: 1;
+    }
+
+    .stat span {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .tile {
+      min-width: 0;
+      padding: 18px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      border-radius: var(--radius);
+    }
+
+    .tile h3 {
+      margin: 0 0 8px;
+      font-size: 17px;
+      letter-spacing: 0;
+    }
+
+    .tile p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .tile code {
+      color: var(--ink);
+      overflow-wrap: anywhere;
+    }
+
+    .accent-teal {
+      border-top: 4px solid var(--teal);
+    }
+
+    .accent-blue {
+      border-top: 4px solid var(--blue);
+    }
+
+    .accent-green {
+      border-top: 4px solid var(--green);
+    }
+
+    .accent-amber {
+      border-top: 4px solid var(--amber);
+    }
+
+    .accent-red {
+      border-top: 4px solid var(--red);
+    }
+
+    .matrix {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      border-radius: var(--radius);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 760px;
+    }
+
+    th,
+    td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    th {
+      background: var(--surface-strong);
+      color: var(--ink);
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    td code {
+      white-space: nowrap;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .tree,
+    .code-block {
+      margin: 0;
+      padding: 18px;
+      border: 1px solid var(--line);
+      background: #101820;
+      color: #f4f8fb;
+      overflow-x: auto;
+      border-radius: var(--radius);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .module-list {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .module-list li {
+      display: grid;
+      grid-template-columns: minmax(170px, 0.6fr) minmax(0, 1fr);
+      gap: 12px;
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      border-radius: var(--radius);
+    }
+
+    .module-list code {
+      color: var(--ink);
+      overflow-wrap: anywhere;
+    }
+
+    .module-list span {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .pipeline {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .stage {
+      position: relative;
+      padding: 16px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      border-radius: var(--radius);
+      min-height: 122px;
+    }
+
+    .stage:not(:last-child):after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      right: -12px;
+      width: 12px;
+      height: 2px;
+      background: var(--line);
+    }
+
+    .stage b {
+      display: block;
+      font-size: 15px;
+    }
+
+    .stage span {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 5px 8px;
+      border: 1px solid var(--line);
+      background: var(--surface-strong);
+      color: var(--muted);
+      font-size: 12px;
+      border-radius: 6px;
+    }
+
+    .note {
+      padding: 16px 18px;
+      border-left: 4px solid var(--amber);
+      background: #fff8eb;
+      color: #5f4300;
+      border-radius: 0 var(--radius) var(--radius) 0;
+    }
+
+    .footer {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    @media (max-width: 1100px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+        height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .nav {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .hero {
+        grid-template-columns: 1fr;
+        min-height: auto;
+      }
+
+      .hero-visual {
+        min-height: 0;
+      }
+
+      .stat-grid,
+      .grid,
+      .pipeline {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 720px) {
+      .hero,
+      .content,
+      .sidebar {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+
+      .nav,
+      .command-row,
+      .diagram-row,
+      .stat-grid,
+      .grid,
+      .split,
+      .pipeline {
+        grid-template-columns: 1fr;
+      }
+
+      .module-list li {
+        grid-template-columns: 1fr;
+      }
+
+      .stage:not(:last-child):after {
+        display: none;
+      }
+
+      .hero h2 {
+        font-size: 38px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar" aria-label="Page navigation">
+      <div class="brand">
+        <div class="brand-mark">HC</div>
+        <h1>harness_coding_instructions</h1>
+        <p>Portable workflow instructions for coding agents.</p>
+      </div>
+      <nav class="nav">
+        <a href="#overview">Overview</a>
+        <a href="#architecture">Architecture</a>
+        <a href="#install-layout">Install layout</a>
+        <a href="#workflows">Workflows</a>
+        <a href="#modules">Repo modules</a>
+        <a href="#setup">Setup</a>
+        <a href="#agents">Agents and skills</a>
+        <a href="#memory">Repo memory</a>
+        <a href="#limits">Limits</a>
+      </nav>
+    </aside>
+
+    <main>
+      <section class="hero" id="overview">
+        <div>
+          <p class="eyebrow">Instruction pack</p>
+          <h2>harness_coding_instructions</h2>
+          <p class="hero-copy">
+            A portable Markdown pack that routes coding-agent requests through structured workflows for implementation,
+            debugging, questions, correctness checks, refactors, initialization, and PR breakdowns.
+          </p>
+          <div class="command-row" aria-label="Setup commands">
+            <div class="command">
+              <span>VS Code setup</span>
+              <code>bash .github/harness_coding_instructions/setup.sh</code>
+            </div>
+            <div class="command">
+              <span>CLI setup</span>
+              <code>bash .github/harness_coding_instructions/cli_setup.sh</code>
+            </div>
+          </div>
+          <div class="stat-grid" aria-label="Repository counts">
+            <div class="stat"><strong>4</strong><span>workflow families</span></div>
+            <div class="stat"><strong>28</strong><span>workflow files</span></div>
+            <div class="stat"><strong>19</strong><span>agent files</span></div>
+            <div class="stat"><strong>7</strong><span>request templates</span></div>
+            <div class="stat"><strong>2</strong><span>setup scripts</span></div>
+          </div>
+        </div>
+
+        <div class="hero-visual" aria-label="Workflow routing diagram">
+          <div class="diagram-row">
+            <div class="diagram-node">
+              <strong>VS Code</strong>
+              <span>.github/copilot-instructions.md</span>
+            </div>
+            <div class="diagram-node">
+              <strong>Claude Code</strong>
+              <span>root CLAUDE.md</span>
+            </div>
+            <div class="diagram-node">
+              <strong>Codex CLI</strong>
+              <span>root AGENTS.md</span>
+            </div>
+          </div>
+          <div class="flow-line"><span>classify request</span></div>
+          <div class="diagram-node router">
+            <strong>Router selects one workflow</strong>
+            <span>initialize, code, debug, query, correctness check, refactor, or PR workflow by direct template/reference</span>
+          </div>
+          <div class="flow-line"><span>load shared rules</span></div>
+          <div class="diagram-row">
+            <div class="diagram-node">
+              <strong>_lib/</strong>
+              <span>contract, safety, approval gate</span>
+            </div>
+            <div class="diagram-node">
+              <strong>philosophy/</strong>
+              <span>execution behavior</span>
+            </div>
+            <div class="diagram-node">
+              <strong>agents/</strong>
+              <span>worker and coordinator roles</span>
+            </div>
+          </div>
+          <div class="flow-line"><span>execute and update memory</span></div>
+          <div class="diagram-node memory">
+            <strong>repo_info/</strong>
+            <span>codebase overview, scripts overview, update logs, known issues, Q&amp;A, correctness history</span>
+          </div>
+        </div>
+      </section>
+
+      <div class="content">
+        <section class="section" id="architecture">
+          <h2>Architecture</h2>
+          <p>
+            The pack is source-controlled at this repo root, then installed into target repos under
+            <code>.github/harness_coding_instructions/</code>. Tool-specific entry points classify the active user request,
+            load shared rules, then hand off to the matching workflow family.
+          </p>
+          <div class="pipeline" aria-label="Execution pipeline">
+            <div class="stage accent-teal">
+              <b>User request</b>
+              <span>Natural language or a structured request template.</span>
+            </div>
+            <div class="stage accent-blue">
+              <b>Tool router</b>
+              <span>Copilot, Claude Code, or Codex discovers the entry point.</span>
+            </div>
+            <div class="stage accent-green">
+              <b>Shared context</b>
+              <span>Workflow contract, safety rules, and philosophy are loaded first.</span>
+            </div>
+            <div class="stage accent-amber">
+              <b>Workflow family</b>
+              <span>The tool-native instruction file drives the task.</span>
+            </div>
+            <div class="stage accent-red">
+              <b>Repo memory</b>
+              <span>Target-specific docs and history stay in repo_info.</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="install-layout">
+          <h2>Installed Layout</h2>
+          <p>
+            Copy this repo into a target repo at <code>.github/harness_coding_instructions/</code>. The setup scripts then
+            generate root-level CLI entry points and standard Copilot instructions.
+          </p>
+          <pre class="tree"><code>&lt;target-repo&gt;/
+|-- .github/
+|   |-- copilot-instructions.md
+|   `-- harness_coding_instructions/
+|       |-- AGENTS.md
+|       |-- CLAUDE.md
+|       |-- copilot-instructions.md
+|       |-- setup.sh
+|       |-- cli_setup.sh
+|       |-- _lib/
+|       |-- philosophy/
+|       |-- workflow/
+|       |-- agents/
+|       |-- request_template/
+|       |-- skills/
+|       `-- repo_info/
+|-- AGENTS.md
+|-- CLAUDE.md
+`-- .claude/
+    `-- rules/</code></pre>
+        </section>
+
+        <section class="section" id="workflows">
+          <h2>Workflow Families</h2>
+          <p>
+            Every family contains seven workflow files: code, correctness check, debug, initialize, PR, query, and refactor.
+          </p>
+          <div class="grid">
+            <div class="tile accent-teal">
+              <h3>VS Code general</h3>
+              <p><code>workflow/vscode_workflow/</code> contains the full Copilot workflow set.</p>
+            </div>
+            <div class="tile accent-blue">
+              <h3>VS Code fast</h3>
+              <p><code>workflow/vscode_fast_workflow/</code> is selected by templates with <code>mode: fast</code>.</p>
+            </div>
+            <div class="tile accent-green">
+              <h3>Claude Code CLI</h3>
+              <p><code>workflow/claudecode_workflow/</code> uses Claude Code native behavior and skill hooks.</p>
+            </div>
+            <div class="tile accent-amber">
+              <h3>Codex CLI</h3>
+              <p><code>workflow/codex_workflow/</code> uses Codex-oriented text and manual review fallbacks.</p>
+            </div>
+          </div>
+
+          <div class="matrix" style="margin-top: 18px;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Task</th>
+                  <th>VS Code</th>
+                  <th>Claude Code CLI</th>
+                  <th>Codex CLI</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Initialize</td>
+                  <td><code>workflow/vscode_workflow/initialize.instructions.md</code></td>
+                  <td><code>workflow/claudecode_workflow/initialize.instructions.md</code></td>
+                  <td><code>workflow/codex_workflow/initialize.instructions.md</code></td>
+                </tr>
+                <tr>
+                  <td>Implement</td>
+                  <td><code>workflow/vscode_workflow/code.instructions.md</code></td>
+                  <td><code>workflow/claudecode_workflow/code.instructions.md</code></td>
+                  <td><code>workflow/codex_workflow/code.instructions.md</code></td>
+                </tr>
+                <tr>
+                  <td>Debug</td>
+                  <td><code>workflow/vscode_workflow/debug.instructions.md</code></td>
+                  <td><code>workflow/claudecode_workflow/debug.instructions.md</code></td>
+                  <td><code>workflow/codex_workflow/debug.instructions.md</code></td>
+                </tr>
+                <tr>
+                  <td>Question</td>
+                  <td><code>workflow/vscode_workflow/query.instructions.md</code></td>
+                  <td><code>workflow/claudecode_workflow/query.instructions.md</code></td>
+                  <td><code>workflow/codex_workflow/query.instructions.md</code></td>
+                </tr>
+                <tr>
+                  <td>Correctness</td>
+                  <td><code>workflow/vscode_workflow/correctness_check.instructions.md</code></td>
+                  <td><code>workflow/claudecode_workflow/correctness_check.instructions.md</code></td>
+                  <td><code>workflow/codex_workflow/correctness_check.instructions.md</code></td>
+                </tr>
+                <tr>
+                  <td>Refactor</td>
+                  <td><code>workflow/vscode_workflow/refactor.instructions.md</code></td>
+                  <td><code>workflow/claudecode_workflow/refactor.instructions.md</code></td>
+                  <td><code>workflow/codex_workflow/refactor.instructions.md</code></td>
+                </tr>
+                <tr>
+                  <td>PR breakdown</td>
+                  <td><code>workflow/vscode_workflow/pr.instructions.md</code></td>
+                  <td><code>workflow/claudecode_workflow/pr.instructions.md</code></td>
+                  <td><code>workflow/codex_workflow/pr.instructions.md</code></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="section" id="modules">
+          <h2>Repo Modules</h2>
+          <p>
+            The repository is mostly Markdown instructions. The only executable helpers are Bash setup scripts.
+          </p>
+          <div class="split">
+            <ul class="module-list">
+              <li><code>copilot-instructions.md</code><span>VS Code Copilot router template.</span></li>
+              <li><code>CLAUDE.md</code><span>Claude Code CLI router template.</span></li>
+              <li><code>AGENTS.md</code><span>Codex CLI router template.</span></li>
+              <li><code>_lib/</code><span>Workflow contract, safety rules, and approval gate.</span></li>
+              <li><code>philosophy/</code><span>Shared execution guidance for main agents and subagents.</span></li>
+              <li><code>workflow/</code><span>Tool-specific workflow instruction families.</span></li>
+            </ul>
+            <ul class="module-list">
+              <li><code>agents/</code><span>Custom coordinator and worker agent definitions.</span></li>
+              <li><code>request_template/</code><span>Structured prompts for general and fast VS Code workflows.</span></li>
+              <li><code>skills/</code><span>PR breakdown and Claude-native post-implementation skill definitions.</span></li>
+              <li><code>.claude/rules/</code><span>Claude Code path-scoped rule files.</span></li>
+              <li><code>setup.sh</code><span>VS Code settings and Copilot instructions setup.</span></li>
+              <li><code>cli_setup.sh</code><span>CLI entry-point setup and repo memory bootstrap.</span></li>
+            </ul>
+          </div>
+        </section>
+
+        <section class="section" id="setup">
+          <h2>Setup</h2>
+          <p>
+            Run setup from the target repo root after the pack has been copied to
+            <code>.github/harness_coding_instructions/</code>.
+          </p>
+          <div class="split">
+            <pre class="code-block"><code># VS Code + Copilot
+bash .github/harness_coding_instructions/setup.sh</code></pre>
+            <pre class="code-block"><code># Claude Code CLI or Codex CLI
+bash .github/harness_coding_instructions/cli_setup.sh</code></pre>
+          </div>
+          <div class="grid" style="margin-top: 18px;">
+            <div class="tile accent-teal">
+              <h3>VS Code settings</h3>
+              <p>Adds instruction and agent discovery locations to <code>.vscode/settings.json</code>.</p>
+            </div>
+            <div class="tile accent-blue">
+              <h3>Copilot router</h3>
+              <p>Creates or refreshes <code>.github/copilot-instructions.md</code> when pack-generated.</p>
+            </div>
+            <div class="tile accent-green">
+              <h3>CLI routers</h3>
+              <p>Creates or refreshes root <code>CLAUDE.md</code> and <code>AGENTS.md</code> when pack-generated.</p>
+            </div>
+            <div class="tile accent-amber">
+              <h3>Repo memory</h3>
+              <p>Ensures the eight canonical <code>repo_info/</code> files exist in the installed pack.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="agents">
+          <h2>Agents And Skills</h2>
+          <p>
+            Agent definitions separate workflow coordination from focused analysis, implementation, validation, and review.
+            Skills provide reusable specialized procedures.
+          </p>
+          <div class="split">
+            <div class="tile accent-blue">
+              <h3>Coordinator agents</h3>
+              <p>Code Workflow, Debug Workflow, Refactor Workflow, Query Workflow, and Correctness Workflow.</p>
+              <div class="badge-row">
+                <span class="badge">Code</span>
+                <span class="badge">Debug</span>
+                <span class="badge">Refactor</span>
+                <span class="badge">Query</span>
+                <span class="badge">Correctness</span>
+              </div>
+            </div>
+            <div class="tile accent-green">
+              <h3>Worker agents</h3>
+              <p>Focus, Broad, Free, Senior Engineer, QA, Implementer, Online Researcher, and specialized refactor analysts.</p>
+              <div class="badge-row">
+                <span class="badge">Focus</span>
+                <span class="badge">Broad</span>
+                <span class="badge">Free</span>
+                <span class="badge">QA</span>
+                <span class="badge">Implementer</span>
+              </div>
+            </div>
+          </div>
+          <div class="grid" style="margin-top: 18px;">
+            <div class="tile accent-teal">
+              <h3>breakdown-pr</h3>
+              <p><code>skills/breakdown-pr/SKILL.md</code> decomposes large branches into stacked, reviewable PRs.</p>
+            </div>
+            <div class="tile accent-amber">
+              <h3>claude-native-skills-subagents</h3>
+              <p><code>skills/claude-native-skills-subagents/SKILL.md</code> runs Claude Code-only post-implementation checks.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="memory">
+          <h2>Repo Memory</h2>
+          <p>
+            Workflows use <code>repo_info/</code> as persistent memory. This source repo ignores that folder, but target repos
+            should initialize and maintain it for their own codebase.
+          </p>
+          <div class="grid">
+            <div class="tile accent-teal">
+              <h3>Overview</h3>
+              <p><code>codebase_overview.md</code> and <code>scripts_overview.md</code>.</p>
+            </div>
+            <div class="tile accent-blue">
+              <h3>History</h3>
+              <p><code>update_logs.md</code> and <code>update_logs_auto_generated.md</code>.</p>
+            </div>
+            <div class="tile accent-red">
+              <h3>Known issues</h3>
+              <p><code>known_issues.md</code> and <code>known_issues_auto_generated.md</code>.</p>
+            </div>
+            <div class="tile accent-green">
+              <h3>Question records</h3>
+              <p><code>past_Q&amp;A.md</code> and <code>past_Correctness_Check.md</code>.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="limits">
+          <h2>Path Rules And Limits</h2>
+          <div class="split">
+            <div>
+              <p>
+                VS Code prompts may use <code>@/.github/harness_coding_instructions/...</code>. CLI entry points use
+                filesystem-relative paths such as <code>.github/harness_coding_instructions/workflow/codex_workflow/code.instructions.md</code>.
+              </p>
+              <div class="note">
+                Root <code>AGENTS.md</code> and <code>CLAUDE.md</code> in this source repo are templates for installed target repos.
+                Their installed paths are expected to resolve after the pack is copied under <code>.github/harness_coding_instructions/</code>.
+              </div>
+            </div>
+            <ul class="module-list">
+              <li><code>No runtime</code><span>This is an instruction pack, not an application.</span></li>
+              <li><code>Bash scripts</code><span>Setup helpers require a shell that can run Bash.</span></li>
+              <li><code>Claude skills</code><span>Claude-native skill steps only apply in Claude Code environments.</span></li>
+              <li><code>Subagents</code><span>Parallel behavior depends on the active tool and model parity support.</span></li>
+            </ul>
+          </div>
+        </section>
+
+        <footer class="footer">
+          HTML companion generated from <code>readme.md</code>. Open this file directly in a browser; no build step or server is required.
+        </footer>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
