@@ -10,8 +10,6 @@
 This pack supports **VS Code + Copilot**, **Claude Code CLI**, and **Codex CLI**.
 Copy it into a target repo under `.github/harness_coding_instructions` so the agent can route requests to the right workflow file and follow a more consistent process.
 
-![CI](https://img.shields.io/badge/CI-passing-brightgreen) ![Stars](https://img.shields.io/badge/stars-31k-blue)
-
 [VS Code](#vs-code--copilot) · [Claude Code CLI](#claude-code-cli) · [Codex CLI](#codex-cli) · [Setup](#quick-start) · [Architecture](#architecture)
 
 **English** | **简体中文**
