@@ -68,7 +68,7 @@ The main agent combines [plan 1-5], [comparison 1-4], [plan review], and [main-a
 ### Step 5 - Refine and Approval Gate
 The main agent incorporates [challenge report] and [online resource] into [final plan]. Print [final plan].
 
-**If user requested no code changes, STOP here. Otherwise continue.**
+**Approval gate:** See `_lib/approval_gate.md`.
 
 ### Step 6 - Implementation
 Create **Implementer** subagent (`agents/implementer.agent.md`). Pass [final plan] + [inputs] + [key md files].

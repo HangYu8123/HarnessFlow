@@ -62,7 +62,7 @@ The main agent reviews [plan 1], [plan 2], and [diagram 1], then reads any neces
 ### Step 5 - Refine and Approval Gate
 The main agent incorporates [challenge report] and [online resource] into [final plan]. Print [final plan].
 
-**If user requested no execution, STOP here. Otherwise continue.**
+**Approval gate:** See `_lib/approval_gate.md`.
 
 ### Step 6 - Execution
 Create **Executor** subagent (`agents/executor.agent.md`). Pass [final plan] + [inputs] + [key md files].

@@ -75,7 +75,7 @@ Mandatory file completeness verification: after drafting [final pr plan], run `g
 ### Step 5 - Refine and Approval Gate
 The main agent incorporates [challenge report] and [online resource] into [final pr plan], then reruns the file completeness verification. Print [final pr plan].
 
-**If mode is `plan`, STOP here and wait for user approval. If mode is `execute`, continue only after the user has approved branch, commit, and PR side effects.**
+**Approval gate:** See `_lib/approval_gate.md`.
 
 ### Step 6 - PR Stack Execution
 Create **Implementer** subagent (`agents/implementer.agent.md`). Pass [final pr plan] + [inputs] + [key md files] + [breakdown-pr skill].

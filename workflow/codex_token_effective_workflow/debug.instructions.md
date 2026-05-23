@@ -68,7 +68,7 @@ The main agent reads all scripts associated with [bug info] and [inputs]. Draft 
 ### Step 5 - Refine and Approval Gate
 The main agent incorporates [valid criticisms] and [online resource] into [final bug fix plan]. Print [final bug fix plan].
 
-**If user requested no code changes, STOP here. Otherwise continue.**
+**Approval gate:** See `_lib/approval_gate.md`.
 
 ### Step 6 - Implementation
 Create **Implementer** subagent (`agents/implementer.agent.md`). Pass [final bug fix plan] + [bug info] + [inputs] + [key md files].
