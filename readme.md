@@ -1,6 +1,29 @@
-# harness_coding_instructions
+<div align="center">
 
-`harness_coding_instructions` is a portable instruction pack for coding agents. Copy it into a target repository so the agent can route requests through consistent workflows for implementation, debugging, questions, correctness checks, refactors, initialization, and PR breakdowns.
+<img src="harnessflow.png" alt="AI Agents Workflow" width="100%" height="350">
+
+# ✳
+
+# AI Agents Workflow
+
+**Keep repo-level context in one place once the repo has been initialized.**
+
+This pack supports **VS Code + Copilot**, **Claude Code CLI**, and **Codex CLI**.
+Copy it into a target repo under `.github/harness_coding_instructions` so the agent can route requests to the right workflow file and follow a more consistent process.
+
+![CI](https://img.shields.io/badge/CI-passing-brightgreen) ![Stars](https://img.shields.io/badge/stars-31k-blue)
+
+[VS Code](#vs-code--copilot) · [Claude Code CLI](#claude-code-cli) · [Codex CLI](#codex-cli) · [Setup](#quick-start) · [Architecture](#architecture)
+
+**English** | **简体中文**
+
+</div>
+
+## What Is This Pack For?
+
+`harness_coding_instructions` is a portable instruction pack for coding agents. Copy it into a target repository so the agent can route requests through consistent workflows for implementation, debugging, questions, correctness checks, refactors, initialization, command execution, and PR breakdowns.
+
+## Architecture
 
 The source repo stores the pack at the repo root. The installed layout expected by the scripts and CLI entry points is:
 
@@ -41,11 +64,16 @@ mkdir -p .github
 rsync -a --exclude .git /path/to/coding_prompts/ .github/harness_coding_instructions/
 ```
 
+<a id="vs-code--copilot"></a>
+
 For VS Code + Copilot:
 
 ```bash
 bash .github/harness_coding_instructions/setup.sh
 ```
+
+<a id="claude-code-cli"></a>
+<a id="codex-cli"></a>
 
 For Claude Code CLI or Codex CLI:
 
