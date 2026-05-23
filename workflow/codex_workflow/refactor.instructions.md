@@ -17,9 +17,7 @@ description: 'Instructions for refactoring existing scripts, repositories, and f
   - skills/claude-native-skills-subagents/SKILL.md
 -->
 
-**DO NOT TRY TO COMMIT CHANGES TO GITHUB**
-**DO NOT WRITE SPAM FILES INTO THE REPO**
-**DO NOT USE SUDO**
+**Safety: follow `_lib/safety_rules.md`.**
 [inputs]:
 input 1: target refactor functionalities, repository, or scripts
 input 2: target files (optional)
@@ -30,14 +28,9 @@ Inputs specify the refactor targets.
 Before doing any workflow-specific work, the main agent must read and follow `_lib/workflow_contract.md` and `philosophy/philosophy.instructions.md` before proceeding.
 Every subagent created by this workflow must also read and follow `_lib/workflow_contract.md` and `philosophy/philosophy.instructions.md` before reading [key md files] or performing task-specific work.
 
-Subagent launch rule:
-- All subagent creation must follow the Subagent Launch Contract in `_lib/workflow_contract.md`.
-- Before creating any subagent, ask the main agent to answer what model it is using, refer the model as [main agent model]
-- when creating any subagent, explicitly instruct the main agent to: "**Create subagent with the exact [main agent model] — do not downgrade.**"
-- Subagents must use the [main agent model]
+Subagent launch rule: Follow the Subagent Launch Contract in `_lib/workflow_contract.md`.
 
-## Subagent Definitions
-When creating subagents, invoke them by their agent name. Codex CLI discovers agent definitions from `agents/` directory. For parallel execution, use Codex agent workers with concurrency controlled by `agents.max_threads` in the Codex configuration. If parallel agent workers are not available, launch subagents sequentially — the results are equivalent.
+> **Subagent invocation:** See `_lib/workflow_contract.md` §Subagent Invocation.
 
 When ask to refactor existing functionalities, repositories, and scripts, always, first read the following files .github/harness_coding_instructions/repo_info (REFER AS [key md files]):
 1. codebase_overview.md

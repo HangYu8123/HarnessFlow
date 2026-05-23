@@ -4,24 +4,12 @@ description: 'Instructions for creating necessary repo_info memory files to guid
 ---
 # create necessary files for guiding the entire agentic coding workflow
 
-<!-- Required Context Files (CLI-resolvable paths):
-  - philosophy/philosophy.instructions.md
-  - _lib/safety_rules.md
-  - _lib/workflow_contract.md
-  - repo_info/ (created by this workflow)
--->
-
 Before doing any workflow-specific work, the main agent must read and follow #file:../../_lib/workflow_contract.md and #file:../../philosophy/philosophy.instructions.md before proceeding.
 Every subagent created by this workflow must also read and follow #file:../../_lib/workflow_contract.md and #file:../../philosophy/philosophy.instructions.md before reading the repo or performing task-specific work.
 
-Subagent launch rule:
-- All subagent creation must follow the Subagent Launch Contract in #file:../../_lib/workflow_contract.md.
-- Before creating any subagent, ask the main agent to answer what model it is using, refer the model as [main agent model]
-- when creating any subagent, explicitly instruct the main agent to: "**Create subagent with the exact [main agent model] — do not downgrade.**"
-- Subagents must use the [main agent model]
+Subagent launch rule: Follow the Subagent Launch Contract in `#file:../../_lib/workflow_contract.md`.
 
-## Subagent Definitions
-All subagent roles referenced in this workflow are defined as custom agents under `agents/` (see `agents/INDEX.md` for the full registry). When creating subagents, invoke them by their agent name using VS Code Copilot's native `agent` tool. Coordinator agents declare `tools: ['agent']` and `agents: [...]` to orchestrate subagent invocation.
+> **Subagent invocation:** See `_lib/workflow_contract.md` §Subagent Invocation.
 
 ## Procedure 1: Run Setup & Scan Repo
 First, if `.vscode/settings.json` does not already contain `chat.agentFilesLocations` with `.github/harness_coding_instructions/agents` set to `true`, run `setup.sh` from the target repo root to configure VS Code workspace settings (agent discovery, instruction file locations, and `chat.includeReferencedInstructions`).

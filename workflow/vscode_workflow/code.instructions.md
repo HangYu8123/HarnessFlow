@@ -4,22 +4,7 @@ description: 'Instructions for implementing, updating, and adding new functional
 ---
 # add new functions to an existing repo
 
-<!-- Required Context Files (CLI-resolvable paths):
-  - philosophy/philosophy.instructions.md
-  - _lib/safety_rules.md
-  - _lib/workflow_contract.md
-  - _lib/approval_gate.md
-  - repo_info/codebase_overview.md
-  - repo_info/scripts_overview.md
-  - repo_info/update_logs.md
-  - repo_info/known_issues.md
-  - skills/index.md
-  - skills/claude-native-skills-subagents/SKILL.md
--->
-
-**DO NOT TRY TO COMMIT CHANGES TO GITHUB**
-**DO NOT WRITE SPAM FILES INTO THE REPO**
-**DO NOT USE SUDO**
+**Safety: follow `_lib/safety_rules.md`.**
 [inputs]:
 input 1: target functionalities
 input 2: important files (optional)
@@ -29,14 +14,9 @@ input 3: target repo (optional)
 Before doing any workflow-specific work, the main agent must read and follow #file:../../_lib/workflow_contract.md and #file:../../philosophy/philosophy.instructions.md before proceeding.
 Every subagent created by this workflow must also read and follow #file:../../_lib/workflow_contract.md and #file:../../philosophy/philosophy.instructions.md before reading [key md files] or performing task-specific work.
 
-Subagent launch rule:
-- All subagent creation must follow the Subagent Launch Contract in #file:../../_lib/workflow_contract.md.
-- Before creating any subagent, ask the main agent to answer what model it is using, refer the model as [main agent model]
-- when creating any subagent, explicitly instruct the main agent to: "**Create subagent with the exact [main agent model] — do not downgrade.**"
-- Subagents must use the [main agent model]
+Subagent launch rule: Follow the Subagent Launch Contract in `#file:../../_lib/workflow_contract.md`.
 
-## Subagent Definitions
-All subagent roles referenced in this workflow are defined as custom agents under `agents/` (see `agents/INDEX.md` for the full registry). When creating subagents, invoke them by their agent name using VS Code Copilot's native `agent` tool. Coordinator agents declare `tools: ['agent']` and `agents: [...]` to orchestrate subagent invocation.
+> **Subagent invocation:** See `_lib/workflow_contract.md` §Subagent Invocation.
 
 When ask to implement new functionalities, always, first read the following files .github/harness_coding_instructions/repo_info (REFER AS [key md files]):
 1. codebase_overview.md

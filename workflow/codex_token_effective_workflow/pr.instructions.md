@@ -28,18 +28,11 @@ description: 'Token-effective Codex instructions for breaking down and creating 
 
 **Read this file fully and follow each step.**
 Before doing any workflow-specific work, the main agent must read and follow _lib/workflow_contract.md and philosophy/philosophy.instructions.md before proceeding.
-Every subagent created by this workflow must also read and follow _lib/workflow_contract.md and philosophy/philosophy.instructions.md before reading [key md files] or performing task-specific work.
+Every subagent created by this workflow must read _lib/workflow_contract.md and philosophy/philosophy.instructions.md once. The main agent reads [key md files] in Step 1 and passes a context digest to each subagent; subagents must not re-read [key md files] unless a specific file path is needed for their task.
 
-Subagent launch rule:
-- All subagent creation must follow the Subagent Launch Contract in _lib/workflow_contract.md.
-- Before creating any subagent, the main agent must identify [main agent model].
-- Every subagent prompt must include [inputs], exact task, expected output label, required context files, and: "**Create subagent with the exact [main agent model] - do not downgrade.**"
-- Subagents must use [main agent model].
-- After each subagent returns, the main agent must check that the result is complete, task-specific, grounded in the requested files, and uses the expected output label.
-- If a subagent is not created, uses a different model, fails, or returns a low-quality or irrelevant result, retry that same subagent up to 3 times. If it still fails, the main agent performs that subagent's task directly and records a [fallback result].
+Subagent launch rule: Follow the Subagent Launch Contract in `_lib/workflow_contract.md`. After each subagent returns, the main agent must check that the result is complete, task-specific, grounded in the requested files, and uses the expected output label.
 
-## Subagent Definitions
-All subagent roles referenced in this workflow are defined as custom agents under `agents/` (see `agents/INDEX.md` for the full registry). When creating subagents, invoke them by their agent name using Codex agent workers when available. This applies to Codex CLI and Codex running in VS Code; if worker spawning or model parity is unavailable, run the same tasks sequentially or perform the documented fallback in the main agent.
+> **Subagent invocation:** See `_lib/workflow_contract.md` §Subagent Invocation.
 
 [key md files]: codebase_overview.md, scripts_overview.md, update_logs.md, known_issues.md (under .github/harness_coding_instructions/repo_info).
 
@@ -87,7 +80,7 @@ The main agent incorporates [challenge report] and [online resource] into [final
 ### Step 6 - PR Stack Execution
 Create **Implementer** subagent (`agents/implementer.agent.md`). Pass [final pr plan] + [inputs] + [key md files] + [breakdown-pr skill].
 
-**Implementer Model Verification (see _lib/workflow_contract.md):** Before the subagent begins any work, the main agent must confirm the subagent's model matches [main agent model]. If the model does not match, stop that subagent and re-create it (retry up to 3 times). If after 3 retries the subagent still cannot use [main agent model], the main agent must abandon that subagent and perform the execution directly itself, recording a [fallback result] with `status: fallback-single-agent` and `reason: implementer-model-mismatch`.
+**Implementer Model Verification:** See `_lib/workflow_contract.md` §Implementer Model Verification Fallback.
 
 The subagent (or the main agent, if falling back) executes the PR stack creation following [breakdown-pr skill] step 6:
 - Confirm the working tree policy for uncommitted changes.

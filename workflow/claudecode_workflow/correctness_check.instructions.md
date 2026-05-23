@@ -15,9 +15,7 @@ description: 'Instructions for examining, testing, and running an existing repo 
   - repo_info/past_Correctness_Check.md
 -->
 
-**DO NOT TRY TO COMMIT CHANGES TO GITHUB**
-**DO NOT WRITE SPAM FILES INTO THE REPO**
-**DO NOT USE SUDO**
+**Safety: follow `_lib/safety_rules.md`.**
 [inputs]:
 input 1: target repo
 input 2: target functionalities (optional)
@@ -28,14 +26,9 @@ if target functionalities are specified, focus more on target functionalities, b
 Before doing any workflow-specific work, the main agent must read and follow `_lib/workflow_contract.md` and `philosophy/philosophy.instructions.md`, resolved by the Pack Path Resolution rule, before proceeding.
 Every subagent created by this workflow must also read and follow `_lib/workflow_contract.md` and `philosophy/philosophy.instructions.md` before reading [key md files] or performing task-specific work.
 
-Subagent launch rule:
-- All subagent creation must follow the Subagent Launch Contract in `_lib/workflow_contract.md`.
-- Before creating any subagent, ask the main agent to answer what model it is using, refer the model as [main agent model]
-- when creating any subagent, explicitly instruct the main agent to: "**Create subagent with the exact [main agent model] — do not downgrade.**"
-- Subagents must use the [main agent model]
+Subagent launch rule: Follow the Subagent Launch Contract in `_lib/workflow_contract.md` (resolved by Pack Path Resolution rule).
 
-## Subagent Definitions
-All subagent roles referenced in this workflow are defined as custom agents under `agents/` (see `agents/INDEX.md` for the full registry). When creating subagents, invoke them by their agent name. Claude Code spawns sub-agents via its native `Task` tool with inline prompts that reference agent definitions in the pack's `agents/` directory for role context. For parallel execution, Claude Code launches agent teams — multiple sub-agents working concurrently and coordinating through the main agent.
+> **Subagent invocation:** See `_lib/workflow_contract.md` §Subagent Invocation.
 
 Before checking correctness, always, first read the following files .github/harness_coding_instructions/repo_info (REFER AS [key md files]):
 1. codebase_overview.md

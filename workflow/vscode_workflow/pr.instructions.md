@@ -4,19 +4,6 @@ description: 'Instructions for breaking down and creating pull requests from fea
 ---
 # create pull requests from a feature branch
 
-<!-- Required Context Files (CLI-resolvable paths):
-  - philosophy/philosophy.instructions.md
-  - _lib/safety_rules.md
-  - _lib/workflow_contract.md
-  - _lib/approval_gate.md
-  - repo_info/codebase_overview.md
-  - repo_info/scripts_overview.md
-  - repo_info/update_logs.md
-  - repo_info/known_issues.md
-  - skills/index.md
-  - skills/breakdown-pr/SKILL.md
--->
-
 **DO NOT TRY TO COMMIT CHANGES TO GITHUB WITHOUT USER APPROVAL**
 **DO NOT WRITE SPAM FILES INTO THE REPO**
 **DO NOT USE SUDO**
@@ -31,14 +18,9 @@ input 5: stack tool preference (optional, auto-detect)
 Before doing any workflow-specific work, the main agent must read and follow #file:../../_lib/workflow_contract.md and #file:../../philosophy/philosophy.instructions.md before proceeding.
 Every subagent created by this workflow must also read and follow #file:../../_lib/workflow_contract.md and #file:../../philosophy/philosophy.instructions.md before reading [key md files] or performing task-specific work.
 
-Subagent launch rule:
-- All subagent creation must follow the Subagent Launch Contract in #file:../../_lib/workflow_contract.md.
-- Before creating any subagent, ask the main agent to answer what model it is using, refer the model as [main agent model]
-- when creating any subagent, explicitly instruct the main agent to: "**Create subagent with the exact [main agent model] — do not downgrade.**"
-- Subagents must use the [main agent model]
+Subagent launch rule: Follow the Subagent Launch Contract in `#file:../../_lib/workflow_contract.md`.
 
-## Subagent Definitions
-All subagent roles referenced in this workflow are defined as custom agents under `agents/` (see `agents/INDEX.md` for the full registry). When creating subagents, invoke them by their agent name using VS Code Copilot's native `agent` tool. Coordinator agents declare `tools: ['agent']` and `agents: [...]` to orchestrate subagent invocation.
+> **Subagent invocation:** See `_lib/workflow_contract.md` §Subagent Invocation.
 
 When asked to create PRs from a feature branch, always, first read the following files .github/harness_coding_instructions/repo_info (REFER AS [key md files]):
 1. codebase_overview.md

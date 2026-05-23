@@ -15,7 +15,7 @@ description: 'Token-effective Codex instructions for verifying repo correctness 
   - repo_info/past_Correctness_Check.md
 -->
 
-**DO NOT COMMIT TO GITHUB | DO NOT WRITE SPAM FILES | DO NOT USE SUDO**
+**Safety: follow `_lib/safety_rules.md`.**
 
 [inputs]:
 - input 1: target repo
@@ -24,18 +24,11 @@ description: 'Token-effective Codex instructions for verifying repo correctness 
 
 **Read this file fully and follow each step.**
 Before doing any workflow-specific work, the main agent must read and follow _lib/workflow_contract.md and philosophy/philosophy.instructions.md before proceeding.
-Every subagent created by this workflow must also read and follow _lib/workflow_contract.md and philosophy/philosophy.instructions.md before reading [key md files] or performing task-specific work.
+Every subagent created by this workflow must read _lib/workflow_contract.md and philosophy/philosophy.instructions.md once. The main agent reads [key md files] in Step 1 and passes a context digest to each subagent; subagents must not re-read [key md files] unless a specific file path is needed for their task.
 
-Subagent launch rule:
-- All subagent creation must follow the Subagent Launch Contract in _lib/workflow_contract.md.
-- Before creating any subagent, the main agent must identify [main agent model].
-- Every subagent prompt must include [inputs], exact task, expected output label, required context files, and: "**Create subagent with the exact [main agent model] - do not downgrade.**"
-- Subagents must use [main agent model].
-- After each subagent returns, the main agent must check that the result is complete, task-specific, grounded in the requested files, and uses the expected output label.
-- If a subagent is not created, uses a different model, fails, or returns a low-quality or irrelevant result, retry that same subagent up to 3 times. If it still fails, the main agent performs that subagent's task directly and records a [fallback result].
+Subagent launch rule: Follow the Subagent Launch Contract in `_lib/workflow_contract.md`. After each subagent returns, the main agent must check that the result is complete, task-specific, grounded in the requested files, and uses the expected output label.
 
-## Subagent Definitions
-All subagent roles referenced in this workflow are defined as custom agents under `agents/` (see `agents/INDEX.md` for the full registry). When creating subagents, invoke them by their agent name using Codex agent workers when available. This applies to Codex CLI and Codex running in VS Code; if worker spawning or model parity is unavailable, run the same tasks sequentially or perform the documented fallback in the main agent.
+> **Subagent invocation:** See `_lib/workflow_contract.md` §Subagent Invocation.
 
 [key md files]: codebase_overview.md, scripts_overview.md, update_logs.md, known_issues.md, past_Correctness_Check.md (under .github/harness_coding_instructions/repo_info). Use `past_Correctness_Check.md` as the canonical correctness-check history file; do not create alternate correctness history filenames.
 
