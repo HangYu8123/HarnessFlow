@@ -4,7 +4,7 @@ description: 'Streamlined instructions for refactoring with maximum parallelizat
 ---
 # Refactor an Existing Repo
 
-<!-- Required Context Files (CLI-resolvable paths):
+<!-- Required Context Files:
   - philosophy/philosophy.instructions.md
   - _lib/safety_rules.md
   - _lib/workflow_contract.md
@@ -13,8 +13,6 @@ description: 'Streamlined instructions for refactoring with maximum parallelizat
   - repo_info/scripts_overview.md
   - repo_info/update_logs.md
   - repo_info/known_issues.md
-  - skills/index.md
-  - skills/claude-native-skills-subagents/SKILL.md
 -->
 
 **DO NOT COMMIT TO GITHUB | DO NOT WRITE SPAM FILES | DO NOT USE SUDO**
@@ -30,9 +28,11 @@ Every subagent created by this workflow must also read and follow #file:../../_l
 
 Subagent launch rule:
 - All subagent creation must follow the Subagent Launch Contract in #file:../../_lib/workflow_contract.md.
-- Before creating any subagent, ask the main agent to answer what model it is using, refer the model as [main agent model]
-- when creating any subagent, explicitly instruct the main agent to: "**Create subagent with the exact [main agent model] — do not downgrade.**"
-- Subagents must use the [main agent model]
+- Before creating any subagent, the main agent must identify [main agent model].
+- Every subagent prompt must include [inputs], exact task, expected output label, required context files, and: "**Create subagent with the exact [main agent model] - do not downgrade.**"
+- Subagents must use [main agent model].
+- After each subagent returns, the main agent must check that the result is complete, task-specific, grounded in the requested files, and uses the expected output label.
+- If a subagent is not created, uses a different model, fails, or returns a low-quality or irrelevant result, retry that same subagent up to 3 times. If it still fails, the main agent performs that subagent's task directly and records a [fallback result].
 
 ## Subagent Definitions
 All subagent roles referenced in this workflow are defined as custom agents under `agents/` (see `agents/INDEX.md` for the full registry). When creating subagents, invoke them by their agent name using VS Code Copilot's native `agent` tool. Coordinator agents declare `tools: ['agent']` and `agents: [...]` to orchestrate subagent invocation.
@@ -43,52 +43,58 @@ All subagent roles referenced in this workflow are defined as custom agents unde
 
 ## CREATE ONE TODO PER STEP
 
-### Step 1 — Context Gathering
-If input files are specified in [inputs], read them. Combine with [key md files] understanding.
+### Step 1 - Context Gathering
+If target files are specified in [inputs], read them. Combine that understanding with [key md files].
 
-### Step 2 — Parallel Analysis
-**[PARALLEL EXECUTION — launch ALL SIX subagents in parallel via VS Code Copilot `agent` tool]**
-
-| Subagent | Agent | Role | Task |
-|----------|-------|------|------|
-| Plan A | **Architecture Analyst** (`agents/architecture-analyst.agent.md`) | Architecture | Read [key md files] + refactor targets. Analyze inappropriate designs and architecture improvements. Draft [plan 1] + [comparison 1]. |
-| Plan B | **Redundancy Analyst** (`agents/redundancy-analyst.agent.md`) | Redundancy | Read [key md files] + refactor targets. Analyze redundant code and overlapping implementations. Draft [plan 2] + [comparison 2]. |
-| Plan C | **Robustness Analyst** (`agents/robustness-analyst.agent.md`) | Robustness | Read [key md files] + refactor targets. Analyze robustness issues and potential bugs. Draft [plan 3] + [comparison 3]. |
-| Plan D | **Free Analyst** (`agents/free-analyst.agent.md`) | Free mode | Read [key md files]. Decide own strategy. Draft [plan 4]. |
-| Review E | **Senior Engineer** (`agents/senior-engineer.agent.md`) | Senior code review | Read [key md files]. Identify [associated files]. Read all line-by-line. Produce [code issue report] + [code improvement report]. |
-| Plan F | **Complexity Analyst** (`agents/complexity-analyst.agent.md`) | Complexity reduction | Read [key md files] + refactor targets. Use `/simplify` only if the main agent is Claude Code or another Claude agent with Claude Code skills available; otherwise analyze complexity directly. Draft a plan to simplify without changing behavior. Draft [plan 5] + [comparison 4]. |
-
-### Step 3 — Synthesize + Challenge
-**[PARALLEL EXECUTION — launch ALL THREE subagents in parallel via VS Code Copilot `agent` tool]**
+### Step 2 - Parallel Refactor Analysis
+**[PARALLEL EXECUTION - launch ALL five subagents in parallel via VS Code Copilot `agent` tool]**
 
 | Subagent | Agent | Role | Task |
 |----------|-------|------|------|
-| Principal | **Principal Engineer** (`agents/principal-engineer.agent.md`) | Principal engineer | Read [key md files] + all repo scripts. Review all plans, comparisons, code reports. Assess correctness/feasibility. Reject redundant/incorrect plans. Return [plan review]. |
-| Advocate | **Devils Advocate** (`agents/devils-advocate.agent.md`) | Critical challenger | Read [key md files] + relevant scripts. Identify side effects, integration risks, incorrect assumptions, regressions. Return [challenge report]. |
-| Resource | **Online Researcher** (`agents/online-researcher.agent.md`) | Resource lookup | Read [key md files] + refactor targets. Identify extra needs for skills, tools, packages, patterns, or migration references. Search online for reliable resources and solutions. Return [online resource]. |
+| Plan A | **Architecture Analyst** (`agents/architecture-analyst.agent.md`) | Architecture | Read [key md files] + [inputs]. Analyze inappropriate designs and architecture improvements. Draft [plan 1] + [comparison 1]. |
+| Plan B | **Redundancy Analyst** (`agents/redundancy-analyst.agent.md`) | Redundancy | Read [key md files] + [inputs]. Analyze redundant code and overlapping implementations. Draft [plan 2] + [comparison 2]. |
+| Plan C | **Robustness Analyst** (`agents/robustness-analyst.agent.md`) | Robustness | Read [key md files] + [inputs]. Analyze robustness issues and potential bugs. Draft [plan 3] + [comparison 3]. |
+| Plan D | **Free Analyst** (`agents/free-analyst.agent.md`) | Free mode | Read [key md files] + [inputs]. Decide the reading strategy and draft [plan 4]. |
+| Plan E | **Complexity Analyst** (`agents/complexity-analyst.agent.md`) | Complexity reduction | Read [key md files] + [inputs]. Analyze complexity directly and draft a plan to simplify without changing behavior. Return [plan 5] + [comparison 4]. |
 
-Main agent combines [plan 1-5], [comparison 1-4], [code issue report], [code improvement report], [plan review], [challenge report], and [online resource], and reads necessary files. Draft [final plan]. Verify for each step: (1) target files identified, (2) no conflict with known_issues.md, (3) upstream/downstream dependencies covered. Incorporate valid criticisms and relevant online findings. Finalize [final plan].
+### Step 3 - Principal Review and Main-Agent Final Plan
+Create **Principal Engineer** subagent (`agents/principal-engineer.agent.md`). Pass [inputs], [plan 1], [plan 2], [plan 3], [plan 4], [plan 5], [comparison 1], [comparison 2], [comparison 3], [comparison 4], and [key md files]. The subagent reviews correctness, feasibility, dependency ordering, and redundant or risky plan items. Return [plan review].
 
-Print [final plan]. **If user requested no code changes → STOP here.**
+The main agent reads necessary target files and performs the code-quality review directly. Record [main-agent code review notes] covering maintainability, robustness, readability, and behavioral risks.
 
-### Step 4 — Implementation
-Create **Implementer** subagent (`agents/implementer.agent.md`). **Implementer Model Verification (see `_lib/workflow_contract.md`):** Before the subagent begins any work, the main agent must confirm the subagent's model matches [main agent model]. If the model does not match, stop that subagent and re-create it (retry up to 3 times). If after 3 retries the subagent still cannot use [main agent model], the main agent must abandon the subagent and perform the implementation directly itself, recording a `[fallback result]` with `status: fallback-single-agent` and `reason: implementer-model-mismatch`. Pass [final plan] + refactor targets + [key md files]. The subagent (or the main agent, if falling back) implements [final plan]. Returns [implementation report] (changes only, no explanations).
+The main agent combines [plan 1-5], [comparison 1-4], [plan review], and [main-agent code review notes]. Reject incorrect or redundant parts. Draft [final plan] and verify each step for target files, known_issues.md conflicts, upstream/downstream dependencies, and behavior preservation.
 
-### Step 4.5 — Claude Native Skills
-If and only if the main agent is Claude Code or another Claude agent with Claude Code skills available, search .github/harness_coding_instructions/skills/index.md for `claude-native-skills-subagents`, then use the skill at .github/harness_coding_instructions/skills/claude-native-skills-subagents/SKILL.md after step 4. If the main agent is not a Claude agent, skip step 4.5 and continue to step 5.
-
-### Step 5 — Parallel Validation
-**[PARALLEL EXECUTION — launch BOTH subagents in parallel via VS Code Copilot `agent` tool]**
+### Step 4 - Final Plan Challenge and Research
+**[PARALLEL EXECUTION - launch BOTH subagents in parallel via VS Code Copilot `agent` tool]**
 
 | Subagent | Agent | Role | Task |
 |----------|-------|------|------|
-| Review A | **Senior Engineer** (`agents/senior-engineer.agent.md`) | Senior staff engineer | Read [key md files] + code changes. Review refactor correctness. Challenge the implementation and ensure refactor achieves goals without breaking codebase. Return [code review report]. |
-| Review B | **QA Engineer** (`agents/qa-engineer.agent.md`) | QA engineer | Read [key md files] + code changes. Validate the refactor from a QA engineer perspective. If user requested script runs, execute pipeline upstream->downstream. If script fails: log error, continue to next. Return [QA report]. |
+| Challenge | **Devils Advocate** (`agents/devils-advocate.agent.md`) | Critical challenger | Read [key md files] + relevant scripts + [final plan] + [inputs]. Identify overlooked side effects, integration risks, incorrect assumptions, and regressions. Return [challenge report]. |
+| Research | **Online Researcher** (`agents/online-researcher.agent.md`) | Resource lookup | Read [key md files] + [final plan] + [inputs]. Identify extra needs for skills, tools, packages, patterns, or migration references. Search online for reliable resources and solutions. Return [online resource]. |
 
-### Step 6 — Documentation & Summary
+### Step 5 - Refine and Approval Gate
+The main agent incorporates [challenge report] and [online resource] into [final plan]. Print [final plan].
+
+**If user requested no code changes, STOP here. Otherwise continue.**
+
+### Step 6 - Implementation
+Create **Implementer** subagent (`agents/implementer.agent.md`). Pass [final plan] + [inputs] + [key md files].
+
+**Implementer Model Verification (see #file:../../_lib/workflow_contract.md):** Before the subagent begins any work, the main agent must confirm the subagent's model matches [main agent model]. If the model does not match, stop that subagent and re-create it (retry up to 3 times). If after 3 retries the subagent still cannot use [main agent model], the main agent must abandon the subagent and perform the implementation directly itself, recording a [fallback result] with `status: fallback-single-agent` and `reason: implementer-model-mismatch`.
+
+The subagent (or the main agent, if falling back) implements [final plan] and returns [implementation report] containing changes only, with no explanations.
+
+### Step 7 - Main-Agent Code Review and Validation
+The main agent reads [implementation report] and all changed files. Review refactor correctness, behavior preservation, integration quality, maintainability, and whether [inputs] and [final plan] are fully satisfied.
+
+Create **QA Engineer** subagent (`agents/qa-engineer.agent.md`). Pass [inputs] + [final plan] + [implementation report] + changed files. The subagent validates the refactor from a QA perspective and, if the user requested script runs, executes the relevant pipeline. Return [QA report].
+
+If the main-agent code review or [QA report] finds issues, revise [final plan] and repeat from Step 6 until the refactor is correct and complete.
+
+### Step 8 - Documentation and Summary
 1. Update codebase_overview.md and scripts_overview.md based on actual changes.
 2. Write to update_logs.md:
-```
+```md
 {=============================Refactor Update===============================}
 {Refactor Summary + ID (last ID + 1)}
 {Description (1-2 sentences)}

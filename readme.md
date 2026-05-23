@@ -72,7 +72,7 @@ codex
 | Environment | Entry point | Workflow directory | Notes |
 |---|---|---|---|
 | VS Code + Copilot | `.github/copilot-instructions.md` | `workflow/vscode_workflow/` | Primary VS Code router. |
-| VS Code fast mode | Request templates with `mode: fast` | `workflow/vscode_fast_workflow/` | Faster, more parallel workflow variants. |
+| VS Code fast mode | Request templates with `mode: fast` | `workflow/vscode_token_effective_workflow/` | Faster, more parallel workflow variants. |
 | Claude Code CLI | Root `CLAUDE.md` | `workflow/claudecode_workflow/` | Uses Claude Code native mechanisms and Claude-only skill steps. |
 | Codex CLI | Root `AGENTS.md` | `workflow/codex_workflow/` | Uses Codex-oriented workflow text and manual review fallbacks where Claude skills do not apply. |
 | Aider or generic LLMs | Manual file references | Any workflow file | The Markdown can be followed manually, but subagent orchestration is not wired. |
@@ -114,7 +114,7 @@ The four workflow families are:
 | Directory | Intended use |
 |---|---|
 | `workflow/vscode_workflow/` | Full VS Code Copilot workflows. |
-| `workflow/vscode_fast_workflow/` | Streamlined VS Code workflows selected by request templates with `mode: fast`. |
+| `workflow/vscode_token_effective_workflow/` | Streamlined VS Code workflows selected by request templates with `mode: fast`. |
 | `workflow/claudecode_workflow/` | Claude Code CLI workflows. |
 | `workflow/codex_workflow/` | Codex CLI workflows. |
 
@@ -185,7 +185,7 @@ or:
 mode: fast
 ```
 
-`general` selects `workflow/vscode_workflow/`. `fast` selects `workflow/vscode_fast_workflow/`. These templates use installed-pack paths such as `@/.github/harness_coding_instructions/...`.
+`general` selects `workflow/vscode_workflow/`. `fast` selects `workflow/vscode_token_effective_workflow/`. These templates use installed-pack paths such as `@/.github/harness_coding_instructions/...`.
 
 ## Agents And Skills
 

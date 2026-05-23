@@ -4,7 +4,7 @@ description: 'Streamlined instructions for breaking down and creating pull reque
 ---
 # Create Pull Requests from a Feature Branch
 
-<!-- Required Context Files (CLI-resolvable paths):
+<!-- Required Context Files:
   - philosophy/philosophy.instructions.md
   - _lib/safety_rules.md
   - _lib/workflow_contract.md
@@ -22,7 +22,7 @@ description: 'Streamlined instructions for breaking down and creating pull reque
 [inputs]:
 - input 1: target branch (optional, defaults to current branch)
 - input 2: base branch (optional, defaults to repo default branch)
-- input 3: mode — `plan` or `execute` (optional, defaults to `execute`)
+- input 3: mode - `plan` or `execute` (optional, defaults to `execute`)
 - input 4: max lines per PR (optional, defaults to 1000)
 - input 5: stack tool preference (optional, auto-detect)
 
@@ -32,9 +32,11 @@ Every subagent created by this workflow must also read and follow #file:../../_l
 
 Subagent launch rule:
 - All subagent creation must follow the Subagent Launch Contract in #file:../../_lib/workflow_contract.md.
-- Before creating any subagent, ask the main agent to answer what model it is using, refer the model as [main agent model]
-- when creating any subagent, explicitly instruct the main agent to: "**Create subagent with the exact [main agent model] — do not downgrade.**"
-- Subagents must use the [main agent model]
+- Before creating any subagent, the main agent must identify [main agent model].
+- Every subagent prompt must include [inputs], exact task, expected output label, required context files, and: "**Create subagent with the exact [main agent model] - do not downgrade.**"
+- Subagents must use [main agent model].
+- After each subagent returns, the main agent must check that the result is complete, task-specific, grounded in the requested files, and uses the expected output label.
+- If a subagent is not created, uses a different model, fails, or returns a low-quality or irrelevant result, retry that same subagent up to 3 times. If it still fails, the main agent performs that subagent's task directly and records a [fallback result].
 
 ## Subagent Definitions
 All subagent roles referenced in this workflow are defined as custom agents under `agents/` (see `agents/INDEX.md` for the full registry). When creating subagents, invoke them by their agent name using VS Code Copilot's native `agent` tool. Coordinator agents declare `tools: ['agent']` and `agents: [...]` to orchestrate subagent invocation.
@@ -47,65 +49,73 @@ Also read the breakdown-pr skill at #file:../../skills/breakdown-pr/SKILL.md and
 
 ## CREATE ONE TODO PER STEP
 
-### Step 1 — Context Gathering
-If a target branch is specified in [inputs], inspect the branch and its diff against the base branch. Combine with [key md files] understanding. Additionally, the main agent must:
-- Run `git diff --name-only <base>...<branch>` to produce a **complete [diff file manifest]** — the exhaustive list of every file touched in the diff. This manifest is the single source of truth for file inclusion.
-- Read the repository's `.gitignore` file(s) (root and any nested `.gitignore` files) to identify ignored path patterns. Record these as [gitignore patterns].
-- Identify auto-generated files in the diff by checking for: files matching [gitignore patterns], files in common generated directories (e.g., `node_modules/`, `dist/`, `build/`, `__pycache__/`, `.next/`, `vendor/`, `coverage/`), lockfiles (e.g., `package-lock.json`, `yarn.lock`, `pnpm-lock.yaml`, `Pipfile.lock`, `poetry.lock`, `Cargo.lock`, `go.sum`), compiled outputs, and files with auto-generation headers. Record these as [auto-generated files].
-- Produce a [filtered diff manifest] = [diff file manifest] minus [auto-generated files]. If any auto-generated files are excluded, log them explicitly so the user can override if needed.
-- Pass [diff file manifest], [filtered diff manifest], [gitignore patterns], and [auto-generated files] to all subagents in subsequent steps.
+### Step 1 - Context Gathering
+If a target branch is specified in [inputs], inspect the branch and its diff against the base branch. Combine with [key md files] and [breakdown-pr skill]. Additionally, the main agent must:
+- Run `git diff --name-only <base>...<branch>` to produce a complete [diff file manifest].
+- Read the repository's `.gitignore` files and record [gitignore patterns].
+- Identify auto-generated files in the diff by checking ignored patterns, common generated directories, lockfiles, compiled outputs, and auto-generation headers. Record these as [auto-generated files].
+- Produce [filtered diff manifest] = [diff file manifest] minus [auto-generated files]. Log excluded auto-generated files so the user can override if needed.
+- Pass [inputs], [diff file manifest], [filtered diff manifest], [gitignore patterns], and [auto-generated files] to all subagents.
 
-### Step 2 — Parallel Planning & Review
-**[PARALLEL EXECUTION — launch ALL FIVE subagents in parallel via VS Code Copilot `agent` tool]**
+### Step 2 - Parallel PR Planning
+**[PARALLEL EXECUTION - launch ALL three subagents in parallel via VS Code Copilot `agent` tool]**
 
 | Subagent | Agent | Role | Task |
 |----------|-------|------|------|
-| Plan A | **Focus Analyst** (`agents/focus-analyst.agent.md`) | Focus mode | Read [key md files] + [breakdown-pr skill]. Analyze the diff — identify change types, associated files, and logical groupings. Use [filtered diff manifest] as the authoritative file list; exclude files in [auto-generated files]. Draft [pr plan 1] + [dependency graph 1] following the breakdown-pr methodology, ensuring each PR is buildable and testable. **File completeness check:** cross-reference plan against [filtered diff manifest] — every file must be assigned to exactly one PR. |
-| Plan B | **Broad Analyst** (`agents/broad-analyst.agent.md`) | Broad mode | Read [key md files] + [breakdown-pr skill]. Follow pipeline upstream→downstream, read all scripts. Analyze how changes affect the pipeline. Use [filtered diff manifest] as the authoritative file list; exclude files matching [gitignore patterns] or auto-generated. Draft [pr plan 2] + [dependency graph 2] with independently buildable PRs. **File completeness check:** cross-reference plan against [filtered diff manifest] — every file must be assigned to exactly one PR. |
-| Plan C | **Free Analyst** (`agents/free-analyst.agent.md`) | Free mode | Read [key md files] + [breakdown-pr skill]. Decide own reading strategy. Analyze diff and determine best PR split. Use [filtered diff manifest] as the authoritative file list; exclude auto-generated files. Draft [pr plan 3] with buildable, reviewable PRs. **File completeness check:** cross-reference plan against [filtered diff manifest] — every file must be assigned to exactly one PR. |
-| Advocate | **Devils Advocate** (`agents/devils-advocate.agent.md`) | Critical challenger | Read [key md files] + relevant scripts. Identify PRs that would break the build, incorrect dependency ordering, mixed concerns, missing changes, or stacking risks. Return [challenge report]. |
-| Resource | **Online Researcher** (`agents/online-researcher.agent.md`) | Resource lookup | Read [key md files]. Identify better stacking strategies, tools, or conventions. Search online for reliable solutions. Return [online resource]. |
+| Plan A | **Focus Analyst** (`agents/focus-analyst.agent.md`) | Focus mode | Read [key md files] + [breakdown-pr skill] + [inputs]. Analyze the diff, identify change types and logical groupings, use [filtered diff manifest] as the authoritative file list, exclude [auto-generated files], and draft [pr plan 1] + [dependency graph 1]. Every file must be assigned to exactly one PR. |
+| Plan B | **Broad Analyst** (`agents/broad-analyst.agent.md`) | Broad mode | Read [key md files] + [breakdown-pr skill] + [inputs]. Follow pipeline upstream->downstream, analyze pipeline impact, use [filtered diff manifest] as the authoritative file list, and draft [pr plan 2] + [dependency graph 2]. Every file must be assigned to exactly one PR. |
+| Plan C | **Free Analyst** (`agents/free-analyst.agent.md`) | Free mode | Read [key md files] + [breakdown-pr skill] + [inputs]. Decide the reading strategy, analyze the diff, use [filtered diff manifest] as the authoritative file list, and draft [pr plan 3]. Every file must be assigned to exactly one PR. |
 
-### Step 3 — Synthesize Final PR Plan
-Main agent reviews [pr plan 1], [pr plan 2], [pr plan 3], [dependency graph 1], [dependency graph 2], [challenge report], and [online resource], and reads necessary files. Reject incorrect/redundant parts. Incorporate valid criticisms from [challenge report] and relevant findings from [online resource]. Draft [final pr plan] following the [breakdown-pr skill] output format — feasible, each PR buildable, correctly covering the entire diff.
+### Step 3 - Main-Agent Final PR Plan
+The main agent reviews [pr plan 1], [pr plan 2], [pr plan 3], [dependency graph 1], and [dependency graph 2], then reads necessary files. Reject incorrect or redundant parts. Draft [final pr plan] following the [breakdown-pr skill] output format. The plan must be feasible, each PR must be buildable, and the entire filtered diff must be covered.
 
-**Mandatory file completeness verification:** After drafting [final pr plan], the main agent must run `git diff --name-only <base>...<branch>` again and cross-reference the output against the files listed in [final pr plan]. Every file in [filtered diff manifest] must appear in exactly one PR. If any file is missing, add it to the most appropriate PR. If any file in the plan matches [gitignore patterns] or is in [auto-generated files], remove it from the plan (unless the user explicitly requested its inclusion). Log any discrepancies found and resolved.
+Mandatory file completeness verification: after drafting [final pr plan], run `git diff --name-only <base>...<branch>` again and cross-reference the output against the files listed in [final pr plan]. Every file in [filtered diff manifest] must appear in exactly one PR. If any file is missing, add it to the most appropriate PR. If any file in the plan matches [gitignore patterns] or is in [auto-generated files], remove it unless the user explicitly requested its inclusion. Log discrepancies found and resolved.
 
-**If mode is `plan` (default) → STOP here and print [final pr plan] for user approval.**
+### Step 4 - Final PR Plan Challenge and Research
+**[PARALLEL EXECUTION - launch BOTH subagents in parallel via VS Code Copilot `agent` tool]**
 
-### Step 4 — Parallel Execution
-Based on the [final pr plan], the main agent creates an **Implementer** subagent (`agents/implementer.agent.md`).
-**Implementer Model Verification (see `_lib/workflow_contract.md`):** Before the subagent begins any work, the main agent must confirm the subagent's model matches [main agent model]. If the model does not match, stop that subagent and re-create it (retry up to 3 times). If after 3 retries the subagent still cannot use [main agent model], the main agent must abandon that subagent and perform the execution directly itself, recording a `[fallback result]` with `status: fallback-single-agent` and `reason: implementer-model-mismatch`.
-The subagent (or the main agent, if falling back) must read [key md files] and [breakdown-pr skill]. Then execute the PR stack creation following the [breakdown-pr skill] step 6:
+| Subagent | Agent | Role | Task |
+|----------|-------|------|------|
+| Challenge | **Devils Advocate** (`agents/devils-advocate.agent.md`) | Critical challenger | Read [key md files] + [breakdown-pr skill] + [final pr plan] + [inputs]. Identify PRs that would break the build, incorrect dependency ordering, mixed concerns, missing changes, or stacking risks. Return [challenge report]. |
+| Research | **Online Researcher** (`agents/online-researcher.agent.md`) | Resource lookup | Read [key md files] + [breakdown-pr skill] + [final pr plan] + [inputs]. Identify better stacking strategies, tools, or conventions. Search online for reliable solutions. Return [online resource]. |
+
+### Step 5 - Refine and Approval Gate
+The main agent incorporates [challenge report] and [online resource] into [final pr plan], then reruns the file completeness verification. Print [final pr plan].
+
+**If mode is `plan`, STOP here and wait for user approval. If mode is `execute`, continue only after the user has approved branch, commit, and PR side effects.**
+
+### Step 6 - PR Stack Execution
+Create **Implementer** subagent (`agents/implementer.agent.md`). Pass [final pr plan] + [inputs] + [key md files] + [breakdown-pr skill].
+
+**Implementer Model Verification (see #file:../../_lib/workflow_contract.md):** Before the subagent begins any work, the main agent must confirm the subagent's model matches [main agent model]. If the model does not match, stop that subagent and re-create it (retry up to 3 times). If after 3 retries the subagent still cannot use [main agent model], the main agent must abandon that subagent and perform the execution directly itself, recording a [fallback result] with `status: fallback-single-agent` and `reason: implementer-model-mismatch`.
+
+The subagent (or the main agent, if falling back) executes the PR stack creation following [breakdown-pr skill] step 6:
 - Confirm the working tree policy for uncommitted changes.
 - Record the original source branch and intended final stack top.
 - Create each branch from the base or previous stack branch.
-- Move changes using the safest granularity (whole-file, patch mode, or cherry-pick as appropriate).
-- Commit each PR with the approved title and a concise body.
-- Submit using the approved stack tool (if approved by user); otherwise stop after local branches are prepared.
-Return [execution report] (branches created, commits made, PRs submitted — no explanations).
+- Move changes using the safest granularity.
+- Commit each PR with the approved title and concise body.
+- Submit using the approved stack tool if approved by the user; otherwise stop after local branches are prepared.
 
-### Step 4.5 — Claude Native Skills
-If and only if the main agent is Claude Code or another Claude agent with Claude Code skills available, search .github/harness_coding_instructions/skills/index.md for `claude-native-skills-subagents`, then use the skill at .github/harness_coding_instructions/skills/claude-native-skills-subagents/SKILL.md after step 4. If the main agent is not a Claude agent, skip step 4.5 and continue to step 5.
+Return [execution report] containing branches created, commits made, PRs submitted, and failures, with no explanations.
 
-### Step 5 — Parallel Validation
-**[PARALLEL EXECUTION — launch BOTH subagents in parallel via VS Code Copilot `agent` tool]**
+### Step 7 - Main-Agent Stack Review and QA
+The main agent reads [execution report], verifies branch/commit structure, checks dependency order, ensures no unrelated or auto-generated files are included, confirms all necessary files are present, and verifies the final stack top matches the original branch diff.
 
-| Subagent | Agent | Role | Task |
-|----------|-------|------|------|
-| Review A | **Senior Engineer** (`agents/senior-engineer.agent.md`) | Senior staff engineer | Read [key md files] + verify created branches. Review branch/commit structure — verify each branch is buildable, dependency order is correct, no unrelated changes, no auto generated files are included, all necessary files are present, and that the final stack top matches the original branch diff. Return [pr stack review report]. |
-| Review B | **QA Engineer** (`agents/qa-engineer.agent.md`) | QA engineer | Read [key md files] + verify created branches. Run [breakdown-pr skill] step 7 verification — `git diff --exit-code` and `git range-diff` to confirm stack equivalence. Return [pr stack QA report]. |
+Create **QA Engineer** subagent (`agents/qa-engineer.agent.md`). Pass [inputs] + [final pr plan] + [execution report] + [breakdown-pr skill]. The subagent runs [breakdown-pr skill] step 7 verification, including `git diff --exit-code` and `git range-diff` where appropriate. Return [pr stack QA report].
 
-### Step 6 — Documentation & Summary
+If the main-agent review or [pr stack QA report] finds issues, revise [final pr plan] and repeat the relevant execution or repair step.
+
+### Step 8 - Documentation and Summary
 1. Update update_logs.md with PR creation activity summary.
 2. Write to update_logs.md:
-```
+```md
 {=============================PR Creation Update===============================}
 {PR Title and PR number in stack (e.g., PR 1/5)}
 {PR description (one or two sentences of what the PR contains)}
 {Branch name}
 {Files changed}
 {Dependencies (which PRs must land before this one)}
-{Status (created / submitted / failed — and reason if failed)}
+{Status (created / submitted / failed - and reason if failed)}
 ```
 3. Summarize the PR stack in bullet points to chat.
