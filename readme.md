@@ -1,8 +1,7 @@
 <div align="center">
 
-<img src="harnessflow.png" alt="AI Agents Workflow" width="100%" height="350">
+<img src="harnessflow.png" alt="AI Agents Workflow" width="100%">
 
-# ✳
 
 # AI Agents Workflow
 
