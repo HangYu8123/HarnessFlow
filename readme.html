@@ -625,10 +625,10 @@
             </div>
           </div>
           <div class="stat-grid" aria-label="Repository counts">
-            <div class="stat"><strong>4</strong><span>workflow families</span></div>
-            <div class="stat"><strong>28</strong><span>workflow files</span></div>
-            <div class="stat"><strong>19</strong><span>agent files</span></div>
-            <div class="stat"><strong>7</strong><span>request templates</span></div>
+            <div class="stat"><strong>5</strong><span>workflow families</span></div>
+            <div class="stat"><strong>40</strong><span>workflow files</span></div>
+            <div class="stat"><strong>20</strong><span>agent files</span></div>
+            <div class="stat"><strong>8</strong><span>request templates</span></div>
             <div class="stat"><strong>2</strong><span>setup scripts</span></div>
           </div>
         </div>
@@ -644,7 +644,7 @@
               <span>root CLAUDE.md</span>
             </div>
             <div class="diagram-node">
-              <strong>Codex CLI</strong>
+              <strong>Codex</strong>
               <span>root AGENTS.md</span>
             </div>
           </div>
@@ -739,7 +739,7 @@
         <section class="section" id="workflows">
           <h2>Workflow Families</h2>
           <p>
-            Every family contains seven workflow files: code, correctness check, debug, initialize, PR, query, and refactor.
+            Every family contains eight workflow files: code, correctness check, debug, exec, initialize, PR, query, and refactor.
           </p>
           <div class="grid">
             <div class="tile accent-teal">
@@ -755,8 +755,12 @@
               <p><code>workflow/claudecode_workflow/</code> uses Claude Code native behavior and skill hooks.</p>
             </div>
             <div class="tile accent-amber">
-              <h3>Codex CLI</h3>
+              <h3>Codex general</h3>
               <p><code>workflow/codex_workflow/</code> uses Codex-oriented text and manual review fallbacks.</p>
+            </div>
+            <div class="tile accent-red">
+              <h3>Codex fast</h3>
+              <p><code>workflow/codex_token_effective_workflow/</code> is selected by Codex prompts with <code>mode: fast</code>.</p>
             </div>
           </div>
 
@@ -767,7 +771,8 @@
                   <th>Task</th>
                   <th>VS Code</th>
                   <th>Claude Code CLI</th>
-                  <th>Codex CLI</th>
+                  <th>Codex general</th>
+                  <th>Codex fast</th>
                 </tr>
               </thead>
               <tbody>
@@ -776,42 +781,56 @@
                   <td><code>workflow/vscode_workflow/initialize.instructions.md</code></td>
                   <td><code>workflow/claudecode_workflow/initialize.instructions.md</code></td>
                   <td><code>workflow/codex_workflow/initialize.instructions.md</code></td>
+                  <td><code>workflow/codex_token_effective_workflow/initialize.instructions.md</code></td>
                 </tr>
                 <tr>
                   <td>Implement</td>
                   <td><code>workflow/vscode_workflow/code.instructions.md</code></td>
                   <td><code>workflow/claudecode_workflow/code.instructions.md</code></td>
                   <td><code>workflow/codex_workflow/code.instructions.md</code></td>
+                  <td><code>workflow/codex_token_effective_workflow/code.instructions.md</code></td>
                 </tr>
                 <tr>
                   <td>Debug</td>
                   <td><code>workflow/vscode_workflow/debug.instructions.md</code></td>
                   <td><code>workflow/claudecode_workflow/debug.instructions.md</code></td>
                   <td><code>workflow/codex_workflow/debug.instructions.md</code></td>
+                  <td><code>workflow/codex_token_effective_workflow/debug.instructions.md</code></td>
                 </tr>
                 <tr>
                   <td>Question</td>
                   <td><code>workflow/vscode_workflow/query.instructions.md</code></td>
                   <td><code>workflow/claudecode_workflow/query.instructions.md</code></td>
                   <td><code>workflow/codex_workflow/query.instructions.md</code></td>
+                  <td><code>workflow/codex_token_effective_workflow/query.instructions.md</code></td>
                 </tr>
                 <tr>
                   <td>Correctness</td>
                   <td><code>workflow/vscode_workflow/correctness_check.instructions.md</code></td>
                   <td><code>workflow/claudecode_workflow/correctness_check.instructions.md</code></td>
                   <td><code>workflow/codex_workflow/correctness_check.instructions.md</code></td>
+                  <td><code>workflow/codex_token_effective_workflow/correctness_check.instructions.md</code></td>
                 </tr>
                 <tr>
                   <td>Refactor</td>
                   <td><code>workflow/vscode_workflow/refactor.instructions.md</code></td>
                   <td><code>workflow/claudecode_workflow/refactor.instructions.md</code></td>
                   <td><code>workflow/codex_workflow/refactor.instructions.md</code></td>
+                  <td><code>workflow/codex_token_effective_workflow/refactor.instructions.md</code></td>
+                </tr>
+                <tr>
+                  <td>Exec</td>
+                  <td><code>workflow/vscode_workflow/exec.instructions.md</code></td>
+                  <td><code>workflow/claudecode_workflow/exec.instructions.md</code></td>
+                  <td><code>workflow/codex_workflow/exec.instructions.md</code></td>
+                  <td><code>workflow/codex_token_effective_workflow/exec.instructions.md</code></td>
                 </tr>
                 <tr>
                   <td>PR breakdown</td>
                   <td><code>workflow/vscode_workflow/pr.instructions.md</code></td>
                   <td><code>workflow/claudecode_workflow/pr.instructions.md</code></td>
                   <td><code>workflow/codex_workflow/pr.instructions.md</code></td>
+                  <td><code>workflow/codex_token_effective_workflow/pr.instructions.md</code></td>
                 </tr>
               </tbody>
             </table>
@@ -827,14 +846,14 @@
             <ul class="module-list">
               <li><code>copilot-instructions.md</code><span>VS Code Copilot router template.</span></li>
               <li><code>CLAUDE.md</code><span>Claude Code CLI router template.</span></li>
-              <li><code>AGENTS.md</code><span>Codex CLI router template.</span></li>
+              <li><code>AGENTS.md</code><span>Codex router template for CLI and VS Code.</span></li>
               <li><code>_lib/</code><span>Workflow contract, safety rules, and approval gate.</span></li>
               <li><code>philosophy/</code><span>Shared execution guidance for main agents and subagents.</span></li>
               <li><code>workflow/</code><span>Tool-specific workflow instruction families.</span></li>
             </ul>
             <ul class="module-list">
               <li><code>agents/</code><span>Custom coordinator and worker agent definitions.</span></li>
-              <li><code>request_template/</code><span>Structured prompts for general and fast VS Code workflows.</span></li>
+              <li><code>request_template/</code><span>Structured prompts for general and fast VS Code or Codex workflows.</span></li>
               <li><code>skills/</code><span>PR breakdown and Claude-native post-implementation skill definitions.</span></li>
               <li><code>.claude/rules/</code><span>Claude Code path-scoped rule files.</span></li>
               <li><code>setup.sh</code><span>VS Code settings and Copilot instructions setup.</span></li>
@@ -852,7 +871,7 @@
           <div class="split">
             <pre class="code-block"><code># VS Code + Copilot
 bash .github/harness_coding_instructions/setup.sh</code></pre>
-            <pre class="code-block"><code># Claude Code CLI or Codex CLI
+            <pre class="code-block"><code># Claude Code CLI, Codex CLI, or Codex in VS Code
 bash .github/harness_coding_instructions/cli_setup.sh</code></pre>
           </div>
           <div class="grid" style="margin-top: 18px;">
@@ -949,7 +968,8 @@ bash .github/harness_coding_instructions/cli_setup.sh</code></pre>
             <div>
               <p>
                 VS Code prompts may use <code>@/.github/harness_coding_instructions/...</code>. CLI entry points use
-                filesystem-relative paths such as <code>.github/harness_coding_instructions/workflow/codex_workflow/code.instructions.md</code>.
+                filesystem-relative paths such as <code>.github/harness_coding_instructions/workflow/codex_workflow/code.instructions.md</code>
+                or <code>.github/harness_coding_instructions/workflow/codex_token_effective_workflow/code.instructions.md</code>.
               </p>
               <div class="note">
                 Root <code>AGENTS.md</code> and <code>CLAUDE.md</code> in this source repo are templates for installed target repos.

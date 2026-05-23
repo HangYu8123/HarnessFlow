@@ -128,7 +128,7 @@ if the file does not exist, create an empty file.
 ## Procedure 5: Update Internal Path References (Idempotent)
 After completing all file creation in Procedure 4, check whether internal path references need updating for multi-root workspace compatibility.
 
-CLI workflows use relative paths (not `@/` prefixed paths). The `@/.github/` → `@/[repo folder name]/.github/` rewrite is a VS Code-only concern and does **not** apply to CLI workflow files. If any `@/` paths have leaked into files under `workflow/claudecode_workflow/` or `workflow/codex_workflow/`, remove them and replace with relative paths. Otherwise, this step is a no-op for CLI environments.
+CLI workflows use relative paths (not `@/` prefixed paths). The `@/.github/` → `@/[repo folder name]/.github/` rewrite is a VS Code-only concern and does **not** apply to CLI workflow files. If any `@/` paths have leaked into files under `workflow/claudecode_workflow/`, `workflow/codex_workflow/`, or `workflow/codex_token_effective_workflow/`, remove them and replace with relative paths. Otherwise, this step is a no-op for CLI environments.
 
 
 ## Procedure 6: Copy Entry-Point Files for Cross-Tool Compatibility

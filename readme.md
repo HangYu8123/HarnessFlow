@@ -72,7 +72,7 @@ bash .github/harness_coding_instructions/setup.sh
 <a id="claude-code-cli"></a>
 <a id="codex-cli"></a>
 
-For Claude Code CLI or Codex CLI:
+For Claude Code CLI, Codex CLI, or Codex in VS Code:
 
 ```bash
 bash .github/harness_coding_instructions/cli_setup.sh
@@ -99,7 +99,8 @@ codex
 | VS Code + Copilot | `.github/copilot-instructions.md` | `workflow/vscode_workflow/` | Primary VS Code router. |
 | VS Code fast mode | Request templates with `mode: fast` | `workflow/vscode_token_effective_workflow/` | Faster, more parallel workflow variants. |
 | Claude Code CLI | Root `CLAUDE.md` | `workflow/claudecode_workflow/` | Uses Claude Code native mechanisms and Claude-only skill steps. |
-| Codex CLI | Root `AGENTS.md` | `workflow/codex_workflow/` | Uses Codex-oriented workflow text and manual review fallbacks where Claude skills do not apply. |
+| Codex CLI / Codex in VS Code | Root `AGENTS.md` | `workflow/codex_workflow/` | General Codex workflows with manual review fallbacks where Claude skills do not apply. |
+| Codex fast mode | Root `AGENTS.md` with `mode: fast` | `workflow/codex_token_effective_workflow/` | Token-effective Codex workflows for CLI and Codex in VS Code. |
 | Aider or generic LLMs | Manual file references | Any workflow file | The Markdown can be followed manually, but subagent orchestration is not wired. |
 
 ## What Is In This Repo
@@ -128,13 +129,14 @@ Each workflow family currently contains these instruction files:
 code.instructions.md
 correctness_check.instructions.md
 debug.instructions.md
+exec.instructions.md
 initialize.instructions.md
 pr.instructions.md
 query.instructions.md
 refactor.instructions.md
 ```
 
-The four workflow families are:
+The five workflow families are:
 
 | Directory | Intended use |
 |---|---|
@@ -142,6 +144,7 @@ The four workflow families are:
 | `workflow/vscode_token_effective_workflow/` | Streamlined VS Code workflows selected by request templates with `mode: fast`. |
 | `workflow/claudecode_workflow/` | Claude Code CLI workflows. |
 | `workflow/codex_workflow/` | Codex CLI workflows. |
+| `workflow/codex_token_effective_workflow/` | Streamlined Codex workflows selected by `mode: fast` under Codex CLI or Codex in VS Code. |
 
 The root routers classify the six common categories: initialize, code implementation, debug, query, correctness check, and refactor. The PR workflow exists as `pr.instructions.md` in every workflow family and is exposed through `request_template/pr_request_template.md` or by directly referencing the PR workflow file.
 
@@ -210,7 +213,8 @@ or:
 mode: fast
 ```
 
-`general` selects `workflow/vscode_workflow/`. `fast` selects `workflow/vscode_token_effective_workflow/`. These templates use installed-pack paths such as `@/.github/harness_coding_instructions/...`.
+For VS Code Copilot, `general` selects `workflow/vscode_workflow/` and `fast` selects `workflow/vscode_token_effective_workflow/`.
+For Codex CLI or Codex in VS Code, `general` selects `workflow/codex_workflow/` and `fast` selects `workflow/codex_token_effective_workflow/`. The templates use `@/.github/harness_coding_instructions/...` paths for VS Code Copilot and filesystem paths for Codex.
 
 ## Agents And Skills
 
@@ -242,10 +246,10 @@ In this source repo, `repo_info/` is ignored by git. In a target repo, initializ
 
 ## Path Rules
 
-- In this source repo, paths are root-relative, for example `workflow/codex_workflow/code.instructions.md`.
+- In this source repo, paths are root-relative, for example `workflow/codex_workflow/code.instructions.md` or `workflow/codex_token_effective_workflow/code.instructions.md`.
 - In an installed target repo, the pack lives under `.github/harness_coding_instructions/`.
 - VS Code workflow prompts may use `@/.github/harness_coding_instructions/...`.
-- CLI entry points use filesystem-relative paths such as `.github/harness_coding_instructions/workflow/codex_workflow/code.instructions.md`.
+- CLI entry points use filesystem-relative paths such as `.github/harness_coding_instructions/workflow/codex_workflow/code.instructions.md` and `.github/harness_coding_instructions/workflow/codex_token_effective_workflow/code.instructions.md`.
 - Do not add VS Code `@/` prefixes to CLI workflow files.
 
 ## Safety Rules

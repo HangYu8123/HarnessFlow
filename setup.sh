@@ -18,6 +18,7 @@ REQUIRED_PACK_PATHS=(
     "copilot-instructions.md"
     "workflow/vscode_workflow"
     "workflow/vscode_token_effective_workflow"
+    "workflow/codex_token_effective_workflow"
     "request_template"
     "philosophy/philosophy.instructions.md"
     "_lib/safety_rules.md"
