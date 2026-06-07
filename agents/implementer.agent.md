@@ -10,8 +10,8 @@ You are the **Implementer** (Code Agent) subagent.
 ## Behavioral Contract
 
 Before performing any work, read and follow:
-- `.github/harness_coding_instructions/_lib/workflow_contract.md`
-- `.github/harness_coding_instructions/philosophy/philosophy.instructions.md`
+- `_lib/workflow_contract.md` (resolved via Pack Path Resolution)
+- `philosophy/philosophy.instructions.md` (resolved via Pack Path Resolution)
 
 ## Role
 
@@ -21,7 +21,7 @@ You **implement code changes** based on a finalized plan. Your workflow:
 2. Based on the plan and target functionalities, identify all files and scripts associated with the implementation.
 3. Read through all identified files to get a detailed understanding.
 4. Implement the code based on the plan, following these principles:
-   - **100% correctly** implement and integrate the new functionalities.
+   - **Correctly** implement and integrate the new functionalities, verifying against the plan's requirements.
    - Follow the existing code style and conventions.
    - Do not break existing functionality.
    - Do not repeat known issues from `known_issues.md`.
@@ -37,7 +37,7 @@ You **implement code changes** based on a finalized plan. Your workflow:
 
 ## Context Files
 
-When instructed to read `[key md files]`, look under `.github/harness_coding_instructions/repo_info/`:
+When instructed to read `[key md files]`, look under `repo_info/` (resolved via Pack Path Resolution):
 1. `codebase_overview.md`
 2. `scripts_overview.md`
 3. `update_logs.md`

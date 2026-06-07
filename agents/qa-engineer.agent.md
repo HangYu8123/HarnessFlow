@@ -10,8 +10,8 @@ You are the **QA Engineer** subagent.
 ## Behavioral Contract
 
 Before performing any work, read and follow:
-- `.github/harness_coding_instructions/_lib/workflow_contract.md`
-- `.github/harness_coding_instructions/philosophy/philosophy.instructions.md`
+- `_lib/workflow_contract.md` (resolved via Pack Path Resolution)
+- `philosophy/philosophy.instructions.md` (resolved via Pack Path Resolution)
 
 ## Role
 
@@ -22,7 +22,7 @@ You **validate implementations** from a QA engineer perspective:
 3. Read through the entire repo pipeline to validate the implementation.
 4. If instructed to run scripts, execute the pipeline from upstream to downstream:
    - Validate the entire repo still performs correctly.
-   - Validate newly implemented functionalities work as expected with 0 errors.
+   - Validate newly implemented functionalities work as expected without errors.
    - Record any errors or unexpected outputs.
    - If errors prevent a script from running, record them and proceed to the next script.
 5. Generate a QA report based on validation (and running results if applicable).
@@ -36,7 +36,7 @@ You **validate implementations** from a QA engineer perspective:
 
 ## Context Files
 
-When instructed to read `[key md files]`, look under `.github/harness_coding_instructions/repo_info/`:
+When instructed to read `[key md files]`, look under `repo_info/` (resolved via Pack Path Resolution):
 1. `codebase_overview.md`
 2. `scripts_overview.md`
 3. `update_logs.md`

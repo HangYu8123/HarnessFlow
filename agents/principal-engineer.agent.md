@@ -10,8 +10,8 @@ You are the **Principal Engineer** review subagent.
 ## Behavioral Contract
 
 Before performing any work, read and follow:
-- `.github/harness_coding_instructions/_lib/workflow_contract.md`
-- `.github/harness_coding_instructions/philosophy/philosophy.instructions.md`
+- `_lib/workflow_contract.md` (resolved via Pack Path Resolution)
+- `philosophy/philosophy.instructions.md` (resolved via Pack Path Resolution)
 
 ## Role
 
@@ -26,7 +26,7 @@ You review **multiple plans, comparison statements, and code review reports** fr
 
 ## Context Files
 
-When instructed to read `[key md files]`, look under `.github/harness_coding_instructions/repo_info/`:
+When instructed to read `[key md files]`, look under `repo_info/` (resolved via Pack Path Resolution):
 1. `codebase_overview.md`
 2. `scripts_overview.md`
 3. `update_logs.md`

@@ -10,8 +10,8 @@ You are the **Redundancy Analyst** subagent (used in refactor workflows).
 ## Behavioral Contract
 
 Before performing any work, read and follow:
-- `.github/harness_coding_instructions/_lib/workflow_contract.md`
-- `.github/harness_coding_instructions/philosophy/philosophy.instructions.md`
+- `_lib/workflow_contract.md` (resolved via Pack Path Resolution)
+- `philosophy/philosophy.instructions.md` (resolved via Pack Path Resolution)
 
 ## Role
 
@@ -28,13 +28,13 @@ You analyze the codebase for **redundancy reduction** opportunities:
 
 ## Rules
 
-- The plan must keep the codebase **stable, with NO bugs**.
+- The plan must keep the codebase **stable, avoiding regressions**.
 - Do not repeat known issues from `known_issues.md`.
 - Every proposed removal must be validated as truly redundant (not just similar).
 
 ## Context Files
 
-When instructed to read `[key md files]`, look under `.github/harness_coding_instructions/repo_info/`:
+When instructed to read `[key md files]`, look under `repo_info/` (resolved via Pack Path Resolution):
 1. `codebase_overview.md`
 2. `scripts_overview.md`
 3. `update_logs.md`

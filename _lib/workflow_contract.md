@@ -14,9 +14,9 @@ These rules apply to **every** workflow, agent, and subagent — no exceptions.
 
 ---
 
-## Approval Gate (Code / Debug / Refactor Workflows Only)
+## Approval Gate (Code / Debug / Refactor / Exec / PR Workflows)
 
-**Rule:** If the user requests no code changes, the workflow **stops after printing the plan**. If the user has not specified or requires code changes, the workflow continues to the implementation step.
+**Rule:** The workflow **always stops after printing the plan** and waits for user approval before proceeding to implementation. The workflow continues to the implementation step only when the user explicitly approves (e.g., "implement", "proceed", "go ahead", "approve", "yes"). If the user requests no code changes (e.g., "plan only"), the workflow stops after the plan without prompting.
 
 This gate applies regardless of which CLI tool or IDE is being used.
 
@@ -36,10 +36,10 @@ The installed pack root is `.github/harness_coding_instructions` from the target
 
 When a workflow references a pack-relative path such as `workflow/...`, `repo_info/...`, `philosophy/...`, `_lib/...`, or `skills/...`, resolve it in this order:
 
-1. `.github/harness_coding_instructions/<path>` from the target repo root.
-2. `<path>` only when the current working directory is already the pack root.
+1. `.github/harness_coding_instructions/<path>` from the target repo root (installed layout).
+2. `<path>` from the repo root when running in the source repo or when the pack root is the repo root.
 
-Do not create `repo_info/` outside `.github/harness_coding_instructions/repo_info/`.
+In installed repos, do not create `repo_info/` outside `.github/harness_coding_instructions/repo_info/`.
 
 ---
 
@@ -53,7 +53,7 @@ Do not create `repo_info/` outside `.github/harness_coding_instructions/repo_inf
 - For a parallel group, launch all listed subagents as separate invocations before waiting for results. If parallel launch is unavailable, launch the same subagent prompts one at a time; preserve the same output labels.
 - If native subagent creation is unavailable, blocked, or cannot preserve model parity, do not hide the failure. Record a fallback result with the same output label and `status: fallback-single-agent` or `status: blocked`, then continue only where the workflow allows fallback.
 - Maintain an in-memory activity log for every subagent group with: role, output label, launch mechanism, requested model, confirmed model when available, context files, start status, completion status, and fallback reason if any.
-- Every real subagent result must begin with:
+- Every real subagent result should include the following metadata. **In VS Code Copilot and Codex**, the result must begin with this header block. **In Claude Code**, the header is optional — the Agent tool scopes results automatically, so subagents may return their analysis directly without the header:
 
 ```md
 [subagent result]
@@ -98,22 +98,39 @@ If subagent invocation fails (e.g., tool is unavailable, agent not found), recor
 
 ## Implementer Model Verification Fallback
 
-When creating an **Implementer** subagent, the main agent must verify model parity before the subagent begins any implementation work:
+When creating an **Implementer** subagent, the main agent must verify model parity before the subagent begins any implementation work.
+
+**Claude Code CLI:** Subagents inherit the session model automatically. Model verification is not required — skip the retry loop and proceed directly. If a subagent spawn fails for any reason, the main agent performs the implementation directly and records a `[fallback result]` with `status: fallback-single-agent`.
+
+**Other platforms (VS Code Copilot, Codex CLI):**
 
 1. After creating the **Implementer** subagent, the main agent must confirm the subagent's model matches [main agent model] before the subagent starts implementing.
 2. If the subagent's model does not match [main agent model], stop that subagent immediately.
 3. Re-create the **Implementer** subagent (retry up to 3 times total).
 4. If after 3 retries the **Implementer** subagent still cannot use [main agent model], the main agent must abandon the subagent approach and perform the implementation directly itself, following the same plan and instructions that would have been given to the **Implementer** subagent. Record a `[fallback result]` with `status: fallback-single-agent` and `reason: implementer-model-mismatch`.
 
-This fallback applies to every workflow step that creates an **Implementer** subagent.
+This fallback applies to every workflow step that creates an **Implementer** or **Executor** subagent.
 
 ---
 
 ## Key Context Files (repo_info/)
 
-When any workflow instruction tells you to read context files (`[key md files]`), look for them under `.github/harness_coding_instructions/repo_info/`:
+When any workflow instruction tells you to read context files (`[key md files]`), look for them under `repo_info/` (resolved via Pack Path Resolution):
 
 1. `codebase_overview.md`
 2. `scripts_overview.md`
 3. `update_logs.md`
 4. `known_issues.md`
+
+---
+
+## Context Passing for Subagents (Claude Code)
+
+To reduce redundant file reads across subagents, Claude Code workflows must follow this pattern:
+
+1. The main agent reads [key md files] **once** at workflow start.
+2. The main agent creates a condensed **[repo context digest]** — a concise bullet-point summary covering: codebase structure/pipeline, key scripts and their roles, recent changes from update_logs, and active known issues.
+3. When spawning subagents, include [repo context digest] inline in the subagent prompt.
+4. Subagents use [repo context digest] for codebase context and only read additional **specific code files** directly relevant to their task. Subagents do **not** independently re-read the repo_info files.
+
+This applies to all `workflow/claudecode_workflow/` instructions. Other workflow families (VS Code, Codex) continue to have subagents read [key md files] directly, since their subagent mechanisms may not support inline context passing.

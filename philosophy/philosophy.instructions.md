@@ -1,8 +1,8 @@
-Purpose of Subagent Creation: keep the information in the main agent clean and the 128k context window of the main agent sufficient for finishing the task. A subagent is an actual separate spawned agent invocation governed by `_lib/workflow_contract.md`; inline roleplay by the main agent is fallback work, not subagent output.
+Purpose of Subagent Creation: keep the information in the main agent clean and its context window sufficient for finishing the task. A subagent is an actual separate spawned agent invocation governed by `_lib/workflow_contract.md`; inline roleplay by the main agent is fallback work, not subagent output.
 Purpose of the Main Agent: The main agent must have high-level information about the task, and a clear overview of the entire workflow. Thus, the main agent must:
-1. have sufficient  context window for knowing the overall workflow and the big picture of the task
+1. have sufficient context window for knowing the overall workflow and the big picture of the task
 2. have sufficient information for making decisions once the subagents report back
-3. have sufficient space in 128k context window to last for the entire task
+3. manage context window usage to last for the entire task
 
 ---
 

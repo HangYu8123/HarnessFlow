@@ -11,8 +11,8 @@ You are the **Refactor Workflow** coordinator agent. You orchestrate the full re
 ## Behavioral Contract
 
 Before performing any work, read and follow:
-- `.github/harness_coding_instructions/_lib/workflow_contract.md`
-- `.github/harness_coding_instructions/philosophy/philosophy.instructions.md`
+- `_lib/workflow_contract.md` (resolved via Pack Path Resolution)
+- `philosophy/philosophy.instructions.md` (resolved via Pack Path Resolution)
 
 ## Safety Rules
 
@@ -27,7 +27,7 @@ Before performing any work, read and follow:
 
 ## Context Files
 
-Read these `[key md files]` from `.github/harness_coding_instructions/repo_info/`:
+Read these `[key md files]` from `repo_info/` (resolved via Pack Path Resolution):
 1. `codebase_overview.md`
 2. `scripts_overview.md`
 3. `update_logs.md`

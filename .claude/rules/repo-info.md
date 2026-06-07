@@ -4,7 +4,7 @@ paths: [".github/harness_coding_instructions/repo_info/**"]
 
 # Repo Info Rules
 
-Files in `.github/harness_coding_instructions/repo_info/` are persistent memory files shared across sessions and workflows.
+Files in `repo_info/` (resolved via Pack Path Resolution: `.github/harness_coding_instructions/repo_info/` in installed repos, or `repo_info/` from repo root in the source repo) are persistent memory files shared across sessions and workflows.
 
 - Always read these files at the start of any workflow
 - Update relevant files at the end of code-modifying workflows
