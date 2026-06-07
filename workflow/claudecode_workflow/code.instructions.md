@@ -20,12 +20,13 @@ description: 'Instructions for implementing, updating, and adding new functional
 input 1: target functionalities
 input 2: important files (optional)
 input 3: target repo (optional)
+subagent_model (optional, default: claude-sonnet-4-6): model to use for all subagents in this workflow
 
 **read through this entire file and follow the instructions carefully**.
 Before doing any workflow-specific work, the main agent must read and follow `_lib/workflow_contract.md`, resolved by the Pack Path Resolution rule, and `philosophy/philosophy.instructions.md`, resolved by the Pack Path Resolution rule, before proceeding.
 Every subagent created by this workflow must also read and follow `_lib/workflow_contract.md` and `philosophy/philosophy.instructions.md` before reading [key md files] or performing task-specific work.
 
-Subagent launch rule: Follow the Subagent Launch Contract in `_lib/workflow_contract.md` (resolved by Pack Path Resolution rule).
+Subagent launch rule: Use the `subagent_model` parameter from the request header as the model for all subagents (default: `claude-sonnet-4-6`). This overrides the workflow contract's "use exact main agent model" requirement. When creating each subagent, specify the model as the `subagent_model` value. See `_lib/workflow_contract.md` §Subagent Invocation for invocation mechanics.
 
 > **Subagent invocation:** See `_lib/workflow_contract.md` §Subagent Invocation.
 
@@ -47,7 +48,7 @@ a. the **Focus Analyst** (`agents/focus-analyst.agent.md`) first processes [inpu
 
 b. the **Broad Analyst** (`agents/broad-analyst.agent.md`) must follow the pipeline diagram from [repo context digest], read through all scripts from upstream to downstream. then analyze what the new functionalities are, how to integrate them, and what scripts and files could be associated. Then, the subagent must draft a plan and diagram that integrates the new functionalities while maintaining the codebase stable and avoiding known issues. then the subagent feeds the plan and the implementation diagram back to the main agent as [plan 2] and [diagram 2].
 
-c. the **Free Analyst** (`agents/free-analyst.agent.md`) must first process [inputs] and [repo context digest], then decide what files to read and scripts to check, following its own logic. Then analyze what the new functionalities are, how to integrate them while maintaining codebase stability. then the subagent feeds the plan and the implementation diagram back to the main agent as [plan 3].
+c. the **Free Analyst** (`agents/free-analyst.agent.md`) must first process [inputs] and [repo context digest], then decide what files to read and scripts to check, following its own logic. Then analyze what the new functionalities are, how to integrate them while maintaining codebase stability. then the subagent feeds the plan back to the main agent as [plan 3].
 
 3. the main agent creates a **Senior Engineer** subagent (`agents/senior-engineer.agent.md`), pass all three plans [plan 1], [plan 2], and [plan 3] and the implementation diagrams [diagram 1] and [diagram 2] from the other subagents, [inputs], and [repo context digest] to this subagent. The subagent reads associated scripts in this repo. If the plan involves any repo outside this repo, go to that repo and read their codebase_overview.md and scripts_overview.md if they exist. Then the subagent reviews all plans and diagrams from a senior staff engineer perspective, assesses correctness and feasibility, rejects redundant or incorrect plans, and verifies the plan achieves the new functionalities without breaking existing behavior. feed the [senior staff engineer review] back to the main agent.
 
@@ -57,7 +58,7 @@ c. the **Free Analyst** (`agents/free-analyst.agent.md`) must first process [inp
 
 a. The **Devils Advocate** receives [repo context digest] and reads all relevant scripts, then critically challenges [final plan] — looking for overlooked side effects, integration risks, incorrect assumptions about the codebase, or potential regressions. The subagent reports any flaws back to the main agent as [valid criticisms].
 
-b. The **Online Researcher** receives [repo context digest], then identifies extra needs for skills, tools, and packages. The subagent searches online for resources and reliable solutions. The subagent reports the findings from online back to the main agent as [online resource].
+b. The **Online Researcher** receives [repo context digest], then identifies extra needs for skills, tools, and packages. The subagent MUST actually call the `WebSearch` and `WebFetch` tools to search the live internet (never answer from prior knowledge) and MUST return the source URLs it fetched as proof — see `agents/online-researcher.agent.md`. The subagent reports the findings from online back to the main agent as [online resource].
 
 5.5 The main agent incorporates [valid criticisms] and [online resource], and updates [final plan] accordingly.
 
@@ -65,7 +66,7 @@ b. The **Online Researcher** receives [repo context digest], then identifies ext
 
 7. the main agent creates an **Implementer** subagent (`agents/implementer.agent.md`), pass [final plan], the target functionalities, and [repo context digest] to the subagent. **Implementer Model Verification:** See `_lib/workflow_contract.md` §Implementer Model Verification Fallback (skip retry loop in Claude Code — model is inherited automatically). The subagent (or the main agent, if falling back) uses [repo context digest] for codebase context. Then based on [final plan] and the target functionalities, identify what files and scripts are associated with the implementation. Then the subagent must read through all those identified files and scripts to get a detailed understanding of them. Then the subagent starts implementing the code based on [final plan] and the target functionalities. During the implementation, the subagent must follow [final plan] and implement the new functionalities correctly, verifying against existing tests and behavior. After finishing the implementation, the subagent must generate an [implementation report] (just what has been changed, **no explanation**), and report [implementation report] back to the main agent.
 
-7.5. Since this is a Claude Code environment, search `skills/index.md` for `claude-native-skills-subagents`, then use the skill at `skills/claude-native-skills-subagents/SKILL.md` after step 7. Use `/simplify` on all changed files.
+7.5. Since this is a Claude Code environment, search `skills/index.md` for `claude-native-skills-subagents`, then use the skill at `skills/claude-native-skills-subagents/SKILL.md` after step 7. (That skill runs `/simplify` automatically — do not invoke it separately.)
 
 8. the main agent creates two subagents and **[PARALLEL EXECUTION — launch the following subagents simultaneously as Claude Code agent team; if parallel not supported, run sequentially]** (**Senior Engineer** via `agents/senior-engineer.agent.md`; **QA Engineer** via `agents/qa-engineer.agent.md`). Then:
 a. the main agent must pass [final plan], target functionalities, [implementation report], and [repo context digest] to the **Senior Engineer** subagent. The subagent checks all the code changes in the repo. Then the subagent reviews the code changes and the implementations from a senior staff engineer perspective, assesses correctness, challenges the implementations, questions the effectiveness, verifying that the new functionalities are achieved without breaking existing behavior. Then the subagent must generate an [implementation code review report] and then feed the review back to the main agent as [implementation code review report].

@@ -21,11 +21,11 @@ Subagent launch rule: Follow the Subagent Launch Contract in `_lib/workflow_cont
 > **Subagent invocation:** See `_lib/workflow_contract.md` §Subagent Invocation.
 
 ## Procedure 1: Run CLI Setup & Scan Repo
-First, verify that the repo has been set up for CLI tools. Check if `AGENTS.md` exists at the repo root. If it is missing, recommend running `bash .github/harness_coding_instructions/cli_setup.sh` from the repo root to generate entry-point files.
+First, verify that the repo has been set up for CLI tools. Check if `AGENTS.md` exists at the repo root. If it is missing, recommend running `bash .github/HarnessFlow/cli_setup.sh` from the repo root to generate entry-point files.
 Then go through the entire repo, keep what files exist in this repo in the memory.
 
 ## Procedure 2: Verify repo_info Files
-The `repo_info/` folder must be at the same level as `request_template/` and `workflow/` (i.e., all are siblings under the pack root `.github/harness_coding_instructions/`).
+The `repo_info/` folder must be at the same level as `request_template/` and `workflow/` (i.e., all are siblings under the pack root `.github/HarnessFlow/`).
 Then, check the existence of the following [repo_info files] under the repo_info folder:
 1. codebase_overview.md
 2. scripts_overview.md
@@ -127,10 +127,10 @@ CLI workflows use relative paths (not `@/` prefixed paths). The `@/.github/` →
 ## Procedure 6: Copy Entry-Point Files for Cross-Tool Compatibility
 Copy the entry-point files from the pack to their standard discoverable locations. This ensures each tool can auto-discover its instructions without additional configuration, regardless of which tool was used to initialize.
 
-1. Copy `.github/harness_coding_instructions/copilot-instructions.md` → `.github/copilot-instructions.md` (standard GitHub Copilot discovery path).
-   - **Important**: In the destination copy, rewrite all `#file:` references by prepending `harness_coding_instructions/` to their paths. For example, `#file:_lib/workflow_contract.md` becomes `#file:harness_coding_instructions/_lib/workflow_contract.md`, and `#file:workflow/vscode_workflow/code.instructions.md` becomes `#file:harness_coding_instructions/workflow/vscode_workflow/code.instructions.md`. This is necessary because `#file:` paths resolve relative to the file's directory — when the file moves from `.github/harness_coding_instructions/` to `.github/`, the paths must be adjusted accordingly.
-2. Copy `.github/harness_coding_instructions/CLAUDE.md` → repo root `CLAUDE.md` (Claude Code CLI auto-discovers this at the repo root).
-3. Copy `.github/harness_coding_instructions/AGENTS.md` → repo root `AGENTS.md` (Codex CLI auto-discovers this at the repo root).
+1. Copy `.github/HarnessFlow/copilot-instructions.md` → `.github/copilot-instructions.md` (standard GitHub Copilot discovery path).
+   - **Important**: In the destination copy, rewrite all `#file:` references by prepending `HarnessFlow/` to their paths. For example, `#file:_lib/workflow_contract.md` becomes `#file:HarnessFlow/_lib/workflow_contract.md`, and `#file:workflow/vscode_workflow/code.instructions.md` becomes `#file:HarnessFlow/workflow/vscode_workflow/code.instructions.md`. This is necessary because `#file:` paths resolve relative to the file's directory — when the file moves from `.github/HarnessFlow/` to `.github/`, the paths must be adjusted accordingly.
+2. Copy `.github/HarnessFlow/CLAUDE.md` → repo root `CLAUDE.md` (Claude Code CLI auto-discovers this at the repo root).
+3. Copy `.github/HarnessFlow/AGENTS.md` → repo root `AGENTS.md` (Codex CLI auto-discovers this at the repo root).
 
 For each file:
 - If the destination file does **not** exist, copy it.

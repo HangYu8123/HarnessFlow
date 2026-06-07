@@ -4,7 +4,7 @@
 
 set -e
 
-PACK_DIR=".github/harness_coding_instructions"
+PACK_DIR=".github/HarnessFlow"
 VSCODE_DIR=".vscode"
 SETTINGS_FILE="$VSCODE_DIR/settings.json"
 
@@ -28,7 +28,7 @@ REQUIRED_PACK_PATHS=(
 for required_path in "${REQUIRED_PACK_PATHS[@]}"; do
     if [ ! -e "$PACK_DIR/$required_path" ]; then
         echo "Error: $PACK_DIR exists but is missing $required_path." >&2
-        echo "Copy the full harness_coding_instructions pack before running setup." >&2
+        echo "Copy the full HarnessFlow pack before running setup." >&2
         exit 1
     fi
 done
@@ -42,11 +42,11 @@ if [ ! -f "$SETTINGS_FILE" ]; then
     cat > "$SETTINGS_FILE" << 'EOF'
 {
   "chat.instructionsFilesLocations": {
-    ".github/harness_coding_instructions": true,
+    ".github/HarnessFlow": true,
     ".claude/rules": true
   },
   "chat.agentFilesLocations": {
-    ".github/harness_coding_instructions/agents": true
+    ".github/HarnessFlow/agents": true
   },
   "chat.includeReferencedInstructions": true
 }
@@ -76,14 +76,14 @@ if not isinstance(locations, dict):
     locations = {}
 
 locations.pop(".github/agentic_coding_instructions", None)
-locations[".github/harness_coding_instructions"] = True
+locations[".github/HarnessFlow"] = True
 locations[".claude/rules"] = True
 settings["chat.instructionsFilesLocations"] = locations
 
 agent_locations = settings.get("chat.agentFilesLocations")
 if not isinstance(agent_locations, dict):
     agent_locations = {}
-agent_locations[".github/harness_coding_instructions/agents"] = True
+agent_locations[".github/HarnessFlow/agents"] = True
 settings["chat.agentFilesLocations"] = agent_locations
 
 settings["chat.includeReferencedInstructions"] = True
@@ -103,29 +103,29 @@ if (!settings['chat.instructionsFilesLocations'] || typeof settings['chat.instru
     settings['chat.instructionsFilesLocations'] = {};
 }
 delete settings['chat.instructionsFilesLocations']['.github/agentic_coding_instructions'];
-settings['chat.instructionsFilesLocations']['.github/harness_coding_instructions'] = true;
+settings['chat.instructionsFilesLocations']['.github/HarnessFlow'] = true;
 settings['chat.instructionsFilesLocations']['.claude/rules'] = true;
 if (!settings['chat.agentFilesLocations'] || typeof settings['chat.agentFilesLocations'] !== 'object') {
     settings['chat.agentFilesLocations'] = {};
 }
-settings['chat.agentFilesLocations']['.github/harness_coding_instructions/agents'] = true;
+settings['chat.agentFilesLocations']['.github/HarnessFlow/agents'] = true;
 settings['chat.includeReferencedInstructions'] = true;
 fs.writeFileSync(path, JSON.stringify(settings, null, 2) + '\n');
 console.log('Updated .vscode/settings.json');
 "
     elif command -v jq >/dev/null 2>&1; then
         tmp=$(mktemp)
-        jq '.["chat.instructionsFilesLocations"] = ((.["chat.instructionsFilesLocations"] // {}) | del(.[".github/agentic_coding_instructions"]) | .[".github/harness_coding_instructions"] = true | .[".claude/rules"] = true) | .["chat.agentFilesLocations"] = ((.["chat.agentFilesLocations"] // {}) | .[".github/harness_coding_instructions/agents"] = true) | .["chat.includeReferencedInstructions"] = true' "$SETTINGS_FILE" > "$tmp" && mv "$tmp" "$SETTINGS_FILE"
+        jq '.["chat.instructionsFilesLocations"] = ((.["chat.instructionsFilesLocations"] // {}) | del(.[".github/agentic_coding_instructions"]) | .[".github/HarnessFlow"] = true | .[".claude/rules"] = true) | .["chat.agentFilesLocations"] = ((.["chat.agentFilesLocations"] // {}) | .[".github/HarnessFlow/agents"] = true) | .["chat.includeReferencedInstructions"] = true' "$SETTINGS_FILE" > "$tmp" && mv "$tmp" "$SETTINGS_FILE"
         echo "Updated .vscode/settings.json"
     else
         echo "WARNING: python3, node, and jq not found."
         echo "Please manually add this to $SETTINGS_FILE:"
         echo '  "chat.instructionsFilesLocations": {'
-        echo '    ".github/harness_coding_instructions": true,'
+        echo '    ".github/HarnessFlow": true,'
         echo '    ".claude/rules": true'
         echo '  },'
         echo '  "chat.agentFilesLocations": {'
-        echo '    ".github/harness_coding_instructions/agents": true'
+        echo '    ".github/HarnessFlow/agents": true'
         echo '  },'
         echo '  "chat.includeReferencedInstructions": true'
     fi
@@ -140,10 +140,10 @@ COPILOT_DEST=".github/copilot-instructions.md"
 if [ -f "$COPILOT_SRC" ]; then
     mkdir -p ".github"
     if [ ! -f "$COPILOT_DEST" ]; then
-        sed 's|#file:|#file:harness_coding_instructions/|g' "$COPILOT_SRC" > "$COPILOT_DEST"
+        sed 's|#file:|#file:HarnessFlow/|g' "$COPILOT_SRC" > "$COPILOT_DEST"
         echo "Created $COPILOT_DEST"
     elif grep -Fq "Master Orchestrator — Instruction Router" "$COPILOT_DEST"; then
-        sed 's|#file:|#file:harness_coding_instructions/|g' "$COPILOT_SRC" > "$COPILOT_DEST"
+        sed 's|#file:|#file:HarnessFlow/|g' "$COPILOT_SRC" > "$COPILOT_DEST"
         echo "Refreshed $COPILOT_DEST"
     else
         echo "WARNING: $COPILOT_DEST exists with custom content — leaving unchanged." >&2

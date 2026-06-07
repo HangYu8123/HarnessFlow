@@ -50,7 +50,7 @@ then, for answering any questions to an existing codebase:
 
 a. The **Devils Advocate** receives [repo context digest] and [important information], then critically challenges the drafted answers — looking for factual errors, unsupported claims, missing edge cases, or contradictions with the codebase. The subagent reports any flaws back to the main agent as [valid criticisms].
 
-b. The **Online Researcher** receives [repo context digest], [important information], and the original questions, then identifies where online resources are needed to validate external facts, tools, packages, APIs, or current best practices. The subagent searches online for reliable resources and solutions. The subagent reports the findings from online back to the main agent as [online resource].
+b. The **Online Researcher** receives [repo context digest], [important information], and the original questions, then identifies where online resources are needed to validate external facts, tools, packages, APIs, or current best practices. The subagent MUST actually call the `WebSearch` and `WebFetch` tools to search the live internet (never answer from prior knowledge) and MUST return the source URLs it fetched as proof — see `agents/online-researcher.agent.md`. The subagent reports the findings from online back to the main agent as [online resource].
 
 7.5. The main agent incorporates [valid criticisms] and [online resource], prioritizes codebase evidence when it conflicts with external sources, and finalizes the answers.
 

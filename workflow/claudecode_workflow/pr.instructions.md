@@ -26,12 +26,13 @@ input 2: base branch (optional, defaults to repo default branch)
 input 3: mode — `plan` or `execute` (optional, defaults to `execute`)
 input 4: max lines per PR (optional, defaults to 1000)
 input 5: stack tool preference (optional, auto-detect)
+subagent_model (optional, default: claude-sonnet-4-6): model to use for all subagents in this workflow
 
 **read through this entire file and follow the instructions carefully**.
 Before doing any workflow-specific work, the main agent must read and follow `_lib/workflow_contract.md`, resolved by the Pack Path Resolution rule, and `philosophy/philosophy.instructions.md`, resolved by the Pack Path Resolution rule, before proceeding.
 Every subagent created by this workflow must also read and follow `_lib/workflow_contract.md` and `philosophy/philosophy.instructions.md` before reading [key md files] or performing task-specific work.
 
-Subagent launch rule: Follow the Subagent Launch Contract in `_lib/workflow_contract.md` (resolved by Pack Path Resolution rule).
+Subagent launch rule: Use the `subagent_model` parameter from the request header as the model for all subagents (default: `claude-sonnet-4-6`). This overrides the workflow contract's "use exact main agent model" requirement. When creating each subagent, specify the model as the `subagent_model` value. See `_lib/workflow_contract.md` §Subagent Invocation for invocation mechanics.
 
 > **Subagent invocation:** See `_lib/workflow_contract.md` §Subagent Invocation.
 
@@ -71,7 +72,7 @@ c. the **Free Analyst** (`agents/free-analyst.agent.md`) must first process [inp
 
 a. The **Devils Advocate** receives [repo context digest] and reads all relevant scripts, then critically challenge [final pr plan] — looking for PRs that would break the build, incorrect dependency ordering, PRs that mix unrelated concerns, missing changes that would leave a PR incomplete, or stacking risks. The subagent reports any flaws back to the main agent as [valid criticisms].
 
-b. The **Online Researcher** receives [repo context digest], then identifies if there are better stacking strategies, tools, or conventions for the repo's stack tool. The subagent searches online for resources and reliable solutions. The subagent reports the findings from online back to the main agent as [online resource].
+b. The **Online Researcher** receives [repo context digest], then identifies if there are better stacking strategies, tools, or conventions for the repo's stack tool. The subagent MUST actually call the `WebSearch` and `WebFetch` tools to search the live internet (never answer from prior knowledge) and MUST return the source URLs it fetched as proof — see `agents/online-researcher.agent.md`. The subagent reports the findings from online back to the main agent as [online resource].
 
 5.5 The main agent incorporates [valid criticisms] and [online resource], and updates [final pr plan] accordingly.
 
@@ -86,7 +87,7 @@ b. The **Online Researcher** receives [repo context digest], then identifies if 
    - Submit using the approved stack tool (if approved by user); otherwise stop after local branches are prepared.
    After finishing the execution, the subagent must generate an [execution report] (just what has been done — branches created, commits made, PRs submitted — **no explanation**), and report [execution report] back to the main agent.
 
-7.5. Since this is a Claude Code environment, search `skills/index.md` for `claude-native-skills-subagents`, then use the skill at `skills/claude-native-skills-subagents/SKILL.md` after step 7. Use `/simplify` on all changed files.
+7.5. Since this is a Claude Code environment, search `skills/index.md` for `claude-native-skills-subagents`, then use the skill at `skills/claude-native-skills-subagents/SKILL.md` after step 7. (That skill runs `/simplify` automatically — do not invoke it separately.)
 
 8. the main agent creates two subagents and **[PARALLEL EXECUTION — launch the following subagents simultaneously as Claude Code agent team; if parallel not supported, run sequentially]** (**Senior Engineer** via `agents/senior-engineer.agent.md`; **QA Engineer** via `agents/qa-engineer.agent.md`). Then:
 a. the main agent must pass [final pr plan], [inputs], [execution report], and [repo context digest] to the **Senior Engineer** subagent. The subagent receives [repo context digest] and verifies all created branches. Then the subagent reviews the branch/commit structure from a senior staff engineer perspective — verifying that each branch is buildable, that the dependency order is correct, that no branch contains unrelated changes, no auto generated files are included, all necessary files are present, and that the final stack top matches the original branch diff. Then the subagent must generate a [pr stack review report] and feed it back to the main agent.

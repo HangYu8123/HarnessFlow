@@ -11,7 +11,7 @@ Read and follow `philosophy/philosophy.instructions.md` (resolved via Pack Path 
 ## Pack Path Resolution
 
 Resolve all pack-relative paths in this order:
-1. `.github/harness_coding_instructions/<path>` from the target repo root (installed layout).
+1. `.github/HarnessFlow/<path>` from the target repo root (installed layout).
 2. `<path>` from the repo root (source repo / pack root layout).
 
 Apply this rule to every path referenced in this file, workflow files, and agent definitions.
@@ -42,7 +42,7 @@ All instruction files are resolved via Pack Path Resolution.
 2. **Classify** it into exactly one category from the table above.
 3. **Read the matched instruction file** in its entirety.
 4. **Require** every subagent to read and follow `_lib/workflow_contract.md` and `philosophy/philosophy.instructions.md` (resolved via Pack Path Resolution) before doing workflow-specific work.
-5. Before creating any subagent, explicitly instruct it: "**Use the exact same model as the main agent — do not downgrade.**"
+5. **Model parity:** In Claude Code, subagents automatically inherit the main agent's model (see `_lib/workflow_contract.md` §Implementer Model Verification Fallback), so there is no separate model-selection step — just do not downgrade. On other platforms, follow the Subagent Launch Contract's model-parity steps in `_lib/workflow_contract.md`.
 6. **Follow** the matched instruction file step-by-step to complete the request.
 
 ## If multiple intents are present

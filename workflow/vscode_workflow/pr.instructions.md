@@ -22,7 +22,7 @@ Subagent launch rule: Follow the Subagent Launch Contract in `#file:../../_lib/w
 
 > **Subagent invocation:** See `_lib/workflow_contract.md` §Subagent Invocation.
 
-When asked to create PRs from a feature branch, always, first read the following files .github/harness_coding_instructions/repo_info (REFER AS [key md files]):
+When asked to create PRs from a feature branch, always, first read the following files .github/HarnessFlow/repo_info (REFER AS [key md files]):
 1. codebase_overview.md
 2. scripts_overview.md
 3. update_logs.md

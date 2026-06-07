@@ -20,13 +20,14 @@ description: 'Instructions for examining, testing, and running an existing repo 
 input 1: target repo
 input 2: target functionalities (optional)
 input 3: important files (optional)
+subagent_model (optional, default: claude-sonnet-4-6): model to use for all subagents in this workflow
 if target functionalities are specified, focus more on target functionalities, but still go through the entire repo.
 
 **read through this entire file and follow the instructions carefully**.
 Before doing any workflow-specific work, the main agent must read and follow `_lib/workflow_contract.md` and `philosophy/philosophy.instructions.md`, resolved by the Pack Path Resolution rule, before proceeding.
 Every subagent created by this workflow must also read and follow `_lib/workflow_contract.md` and `philosophy/philosophy.instructions.md` before reading [key md files] or performing task-specific work.
 
-Subagent launch rule: Follow the Subagent Launch Contract in `_lib/workflow_contract.md` (resolved by Pack Path Resolution rule).
+Subagent launch rule: Use the `subagent_model` parameter from the request header as the model for all subagents (default: `claude-sonnet-4-6`). This overrides the workflow contract's "use exact main agent model" requirement. When creating each subagent, specify the model as the `subagent_model` value. See `_lib/workflow_contract.md` §Subagent Invocation for invocation mechanics.
 
 > **Subagent invocation:** See `_lib/workflow_contract.md` §Subagent Invocation.
 
@@ -55,7 +56,7 @@ Based on [important information] and the repo structure from [repo context diges
 6. the main agent creates a **Free Analyst** subagent (`agents/free-analyst.agent.md`), pass the correctness objectives, [important information], and [repo context digest] to the subagent. Based on the correctness objectives and repo information from [repo context digest], the subagent must decide what files and scripts to read and in what order to read, and thus check the entire repo to ensure every functionality is verified correct. Then, the subagent must report any incorrectness accordingly, and report the final assessment back to the main agent as [answers 3].
 7. the main agent creates a **QA Engineer** subagent (`agents/qa-engineer.agent.md`) in exam mode, pass [important information] and [repo context digest] to the subagent. Then the subagent must list out all runnable Python/C/C++/Java scripts in the repo as [all script file list]. Based on [important information] and the repo structure from [repo context digest], the subagent must re-order all script files in [all script file list] based on workflow (from upstream of the pipeline diagram to downstream of the pipeline diagram) to make sure the entire pipeline runs correctly. Then, the subagent must **run** through all script files in [all script file list] in order. If the subagent encounters any errors, or receives any unexpected outputs from the scripts, record it. If any errors prevent the current script from running, the subagent must record the errors, and then run the next script in [all script file list] in order. Then, the subagent must report any incorrectness accordingly, and report the final assessment back to the main agent as [answers 4].
 
-7.5. Since this is a Claude Code environment and if any scripts failed during step 7, create a **Debug sub-agent (`/debug`)**: Pass the failed scripts and their error outputs to this subagent. The subagent uses `/debug` to enable debug logging and diagnose why each script failed — identifying root causes such as missing dependencies, incorrect paths, data issues, or logic errors. Report back a [debug diagnosis report] to the main agent. If no scripts failed, skip step 7.5 and continue to step 8.
+7.5. If any scripts failed during step 7, the main agent creates a **Diagnosis subagent** (`agents/focus-analyst.agent.md`, diagnosis mode): pass the failed scripts and their error outputs to this subagent. The subagent inspects each failure's stdout/stderr/traceback and reads the relevant code — re-running with verbose flags where helpful — to diagnose why each script failed, identifying root causes such as missing dependencies, incorrect paths, data issues, or logic errors. (Do not rely on a `/debug` skill — it is not a standard Claude Code skill.) Report back a [debug diagnosis report] to the main agent. If no scripts failed, skip step 7.5 and continue to step 8.
 
 8. the main agent must read through all four answers ([answers 1], [answers 2], [answers 3], and [answers 4]), understand each of them, examine all the pointed out correctness issues, combine the insights of each report, reject the redundant or incorrect parts of each report, and draft a precise and verified correct report to report any incorrectness of the repo in bullet points.
 
@@ -63,7 +64,7 @@ Based on [important information] and the repo structure from [repo context diges
 
 a. The **Devils Advocate** must use [repo context digest] for codebase context and read all relevant scripts, then critically challenge the draft correctness report — looking for false positives, overlooked issues, misattributed causes, or incorrect assumptions about the codebase. The subagent reports any flaws back to the main agent as [valid criticisms].
 
-b. The **Online Researcher** must use [repo context digest] for codebase context and review the draft correctness report, then identify any issues that require external documentation, known bugs in dependencies, or best-practice references to validate. The subagent searches online for reliable resources and solutions. The subagent reports the findings from online back to the main agent as [online resource].
+b. The **Online Researcher** must use [repo context digest] for codebase context and review the draft correctness report, then identify any issues that require external documentation, known bugs in dependencies, or best-practice references to validate. The subagent MUST actually call the `WebSearch` and `WebFetch` tools to search the live internet (never answer from prior knowledge) and MUST return the source URLs it fetched as proof — see `agents/online-researcher.agent.md`. The subagent reports the findings from online back to the main agent as [online resource].
 
 8.75. The main agent incorporates [valid criticisms] and [online resource], and updates the draft correctness report accordingly.
 

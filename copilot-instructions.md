@@ -21,9 +21,10 @@ Use the trigger phrases as soft signals, not strict rules. Classify based on the
 | **Query / Q&A** | explain, what is, how does, where is, why, describe, summarize, document, question about code | #file:workflow/vscode_workflow/query.instructions.md |
 | **Correctness Check** | test, verify, check, validate, review, audit, examine, ensure correctness, consistency check | #file:workflow/vscode_workflow/correctness_check.instructions.md |
 | **Exec (Cmd/Skill Execution)** | execute, run, exec, invoke, launch command, run skill, run script, trigger, run cmd | #file:workflow/vscode_workflow/exec.instructions.md |
+| **PR Creation** | pull request, PR, stacked PR, break down branch, split PR, create PR | #file:workflow/vscode_workflow/pr.instructions.md |
 | **Initialize Repo** | initialize, init, setup repo, create overview, bootstrap, first-time setup | #file:workflow/vscode_workflow/initialize.instructions.md |
 
-All instruction files are under `.github/harness_coding_instructions/`.
+All instruction files are under `.github/HarnessFlow/`.
 
 ## Routing Procedure
 
@@ -38,4 +39,4 @@ All instruction files are under `.github/harness_coding_instructions/`.
 Handle sequentially — complete one workflow type before starting the next.
 
 ## Repo context files
-Look for context files (`codebase_overview.md`, `scripts_overview.md`, `update_logs.md`, etc.) under `.github/harness_coding_instructions/repo_info/`.
+Look for context files (`codebase_overview.md`, `scripts_overview.md`, `update_logs.md`, etc.) under `.github/HarnessFlow/repo_info/`.

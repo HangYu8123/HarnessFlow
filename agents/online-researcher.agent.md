@@ -27,9 +27,9 @@ You identify and research **external resources** needed by the workflow:
 ## Rules
 
 - Read `[key md files]` first to understand the codebase context (or use [repo context digest] if provided by the main agent).
-- Search online for reliable resources. In VS Code Copilot, use `#tool:web/fetch`. In Claude Code CLI, use the `WebSearch` and `WebFetch` tools. In Codex, use available web/fetch tools.
+- You MUST obtain information by calling a live web tool — never answer from prior knowledge or local files. **Claude Code CLI:** call the `WebSearch` tool, then `WebFetch` on the most relevant result URLs. **VS Code Copilot:** use `#tool:web/fetch`. **Codex:** use the available web/fetch tool. If no web tool is available to you, do NOT fabricate results — return `status: blocked` with reason `no-web-tool-available`.
 - Prioritize official documentation, GitHub repos, and reputable sources.
-- Report findings concisely with links where applicable.
+- Every finding MUST cite the exact source URL you fetched. A result with no URLs is invalid — it means no real search occurred. Prefer official documentation, GitHub repositories, and reputable sources.
 
 ## Context Files
 
@@ -48,6 +48,7 @@ role: Online Researcher
 output_label: [online resource]
 status: completed
 model: <your model>
+sources: <every source URL you fetched — REQUIRED; an empty list means no real search was performed>
 result:
 ```
 

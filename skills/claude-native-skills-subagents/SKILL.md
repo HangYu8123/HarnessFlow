@@ -15,9 +15,9 @@ Use this skill after a code, debug, refactor, or fast workflow implementation st
 3. Identify all newly created or changed files from the implementation report.
 4. Launch the applicable Claude Code bundled skill subagents in parallel. Each launch must follow the Subagent Launch Contract, include "**Use the exact same model as the main agent — do not downgrade.**", and record a launch receipt or fallback result:
    - `/simplify`: Always run. Pass all newly created or changed files. Ask it to reduce complexity, remove redundancy, and clean up logic without changing behavior. Require a [simplify review].
-   - `/batch`: Run only when the implementation requires structurally similar changes across more than 5 files. Require a [batch execution report].
+   - `/batch` *(only if available in this environment)*: when the implementation requires structurally similar changes across more than 5 files. Require a [batch execution report]. If `/batch` is unavailable, skip it.
    - `/claude-api`: Run only when the target functionality integrates Claude, Anthropic APIs, or another AI/LLM service. Require an [api integration review].
-   - `/debug`: Run only when scripts or tests fail after the implementation step. Require a [debug diagnosis report].
+   - **Diagnosis** (when scripts or tests fail after the implementation step): spawn a Focus Analyst diagnosis subagent (`agents/focus-analyst.agent.md`) that re-runs the failing path with verbose output and reads stderr/tracebacks. Require a [debug diagnosis report]. (Do not invoke a `/debug` skill — it is not a standard Claude Code skill.)
 5. Review the [simplify review] and apply valid simplifications.
 6. Incorporate findings from any other native skill reports that were produced.
 7. Return control to the parent workflow at the next validation step.

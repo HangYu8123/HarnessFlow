@@ -18,7 +18,7 @@ Subagent launch rule: Follow the Subagent Launch Contract in `#file:../../_lib/w
 
 > **Subagent invocation:** See `_lib/workflow_contract.md` §Subagent Invocation.
 
-When ask to implement new functionalities, always, first read the following files .github/harness_coding_instructions/repo_info (REFER AS [key md files]):
+When ask to implement new functionalities, always, first read the following files .github/HarnessFlow/repo_info (REFER AS [key md files]):
 1. codebase_overview.md
 2. scripts_overview.md
 3. update_logs.md
@@ -54,7 +54,7 @@ b. The **Online Researcher** must read through [key md files], then identify ext
 
 7. the main agent creates an **Implementer** subagent (`agents/implementer.agent.md`), pass [final plan] and the target functionalities to the subagent. **Implementer Model Verification:** See `_lib/workflow_contract.md` §Implementer Model Verification Fallback. The subagent (or the main agent, if falling back) must also read through [key md files]. Then based on [final plan] and the target functionalities, identify what files and scripts are associated with the implementation of the new functionalities. Then the subagent must read through all those identified files and scripts to get a detailed understanding of them. Then the subagent starts implementing the code based on [final plan] and the target functionalities. During the implementation, the subagent must follow [final plan], and 100% correctly implement and integrate the new functionalities. After finishing the implementation, the subagent must generate an [implementation report] (just what has been changed, **no explanation**), and report [implementation report] back to the main agent.
 
-7.5. If and only if the main agent is Claude Code or another Claude agent with Claude Code skills available, search .github/harness_coding_instructions/skills/index.md for `claude-native-skills-subagents`, then use the skill at .github/harness_coding_instructions/skills/claude-native-skills-subagents/SKILL.md after step 7. If the main agent is not a Claude agent, skip step 7.5 and continue to step 8.
+7.5. If and only if the main agent is Claude Code or another Claude agent with Claude Code skills available, search .github/HarnessFlow/skills/index.md for `claude-native-skills-subagents`, then use the skill at .github/HarnessFlow/skills/claude-native-skills-subagents/SKILL.md after step 7. If the main agent is not a Claude agent, skip step 7.5 and continue to step 8.
 
 8. the main agent creates two subagents and **[PARALLEL EXECUTION — launch the following two subagents in parallel via VS Code Copilot `agent` tool]** (**Senior Engineer** via `agents/senior-engineer.agent.md`; **QA Engineer** via `agents/qa-engineer.agent.md`). Then:
 a. the main agent must pass [final plan], target functionalities, and [implementation report] to the **Senior Engineer** subagent. The subagent must additionally read through [key md files] and check all the code changes in the repo. Then the subagent reviews the code changes and the implementations from a senior staff engineer perspective, assess the code implementation correctness, challenge the implementations, question the effectiveness of the implementations, making sure that the new functionalities are 100% achieved without breaking the current codebase. Then the subagent must generate an [implementation code review report] and then feed the review back to the main agent as [implementation code review report].

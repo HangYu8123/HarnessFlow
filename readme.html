@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>harness_coding_instructions</title>
+  <title>HarnessFlow</title>
   <style>
     :root {
       color-scheme: light;
@@ -589,7 +589,7 @@
     <aside class="sidebar" aria-label="Page navigation">
       <div class="brand">
         <div class="brand-mark">HC</div>
-        <h1>harness_coding_instructions</h1>
+        <h1>HarnessFlow</h1>
         <p>Portable workflow instructions for coding agents.</p>
       </div>
       <nav class="nav">
@@ -609,7 +609,7 @@
       <section class="hero" id="overview">
         <div>
           <p class="eyebrow">Instruction pack</p>
-          <h2>harness_coding_instructions</h2>
+          <h2>HarnessFlow</h2>
           <p class="hero-copy">
             A portable Markdown pack that routes coding-agent requests through structured workflows for implementation,
             debugging, questions, correctness checks, refactors, initialization, and PR breakdowns.
@@ -617,11 +617,11 @@
           <div class="command-row" aria-label="Setup commands">
             <div class="command">
               <span>VS Code setup</span>
-              <code>bash .github/harness_coding_instructions/setup.sh</code>
+              <code>bash .github/HarnessFlow/setup.sh</code>
             </div>
             <div class="command">
               <span>CLI setup</span>
-              <code>bash .github/harness_coding_instructions/cli_setup.sh</code>
+              <code>bash .github/HarnessFlow/cli_setup.sh</code>
             </div>
           </div>
           <div class="stat-grid" aria-label="Repository counts">
@@ -681,7 +681,7 @@
           <h2>Architecture</h2>
           <p>
             The pack is source-controlled at this repo root, then installed into target repos under
-            <code>.github/harness_coding_instructions/</code>. Tool-specific entry points classify the active user request,
+            <code>.github/HarnessFlow/</code>. Tool-specific entry points classify the active user request,
             load shared rules, then hand off to the matching workflow family.
           </p>
           <div class="pipeline" aria-label="Execution pipeline">
@@ -711,13 +711,13 @@
         <section class="section" id="install-layout">
           <h2>Installed Layout</h2>
           <p>
-            Copy this repo into a target repo at <code>.github/harness_coding_instructions/</code>. The setup scripts then
+            Copy this repo into a target repo at <code>.github/HarnessFlow/</code>. The setup scripts then
             generate root-level CLI entry points and standard Copilot instructions.
           </p>
           <pre class="tree"><code>&lt;target-repo&gt;/
 |-- .github/
 |   |-- copilot-instructions.md
-|   `-- harness_coding_instructions/
+|   `-- HarnessFlow/
 |       |-- AGENTS.md
 |       |-- CLAUDE.md
 |       |-- copilot-instructions.md
@@ -866,13 +866,13 @@
           <h2>Setup</h2>
           <p>
             Run setup from the target repo root after the pack has been copied to
-            <code>.github/harness_coding_instructions/</code>.
+            <code>.github/HarnessFlow/</code>.
           </p>
           <div class="split">
             <pre class="code-block"><code># VS Code + Copilot
-bash .github/harness_coding_instructions/setup.sh</code></pre>
+bash .github/HarnessFlow/setup.sh</code></pre>
             <pre class="code-block"><code># Claude Code CLI, Codex CLI, or Codex in VS Code
-bash .github/harness_coding_instructions/cli_setup.sh</code></pre>
+bash .github/HarnessFlow/cli_setup.sh</code></pre>
           </div>
           <div class="grid" style="margin-top: 18px;">
             <div class="tile accent-teal">
@@ -967,13 +967,13 @@ bash .github/harness_coding_instructions/cli_setup.sh</code></pre>
           <div class="split">
             <div>
               <p>
-                VS Code prompts may use <code>@/.github/harness_coding_instructions/...</code>. CLI entry points use
-                filesystem-relative paths such as <code>.github/harness_coding_instructions/workflow/codex_workflow/code.instructions.md</code>
-                or <code>.github/harness_coding_instructions/workflow/codex_token_effective_workflow/code.instructions.md</code>.
+                VS Code prompts may use <code>@/.github/HarnessFlow/...</code>. CLI entry points use
+                filesystem-relative paths such as <code>.github/HarnessFlow/workflow/codex_workflow/code.instructions.md</code>
+                or <code>.github/HarnessFlow/workflow/codex_token_effective_workflow/code.instructions.md</code>.
               </p>
               <div class="note">
                 Root <code>AGENTS.md</code> and <code>CLAUDE.md</code> in this source repo are templates for installed target repos.
-                Their installed paths are expected to resolve after the pack is copied under <code>.github/harness_coding_instructions/</code>.
+                Their installed paths are expected to resolve after the pack is copied under <code>.github/HarnessFlow/</code>.
               </div>
             </div>
             <ul class="module-list">

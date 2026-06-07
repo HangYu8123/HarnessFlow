@@ -1,14 +1,14 @@
 #!/bin/bash
-# CLI Setup Script for harness_coding_instructions
+# CLI Setup Script for HarnessFlow
 # Generates entry-point files for CLI tools (Claude Code, Codex)
 # and ensures repo_info/ structure exists.
 #
 # Run this script from the root of your target repo AFTER copying
-# harness_coding_instructions into .github/harness_coding_instructions/
+# HarnessFlow into .github/HarnessFlow/
 
 set -e
 
-PACK_DIR=".github/harness_coding_instructions"
+PACK_DIR=".github/HarnessFlow"
 
 if [ ! -d "$PACK_DIR" ]; then
     echo "Error: $PACK_DIR not found." >&2
@@ -75,10 +75,10 @@ if [ -f "$PACK_DIR/copilot-instructions.md" ]; then
     mkdir -p ".github"
     COPILOT_DEST=".github/copilot-instructions.md"
     if [ ! -f "$COPILOT_DEST" ]; then
-        sed 's|#file:|#file:harness_coding_instructions/|g' "$PACK_DIR/copilot-instructions.md" > "$COPILOT_DEST"
+        sed 's|#file:|#file:HarnessFlow/|g' "$PACK_DIR/copilot-instructions.md" > "$COPILOT_DEST"
         echo "Created $COPILOT_DEST (GitHub Copilot instructions)"
     elif grep -Fq "Master Orchestrator — Instruction Router" "$COPILOT_DEST"; then
-        sed 's|#file:|#file:harness_coding_instructions/|g' "$PACK_DIR/copilot-instructions.md" > "$COPILOT_DEST"
+        sed 's|#file:|#file:HarnessFlow/|g' "$PACK_DIR/copilot-instructions.md" > "$COPILOT_DEST"
         echo "Refreshed $COPILOT_DEST (GitHub Copilot instructions)"
     else
         echo "WARNING: $COPILOT_DEST exists with custom content — leaving unchanged." >&2
@@ -136,7 +136,7 @@ fi
 # --- Agent Discovery Guidance ---
 echo ""
 echo "=== Agent Discovery ==="
-echo "Agent definitions are at: .github/harness_coding_instructions/agents/"
+echo "Agent definitions are at: .github/HarnessFlow/agents/"
 echo ""
 echo "For Claude Code:"
 echo "  Subagents are spawned via the Task tool with inline prompts."

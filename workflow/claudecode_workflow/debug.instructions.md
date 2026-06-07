@@ -20,13 +20,14 @@ description: 'Instructions for debugging and fixing bugs — Claude Code CLI nat
 input 1: target bug
 input 2: suspected reasons (optional)
 input 3: important scripts (optional)
+subagent_model (optional, default: claude-sonnet-4-6): model to use for all subagents in this workflow
 
 
 **read through this entire file and follow the instructions carefully**.
 Before doing any workflow-specific work, the main agent must read and follow `_lib/workflow_contract.md` and `philosophy/philosophy.instructions.md`, resolved by the Pack Path Resolution rule, before proceeding.
 Every subagent created by this workflow must also read and follow `_lib/workflow_contract.md` and `philosophy/philosophy.instructions.md` before reading [key md files] or performing task-specific work.
 
-Subagent launch rule: Follow the Subagent Launch Contract in `_lib/workflow_contract.md` (resolved by Pack Path Resolution rule).
+Subagent launch rule: Use the `subagent_model` parameter from the request header as the model for all subagents (default: `claude-sonnet-4-6`). This overrides the workflow contract's "use exact main agent model" requirement. When creating each subagent, specify the model as the `subagent_model` value. See `_lib/workflow_contract.md` §Subagent Invocation for invocation mechanics.
 
 > **Subagent invocation:** See `_lib/workflow_contract.md` §Subagent Invocation.
 
@@ -52,7 +53,7 @@ a. the **Focus Analyst** focuses on the important scripts and suspected reasons,
 b. the **Broad Analyst** follows the pipeline diagram from [key md files], reads through all scripts from upstream of the diagram to downstream of the diagram, checks the potential reasons for the bug from a broader perspective, and reports back to the main agent as [bug reason 2].
 c. the **Free Analyst** decides what files to read and what scripts to check, following its own logic, checks the potential reasons for the bug from a completely free perspective, and reports back to the main agent as [bug reason 3].
 
-1.5. Since this is a Claude Code environment, the main agent creates a **Debug sub-agent (`/debug`)** for diagnosis: Pass the bug description, suspected reasons, and [repo context digest] to this subagent. The subagent uses `/debug` to enable debug logging for the current session and reads the logs to identify exactly what went wrong. This provides concrete log-level evidence to supplement the analysis from step 1. Report back a [debug log analysis] to the main agent.
+1.5. The main agent creates a **Diagnosis subagent** (`agents/focus-analyst.agent.md`, diagnosis mode): pass the bug description, suspected reasons, and [repo context digest] to this subagent. The subagent re-runs the suspected code path with verbose/debug flags where possible and reads the actual stdout/stderr/tracebacks (and any existing log output) to identify exactly what went wrong, producing concrete evidence to supplement the analysis from step 1. (Do not rely on a `/debug` skill — it is not a standard Claude Code skill.) Report back a [debug log analysis] to the main agent.
 
 2. the main agent must read through all three reports ([bug reason 1], [bug reason 2], and [bug reason 3]) from step 1, [debug log analysis] from step 1.5, and [reproduction report] if it exists. Read necessary files, understand each report, examine all pointed-out potential reasons, combine the insights of each report, reject the redundant or incorrect parts of each report, and draft a precise and verified correct report to address the potential reasons for the bug as [bug info].
 
@@ -60,7 +61,7 @@ c. the **Free Analyst** decides what files to read and what scripts to check, fo
 
 a. The **Devils Advocate** receives [repo context digest] from the main agent, then critically challenges [bug info] — looking for overlooked root causes, misattributed blame, or incorrect assumptions. The subagent reports any flaws back to the main agent as [valid criticisms].
 
-b. The **Online Researcher** receives [repo context digest] from the main agent and [bug info], then identifies extra needs for skills, tools, packages, logs, error messages, or external references. The subagent searches online for reliable resources and solutions. The subagent reports the findings from online back to the main agent as [online resource].
+b. The **Online Researcher** receives [repo context digest] from the main agent and [bug info], then identifies extra needs for skills, tools, packages, logs, error messages, or external references. The subagent MUST actually call the `WebSearch` and `WebFetch` tools to search the live internet (never answer from prior knowledge) and MUST return the source URLs it fetched as proof — see `agents/online-researcher.agent.md`. The subagent reports the findings from online back to the main agent as [online resource].
 
 3.5. The main agent incorporates [valid criticisms] and [online resource], and updates [bug info] accordingly.
 
@@ -74,7 +75,7 @@ b. The **Online Researcher** receives [repo context digest] from the main agent 
 
 a. The **Devils Advocate** receives [repo context digest] from the main agent and reads all relevant scripts, then critically challenges [final bug fix plan] — looking for overlooked side effects, integration risks, incorrect assumptions about the codebase, or potential regressions. The subagent reports any flaws back to the main agent as [valid criticisms].
 
-b. The **Online Researcher** receives [repo context digest] from the main agent and [final bug fix plan], then identifies extra needs for skills, tools, and packages. The subagent searches online for reliable resources and solutions. The subagent reports the findings from online back to the main agent as [online resource].
+b. The **Online Researcher** receives [repo context digest] from the main agent and [final bug fix plan], then identifies extra needs for skills, tools, and packages. The subagent MUST actually call the `WebSearch` and `WebFetch` tools to search the live internet (never answer from prior knowledge) and MUST return the source URLs it fetched as proof — see `agents/online-researcher.agent.md`. The subagent reports the findings from online back to the main agent as [online resource].
 
 6.75. The main agent incorporates [valid criticisms] and [online resource], and updates [final bug fix plan] accordingly.
 

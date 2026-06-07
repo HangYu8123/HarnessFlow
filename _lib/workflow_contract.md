@@ -1,6 +1,6 @@
 # Workflow Contract
 
-This document consolidates the shared rules, principles, and requirements that apply to all workflows, agents, and subagents in harness_coding_instructions.
+This document consolidates the shared rules, principles, and requirements that apply to all workflows, agents, and subagents in HarnessFlow.
 
 ---
 
@@ -32,14 +32,14 @@ Every subagent created by any workflow must also read and follow this contract a
 
 ## Pack Path Resolution
 
-The installed pack root is `.github/harness_coding_instructions` from the target repo root.
+The installed pack root is `.github/HarnessFlow` from the target repo root.
 
 When a workflow references a pack-relative path such as `workflow/...`, `repo_info/...`, `philosophy/...`, `_lib/...`, or `skills/...`, resolve it in this order:
 
-1. `.github/harness_coding_instructions/<path>` from the target repo root (installed layout).
+1. `.github/HarnessFlow/<path>` from the target repo root (installed layout).
 2. `<path>` from the repo root when running in the source repo or when the pack root is the repo root.
 
-In installed repos, do not create `repo_info/` outside `.github/harness_coding_instructions/repo_info/`.
+In installed repos, do not create `repo_info/` outside `.github/HarnessFlow/repo_info/`.
 
 ---
 
@@ -53,7 +53,7 @@ In installed repos, do not create `repo_info/` outside `.github/harness_coding_i
 - For a parallel group, launch all listed subagents as separate invocations before waiting for results. If parallel launch is unavailable, launch the same subagent prompts one at a time; preserve the same output labels.
 - If native subagent creation is unavailable, blocked, or cannot preserve model parity, do not hide the failure. Record a fallback result with the same output label and `status: fallback-single-agent` or `status: blocked`, then continue only where the workflow allows fallback.
 - Maintain an in-memory activity log for every subagent group with: role, output label, launch mechanism, requested model, confirmed model when available, context files, start status, completion status, and fallback reason if any.
-- Every real subagent result should include the following metadata. **In VS Code Copilot and Codex**, the result must begin with this header block. **In Claude Code**, the header is optional — the Agent tool scopes results automatically, so subagents may return their analysis directly without the header:
+- Every real subagent result should include the following metadata. **In VS Code Copilot and Codex**, the result must begin with this header block. **In Claude Code**, the header is optional — the `Task` tool scopes results automatically, so subagents may return their analysis directly without the header:
 
 ```md
 [subagent result]
@@ -89,7 +89,7 @@ When a workflow says to "launch" or "create" a subagent, use the platform's nati
 
 Before invoking a subagent in VS Code, ensure:
 1. The coordinator agent's frontmatter declares `tools: ['agent', ...]` and lists the target agent in `agents: [...]`.
-2. The target agent exists as a `.agent.md` file in the configured `chat.agentFilesLocations` directory (default: `.github/harness_coding_instructions/agents/`).
+2. The target agent exists as a `.agent.md` file in the configured `chat.agentFilesLocations` directory (default: `.github/HarnessFlow/agents/`).
 3. The target agent's `name:` field matches the name used in the `agents:` list exactly (case-sensitive).
 
 If subagent invocation fails (e.g., tool is unavailable, agent not found), record a fallback result and continue as specified in the Subagent Launch Contract above.

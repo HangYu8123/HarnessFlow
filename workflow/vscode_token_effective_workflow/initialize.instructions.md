@@ -30,7 +30,7 @@ Subagent launch rule: Follow the Subagent Launch Contract in `#file:../../_lib/w
 ## CREATE ONE TODO PER STEP
 
 ### Step 1 - Scan and Setup
-1. If `.vscode/settings.json` does not already contain `chat.agentFilesLocations` with `.github/harness_coding_instructions/agents` set to `true`, run `setup.sh` from the target repo root to configure VS Code workspace settings.
+1. If `.vscode/settings.json` does not already contain `chat.agentFilesLocations` with `.github/HarnessFlow/agents` set to `true`, run `setup.sh` from the target repo root to configure VS Code workspace settings.
 2. Scan the entire repo and keep the file listing in memory.
 3. Ensure the repo_info folder exists.
 4. Ensure these canonical [repo_info files] exist under repo_info, creating empty files when missing:
@@ -93,14 +93,14 @@ The main agent combines [issues report] and [code issues report]. Write to known
 After completing all steps above, check whether internal path references need updating for multi-root workspace compatibility.
 
 1. Determine [repo folder name] - the name of the repo's root folder as it appears in the VS Code workspace.
-2. Idempotency guard: before replacements, check if any `.md` file under `.github/harness_coding_instructions/` already contains a path with `[repo folder name]/.github/`. If so, this step already ran; skip all replacements and continue to Step 9.
-3. Rename detection: if the idempotency guard did not trigger, scan `.md` files under `.github/harness_coding_instructions/` for any path matching `[some_prefix]/.github/harness_coding_instructions/` where `[some_prefix]` is not [repo folder name]. If found, replace `[old_prefix]/.github/harness_coding_instructions/` with `[repo folder name]/.github/harness_coding_instructions/`, then skip to verification.
-4. Go through all `.md` files under `.github/harness_coding_instructions/` and replace every occurrence of `.github/harness_coding_instructions/` with `[repo folder name]/.github/harness_coding_instructions/` only in path references used by agents.
-5. Verify that updated paths resolve by spot-checking key paths such as `[repo folder name]/.github/harness_coding_instructions/repo_info/codebase_overview.md`.
+2. Idempotency guard: before replacements, check if any `.md` file under `.github/HarnessFlow/` already contains a path with `[repo folder name]/.github/`. If so, this step already ran; skip all replacements and continue to Step 9.
+3. Rename detection: if the idempotency guard did not trigger, scan `.md` files under `.github/HarnessFlow/` for any path matching `[some_prefix]/.github/HarnessFlow/` where `[some_prefix]` is not [repo folder name]. If found, replace `[old_prefix]/.github/HarnessFlow/` with `[repo folder name]/.github/HarnessFlow/`, then skip to verification.
+4. Go through all `.md` files under `.github/HarnessFlow/` and replace every occurrence of `.github/HarnessFlow/` with `[repo folder name]/.github/HarnessFlow/` only in path references used by agents.
+5. Verify that updated paths resolve by spot-checking key paths such as `[repo folder name]/.github/HarnessFlow/repo_info/codebase_overview.md`.
 
 ### Step 9 - Refresh Copilot Entry Point
-Copy `.github/harness_coding_instructions/copilot-instructions.md` to `.github/copilot-instructions.md`.
+Copy `.github/HarnessFlow/copilot-instructions.md` to `.github/copilot-instructions.md`.
 
-In the destination copy, rewrite all `#file:` references by prepending `harness_coding_instructions/` to their paths. For example, `#file:_lib/workflow_contract.md` becomes `#file:harness_coding_instructions/_lib/workflow_contract.md`. This is necessary because `#file:` paths resolve relative to `.github/copilot-instructions.md`.
+In the destination copy, rewrite all `#file:` references by prepending `HarnessFlow/` to their paths. For example, `#file:_lib/workflow_contract.md` becomes `#file:HarnessFlow/_lib/workflow_contract.md`. This is necessary because `#file:` paths resolve relative to `.github/copilot-instructions.md`.
 
 Create `.github/copilot-instructions.md` if absent. Overwrite it only if it contains the standard marker text `"Master Orchestrator"`. If custom content is detected, warn and skip.

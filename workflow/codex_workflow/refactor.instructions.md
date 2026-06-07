@@ -32,7 +32,7 @@ Subagent launch rule: Follow the Subagent Launch Contract in `_lib/workflow_cont
 
 > **Subagent invocation:** See `_lib/workflow_contract.md` §Subagent Invocation.
 
-When ask to refactor existing functionalities, repositories, and scripts, always, first read the following files .github/harness_coding_instructions/repo_info (REFER AS [key md files]):
+When ask to refactor existing functionalities, repositories, and scripts, always, first read the following files .github/HarnessFlow/repo_info (REFER AS [key md files]):
 1. codebase_overview.md
 2. scripts_overview.md
 3. update_logs.md

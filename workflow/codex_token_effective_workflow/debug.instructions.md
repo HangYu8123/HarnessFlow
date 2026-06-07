@@ -30,7 +30,7 @@ Subagent launch rule: Follow the Subagent Launch Contract in `_lib/workflow_cont
 
 > **Subagent invocation:** See `_lib/workflow_contract.md` §Subagent Invocation.
 
-[key md files]: codebase_overview.md, scripts_overview.md, update_logs.md, known_issues.md (under .github/harness_coding_instructions/repo_info).
+[key md files]: codebase_overview.md, scripts_overview.md, update_logs.md, known_issues.md (under .github/HarnessFlow/repo_info).
 
 ---
 

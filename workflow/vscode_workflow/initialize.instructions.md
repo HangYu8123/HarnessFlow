@@ -12,11 +12,11 @@ Subagent launch rule: Follow the Subagent Launch Contract in `#file:../../_lib/w
 > **Subagent invocation:** See `_lib/workflow_contract.md` §Subagent Invocation.
 
 ## Procedure 1: Run Setup & Scan Repo
-First, if `.vscode/settings.json` does not already contain `chat.agentFilesLocations` with `.github/harness_coding_instructions/agents` set to `true`, run `setup.sh` from the target repo root to configure VS Code workspace settings (agent discovery, instruction file locations, and `chat.includeReferencedInstructions`).
+First, if `.vscode/settings.json` does not already contain `chat.agentFilesLocations` with `.github/HarnessFlow/agents` set to `true`, run `setup.sh` from the target repo root to configure VS Code workspace settings (agent discovery, instruction file locations, and `chat.includeReferencedInstructions`).
 Then go through the entire repo, keep what files exist in this repo in the memory.
 
 ## Procedure 2: Verify repo_info Files
-The `repo_info/` folder must be at the same level as `request_template/` and `workflow/` (i.e., all are siblings under the pack root `.github/harness_coding_instructions/`).
+The `repo_info/` folder must be at the same level as `request_template/` and `workflow/` (i.e., all are siblings under the pack root `.github/HarnessFlow/`).
 Then, check the existence of the following [repo_info files] under the repo_info folder:
 1. codebase_overview.md
 2. scripts_overview.md
@@ -111,19 +111,19 @@ if the file does not exist, create an empty file.
 After completing all file creation in Procedure 4, check whether internal path references need updating for multi-root workspace compatibility.
 
 1. Determine `[repo folder name]` — the name of the repo's root folder as it appears in the VS Code workspace (e.g., if the repo lives at `/workspace/my_project/`, then `[repo folder name]` is `my_project`).
-2. **Idempotency guard**: Before performing any replacements, check if any `.md` file under `.github/harness_coding_instructions/` already contains a path with `[repo folder name]/.github/` (e.g., `my_project/.github/`). If so, Procedure 5 has already been run — **skip all replacements and continue to Procedure 6**.
-3. **Rename detection**: If the idempotency guard did NOT trigger, scan `.md` files under `.github/harness_coding_instructions/` for any path matching the pattern `[some_prefix]/.github/harness_coding_instructions/` where `[some_prefix]` is NOT `[repo folder name]`. If found, the repo was previously initialized under a different folder name. In this case, replace all occurrences of `[old_prefix]/.github/harness_coding_instructions/` with `[repo folder name]/.github/harness_coding_instructions/` (a rename-aware replacement), then **skip to step 5** (verification).
-4. Go through **all `.md` files** under `.github/harness_coding_instructions/` (including subfolders: `workflow/vscode_workflow/`, `workflow/vscode_token_effective_workflow/`, `workflow/claudecode_workflow/`, `workflow/codex_workflow/`, `workflow/codex_token_effective_workflow/`, `request_template/`, `repo_info/`, `_lib/`, and root level) and replace every occurrence of `.github/harness_coding_instructions/` with `[repo folder name]/.github/harness_coding_instructions/` **only in path references used by agents** (e.g., in `[key md files]` path descriptions, not in prose descriptions of the pack).
-5. Verify that all updated paths now correctly resolve to the right files in the workspace by spot-checking a few key paths (e.g., `[repo folder name]/.github/harness_coding_instructions/repo_info/codebase_overview.md`).
+2. **Idempotency guard**: Before performing any replacements, check if any `.md` file under `.github/HarnessFlow/` already contains a path with `[repo folder name]/.github/` (e.g., `my_project/.github/`). If so, Procedure 5 has already been run — **skip all replacements and continue to Procedure 6**.
+3. **Rename detection**: If the idempotency guard did NOT trigger, scan `.md` files under `.github/HarnessFlow/` for any path matching the pattern `[some_prefix]/.github/HarnessFlow/` where `[some_prefix]` is NOT `[repo folder name]`. If found, the repo was previously initialized under a different folder name. In this case, replace all occurrences of `[old_prefix]/.github/HarnessFlow/` with `[repo folder name]/.github/HarnessFlow/` (a rename-aware replacement), then **skip to step 5** (verification).
+4. Go through **all `.md` files** under `.github/HarnessFlow/` (including subfolders: `workflow/vscode_workflow/`, `workflow/vscode_token_effective_workflow/`, `workflow/claudecode_workflow/`, `workflow/codex_workflow/`, `workflow/codex_token_effective_workflow/`, `request_template/`, `repo_info/`, `_lib/`, and root level) and replace every occurrence of `.github/HarnessFlow/` with `[repo folder name]/.github/HarnessFlow/` **only in path references used by agents** (e.g., in `[key md files]` path descriptions, not in prose descriptions of the pack).
+5. Verify that all updated paths now correctly resolve to the right files in the workspace by spot-checking a few key paths (e.g., `[repo folder name]/.github/HarnessFlow/repo_info/codebase_overview.md`).
 
 
 ## Procedure 6: Copy Entry-Point Files for Cross-Tool Compatibility
 Copy the entry-point files from the pack to their standard discoverable locations. This ensures each tool can auto-discover its instructions without additional configuration, regardless of which tool was used to initialize.
 
-1. Copy `.github/harness_coding_instructions/copilot-instructions.md` → `.github/copilot-instructions.md` (standard GitHub Copilot discovery path).
-   - **Important**: In the destination copy, rewrite all `#file:` references by prepending `harness_coding_instructions/` to their paths. For example, `#file:_lib/workflow_contract.md` becomes `#file:harness_coding_instructions/_lib/workflow_contract.md`, and `#file:workflow/vscode_workflow/code.instructions.md` becomes `#file:harness_coding_instructions/workflow/vscode_workflow/code.instructions.md`. This is necessary because `#file:` paths resolve relative to the file's directory — when the file moves from `.github/harness_coding_instructions/` to `.github/`, the paths must be adjusted accordingly.
-2. Copy `.github/harness_coding_instructions/CLAUDE.md` → repo root `CLAUDE.md` (Claude Code CLI auto-discovers this at the repo root).
-3. Copy `.github/harness_coding_instructions/AGENTS.md` → repo root `AGENTS.md` (Codex CLI auto-discovers this at the repo root).
+1. Copy `.github/HarnessFlow/copilot-instructions.md` → `.github/copilot-instructions.md` (standard GitHub Copilot discovery path).
+   - **Important**: In the destination copy, rewrite all `#file:` references by prepending `HarnessFlow/` to their paths. For example, `#file:_lib/workflow_contract.md` becomes `#file:HarnessFlow/_lib/workflow_contract.md`, and `#file:workflow/vscode_workflow/code.instructions.md` becomes `#file:HarnessFlow/workflow/vscode_workflow/code.instructions.md`. This is necessary because `#file:` paths resolve relative to the file's directory — when the file moves from `.github/HarnessFlow/` to `.github/`, the paths must be adjusted accordingly.
+2. Copy `.github/HarnessFlow/CLAUDE.md` → repo root `CLAUDE.md` (Claude Code CLI auto-discovers this at the repo root).
+3. Copy `.github/HarnessFlow/AGENTS.md` → repo root `AGENTS.md` (Codex CLI auto-discovers this at the repo root).
 
 For each file:
 - If the destination file does **not** exist, copy it.

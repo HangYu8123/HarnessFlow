@@ -8,7 +8,7 @@
 **Keep repo-level context in one place once the repo has been initialized.**
 
 This pack supports **VS Code + Copilot**, **Claude Code CLI**, and **Codex CLI**.
-Copy it into a target repo under `.github/harness_coding_instructions` so the agent can route requests to the right workflow file and follow a more consistent process.
+Copy it into a target repo under `.github/HarnessFlow` so the agent can route requests to the right workflow file and follow a more consistent process.
 
 [VS Code](#vs-code--copilot) · [Claude Code CLI](#claude-code-cli) · [Codex CLI](#codex-cli) · [Setup](#quick-start) · [Architecture](#architecture)
 
@@ -18,7 +18,7 @@ Copy it into a target repo under `.github/harness_coding_instructions` so the ag
 
 ## What Is This Pack For?
 
-`harness_coding_instructions` is a portable instruction pack for coding agents. Copy it into a target repository so the agent can route requests through consistent workflows for implementation, debugging, questions, correctness checks, refactors, initialization, command execution, and PR breakdowns.
+`HarnessFlow` is a portable instruction pack for coding agents. Copy it into a target repository so the agent can route requests through consistent workflows for implementation, debugging, questions, correctness checks, refactors, initialization, command execution, and PR breakdowns.
 
 ## Architecture
 
@@ -28,7 +28,7 @@ The source repo stores the pack at the repo root. The installed layout expected 
 <target-repo>/
 |-- .github/
 |   |-- copilot-instructions.md
-|   `-- harness_coding_instructions/
+|   `-- HarnessFlow/
 |       |-- AGENTS.md
 |       |-- CLAUDE.md
 |       |-- copilot-instructions.md
@@ -51,14 +51,14 @@ The source repo stores the pack at the repo root. The installed layout expected 
 
 ## Quick Start
 
-Copy this repo's contents into a target repo at `.github/harness_coding_instructions/`.
+Copy this repo's contents into a target repo at `.github/HarnessFlow/`.
 
 Example from a Unix-like shell:
 
 ```bash
 cd /path/to/target-repo
 mkdir -p .github
-rsync -a --exclude .git /path/to/coding_prompts/ .github/harness_coding_instructions/
+rsync -a --exclude .git /path/to/coding_prompts/ .github/HarnessFlow/
 ```
 
 <a id="vs-code--copilot"></a>
@@ -66,7 +66,7 @@ rsync -a --exclude .git /path/to/coding_prompts/ .github/harness_coding_instruct
 For VS Code + Copilot:
 
 ```bash
-bash .github/harness_coding_instructions/setup.sh
+bash .github/HarnessFlow/setup.sh
 ```
 
 <a id="claude-code-cli"></a>
@@ -75,13 +75,13 @@ bash .github/harness_coding_instructions/setup.sh
 For Claude Code CLI, Codex CLI, or Codex in VS Code:
 
 ```bash
-bash .github/harness_coding_instructions/cli_setup.sh
+bash .github/HarnessFlow/cli_setup.sh
 ```
 
 Then run the initialize workflow once in the target repo so `repo_info/` contains target-specific memory:
 
 ```text
-Following the instructions in @/.github/harness_coding_instructions/workflow/vscode_workflow/initialize.instructions.md, initialize this repo.
+Following the instructions in @/.github/HarnessFlow/workflow/vscode_workflow/initialize.instructions.md, initialize this repo.
 ```
 
 For CLI tools, ask naturally from the target repo root after setup:
@@ -152,18 +152,18 @@ The root routers classify the six common categories: initialize, code implementa
 
 ### `setup.sh`
 
-Run from the target repo root after copying the pack to `.github/harness_coding_instructions/`.
+Run from the target repo root after copying the pack to `.github/HarnessFlow/`.
 
 It validates that the pack is present, then writes or updates `.vscode/settings.json` with:
 
 ```json
 {
   "chat.instructionsFilesLocations": {
-    ".github/harness_coding_instructions": true,
+    ".github/HarnessFlow": true,
     ".claude/rules": true
   },
   "chat.agentFilesLocations": {
-    ".github/harness_coding_instructions/agents": true
+    ".github/HarnessFlow/agents": true
   },
   "chat.includeReferencedInstructions": true
 }
@@ -175,7 +175,7 @@ When merging an existing VS Code settings file, the script tries `python3`, then
 
 ### `cli_setup.sh`
 
-Run from the target repo root after copying the pack to `.github/harness_coding_instructions/`.
+Run from the target repo root after copying the pack to `.github/HarnessFlow/`.
 
 It:
 
@@ -214,7 +214,7 @@ mode: fast
 ```
 
 For VS Code Copilot, `general` selects `workflow/vscode_workflow/` and `fast` selects `workflow/vscode_token_effective_workflow/`.
-For Codex CLI or Codex in VS Code, `general` selects `workflow/codex_workflow/` and `fast` selects `workflow/codex_token_effective_workflow/`. The templates use `@/.github/harness_coding_instructions/...` paths for VS Code Copilot and filesystem paths for Codex.
+For Codex CLI or Codex in VS Code, `general` selects `workflow/codex_workflow/` and `fast` selects `workflow/codex_token_effective_workflow/`. The templates use `@/.github/HarnessFlow/...` paths for VS Code Copilot and filesystem paths for Codex.
 
 ## Agents And Skills
 
@@ -247,9 +247,9 @@ In this source repo, `repo_info/` is ignored by git. In a target repo, initializ
 ## Path Rules
 
 - In this source repo, paths are root-relative, for example `workflow/codex_workflow/code.instructions.md` or `workflow/codex_token_effective_workflow/code.instructions.md`.
-- In an installed target repo, the pack lives under `.github/harness_coding_instructions/`.
-- VS Code workflow prompts may use `@/.github/harness_coding_instructions/...`.
-- CLI entry points use filesystem-relative paths such as `.github/harness_coding_instructions/workflow/codex_workflow/code.instructions.md` and `.github/harness_coding_instructions/workflow/codex_token_effective_workflow/code.instructions.md`.
+- In an installed target repo, the pack lives under `.github/HarnessFlow/`.
+- VS Code workflow prompts may use `@/.github/HarnessFlow/...`.
+- CLI entry points use filesystem-relative paths such as `.github/HarnessFlow/workflow/codex_workflow/code.instructions.md` and `.github/HarnessFlow/workflow/codex_token_effective_workflow/code.instructions.md`.
 - Do not add VS Code `@/` prefixes to CLI workflow files.
 
 ## Safety Rules
@@ -270,7 +270,7 @@ Keep destructive auto-approval disabled for any command that can delete or overw
 - CLI subagent behavior depends on the capabilities of the active CLI tool and model parity support.
 - Claude-native skill steps only apply in Claude Code environments.
 - The source repo ignores `.github/` and `repo_info/`, so generated target-repo files are not tracked here.
-- Root `AGENTS.md` and `CLAUDE.md` in this source repo are templates for installed target repos; their `.github/harness_coding_instructions/...` paths are expected to resolve after installation.
+- Root `AGENTS.md` and `CLAUDE.md` in this source repo are templates for installed target repos; their `.github/HarnessFlow/...` paths are expected to resolve after installation.
 
 ## Typical Usage
 

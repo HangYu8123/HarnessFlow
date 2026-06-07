@@ -30,7 +30,7 @@ Subagent launch rule: Follow the Subagent Launch Contract in `_lib/workflow_cont
 
 > **Subagent invocation:** See `_lib/workflow_contract.md` §Subagent Invocation.
 
-[key md files]: codebase_overview.md, scripts_overview.md, update_logs.md, known_issues.md, past_Correctness_Check.md (under .github/harness_coding_instructions/repo_info). Use `past_Correctness_Check.md` as the canonical correctness-check history file; do not create alternate correctness history filenames.
+[key md files]: codebase_overview.md, scripts_overview.md, update_logs.md, known_issues.md, past_Correctness_Check.md (under .github/HarnessFlow/repo_info). Use `past_Correctness_Check.md` as the canonical correctness-check history file; do not create alternate correctness history filenames.
 
 ---
 
