@@ -59,7 +59,7 @@ Spawn **Devils Advocate by default when [final plan] includes any destructive or
 ### Step 5 - Refine and Approval Gate
 The main agent incorporates [challenge report] and [online resource] (when produced) into [final plan]. Print [final plan].
 
-**Approval gate:** See `_lib/approval_gate.md`.
+**Approval gate (optional, skipped by default):** Proceed directly to Step 6 unless the user's prompt explicitly triggers the gate (see `_lib/approval_gate.md` for activation conditions).
 
 ### Step 6 - Execution
 Create **Executor** subagent (`agents/executor.agent.md`). Pass [final plan] + [inputs] + [repo context digest].

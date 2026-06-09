@@ -42,13 +42,13 @@ Per _fast_rules §1: if [inputs] is narrowly scoped (≤ ~3 named files / a sing
 ### Step 3 - Main-Agent Final Plan
 The main agent reviews the plan(s) from Step 2 (or its own direct analysis), reads any necessary files, rejects incorrect or redundant parts, and drafts [final plan] that is feasible, stable, and correct against existing tests and behavior.
 
-### Step 4 - Final Plan Challenge and Research (conditional)
-Per _fast_rules §4–5, spawn only the agents whose triggers fire; otherwise the main agent performs the adversarial pass inline and skips research.
+### Step 4 - Final Plan Challenge and Research
+Always spawn both agents.
 
 | Subagent | Agent | When to spawn | Task |
 |----------|-------|---------------|------|
-| Challenge | **Devils Advocate** (`agents/devils-advocate.agent.md`) | change >~5 files, touches shared/upstream/public-interface code, or is security/data-loss sensitive | Read [repo context digest] + relevant scripts + [final plan] + [inputs]. Identify overlooked side effects, integration risks, incorrect assumptions, and regressions. Return [challenge report]. |
-| Research | **Online Researcher** (`agents/online-researcher.agent.md`) | plan needs a new external dependency/API/tool, an unfamiliar error, or version-compat info | Read [repo context digest] + [final plan] + [inputs]. Search online for reliable resources and better solutions. Return [online resource]. |
+| Challenge | **Devils Advocate** (`agents/devils-advocate.agent.md`) | Always | Read [repo context digest] + relevant scripts + [final plan] + [inputs]. Identify overlooked side effects, integration risks, incorrect assumptions, and regressions. Return [challenge report]. |
+| Research | **Online Researcher** (`agents/online-researcher.agent.md`) | Always | Read [repo context digest] + [final plan] + [inputs]. Search online for reliable resources and better solutions. Return [online resource]. |
 
 ### Step 5 - Refine and Approval Gate
 The main agent incorporates [challenge report] and [online resource] (when produced) into [final plan]. Print the updated [final plan].
@@ -56,16 +56,10 @@ The main agent incorporates [challenge report] and [online resource] (when produ
 **Approval gate:** See `_lib/approval_gate.md`.
 
 ### Step 6 - Implementation
-Create **Implementer** subagent (`agents/implementer.agent.md`). Pass [final plan] + [inputs] + [repo context digest].
+The main agent implements [final plan] directly and records [implementation report] containing changes only, with no explanations.
 
-**Implementer Model Verification:** See `_lib/workflow_contract.md` §Implementer Model Verification Fallback (skip retry loop in Claude Code — model is inherited automatically).
-
-The subagent (or the main agent, if falling back) implements [final plan] and returns [implementation report] containing changes only, with no explanations.
-
-### Step 7 - Main-Agent Code Review and Validation
-The main agent reads [implementation report] and all changed files, then reviews implementation correctness, integration quality, maintainability, and whether [final plan] and [inputs] are fully satisfied. If the user requested script runs, the main agent runs the relevant pipeline directly and records the results.
-
-If the review or run finds issues, revise [final plan] and repeat from Step 6 until the implementation is correct and complete.
+### Step 7 - Code Review and Validation
+Skipped — covered by Step 7.5 native skill review.
 
 ### Step 7.5 - Claude Code Native Skills
 Since this is a Claude Code environment, search `skills/index.md` for `claude-native-skills-subagents`, then use the skill at `skills/claude-native-skills-subagents/SKILL.md`. (That skill runs `/simplify` automatically — do not invoke it separately.)

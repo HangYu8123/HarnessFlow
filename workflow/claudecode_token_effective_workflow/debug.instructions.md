@@ -59,12 +59,12 @@ The main agent reads [reproduction report] (if any) and [bug reasons], rejects r
 The main agent reads all scripts associated with [bug info] and [inputs] and drafts [final bug fix plan] that fixes the bug without breaking the codebase or repeating known_issues.md issues.
 
 ### Step 4 - Final Plan Challenge and Research
-Spawn **Devils Advocate by default when the root cause is uncertain or the fix touches shared code** (_fast_rules §5). Spawn **Online Researcher only** for unfamiliar error strings or known library bugs (_fast_rules §4).
+Always spawn both agents.
 
 | Subagent | Agent | When to spawn | Task |
 |----------|-------|---------------|------|
-| Challenge | **Devils Advocate** (`agents/devils-advocate.agent.md`) | root cause uncertain, or fix touches shared/upstream code | Read [repo context digest] + relevant scripts + [final bug fix plan] + [bug info] + [inputs]. Identify overlooked root causes, side effects, integration risks, and regressions. Return [valid criticisms]. |
-| Research | **Online Researcher** (`agents/online-researcher.agent.md`) | unfamiliar error/exception or suspected dependency bug | Read [repo context digest] + [final bug fix plan] + [bug info] + [inputs]. Search online for error references and known solutions. Return [online resource]. |
+| Challenge | **Devils Advocate** (`agents/devils-advocate.agent.md`) | Always | Read [repo context digest] + relevant scripts + [final bug fix plan] + [bug info] + [inputs]. Identify overlooked root causes, side effects, integration risks, and regressions. Return [valid criticisms]. |
+| Research | **Online Researcher** (`agents/online-researcher.agent.md`) | Always | Read [repo context digest] + [final bug fix plan] + [bug info] + [inputs]. Search online for error references and known solutions. Return [online resource]. |
 
 ### Step 5 - Refine and Approval Gate
 The main agent incorporates [valid criticisms] and [online resource] (when produced) into [final bug fix plan]. Print [final bug fix plan].
@@ -72,16 +72,10 @@ The main agent incorporates [valid criticisms] and [online resource] (when produ
 **Approval gate:** See `_lib/approval_gate.md`.
 
 ### Step 6 - Implementation
-Create **Implementer** subagent (`agents/implementer.agent.md`). Pass [final bug fix plan] + [bug info] + [inputs] + [repo context digest].
+The main agent implements [final bug fix plan] directly and records [implementation report] containing changes only, with no explanations.
 
-**Implementer Model Verification:** See `_lib/workflow_contract.md` §Implementer Model Verification Fallback (skip retry loop in Claude Code — model is inherited automatically).
-
-The subagent (or the main agent, if falling back) implements [final bug fix plan] and returns [implementation report] containing changes only, with no explanations.
-
-### Step 7 - Main-Agent Code Review and Validation
-The main agent reads [implementation report] and all changed files, then reviews fix correctness, code quality, and side effects. If a reproduction path exists (Step 0) or the user requested runs, the main agent re-runs that path directly to confirm the bug is actually fixed.
-
-If the review or run finds the bug unfixed, revise [final bug fix plan] and repeat from Step 6 until the fix is correct and complete.
+### Step 7 - Code Review and Validation
+Skipped — covered by Step 7.5 native skill review.
 
 ### Step 7.5 - Claude Code Native Skills
 Since this is a Claude Code environment, search `skills/index.md` for `claude-native-skills-subagents`, then use the skill at `skills/claude-native-skills-subagents/SKILL.md`. (That skill runs `/simplify` automatically — do not invoke it separately.)
