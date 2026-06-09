@@ -26,13 +26,12 @@ input 2: base branch (optional, defaults to repo default branch)
 input 3: mode — `plan` or `execute` (optional, defaults to `execute`)
 input 4: max lines per PR (optional, defaults to 1000)
 input 5: stack tool preference (optional, auto-detect)
-subagent_model (optional, default: claude-sonnet-4-6): model to use for all subagents in this workflow
 
 **read through this entire file and follow the instructions carefully**.
 Before doing any workflow-specific work, the main agent must read and follow `_lib/workflow_contract.md`, resolved by the Pack Path Resolution rule, and `philosophy/philosophy.instructions.md`, resolved by the Pack Path Resolution rule, before proceeding.
 Every subagent created by this workflow must also read and follow `_lib/workflow_contract.md` and `philosophy/philosophy.instructions.md` before reading [key md files] or performing task-specific work.
 
-Subagent launch rule: Use the `subagent_model` parameter from the request header as the model for all subagents (default: `claude-sonnet-4-6`). This overrides the workflow contract's "use exact main agent model" requirement. When creating each subagent, specify the model as the `subagent_model` value. See `_lib/workflow_contract.md` §Subagent Invocation for invocation mechanics.
+Subagent launch rule: Follow the Subagent Launch Contract in `_lib/workflow_contract.md` (resolved by Pack Path Resolution rule).
 
 > **Subagent invocation:** See `_lib/workflow_contract.md` §Subagent Invocation.
 

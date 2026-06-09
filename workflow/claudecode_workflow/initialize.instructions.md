@@ -13,12 +13,11 @@ description: 'Instructions for creating necessary repo_info memory files to guid
 
 **Safety: follow `_lib/safety_rules.md`.**
 [parameters]:
-subagent_model (optional, default: claude-sonnet-4-6): model to use for all subagents in this workflow
 
 Before doing any workflow-specific work, the main agent must read and follow `_lib/workflow_contract.md` and `philosophy/philosophy.instructions.md`, resolved by the Pack Path Resolution rule, before proceeding.
 Every subagent created by this workflow must also read and follow `_lib/workflow_contract.md` and `philosophy/philosophy.instructions.md` before reading the repo or performing task-specific work.
 
-Subagent launch rule: Use the `subagent_model` parameter from the request header as the model for all subagents (default: `claude-sonnet-4-6`). This overrides the workflow contract's "use exact main agent model" requirement. When creating each subagent, specify the model as the `subagent_model` value. See `_lib/workflow_contract.md` §Subagent Invocation for invocation mechanics.
+Subagent launch rule: Follow the Subagent Launch Contract in `_lib/workflow_contract.md` (resolved by Pack Path Resolution rule).
 
 > **Subagent invocation:** See `_lib/workflow_contract.md` §Subagent Invocation.
 
