@@ -1,6 +1,6 @@
 ---
 name: 'Fast Code Implementation (Claude Code)'
-description: 'Fast new-feature implementation for Claude Code: lean exploration, conditional review/research, approval gate, and /simplify cleanup'
+description: 'Fast new-feature implementation for Claude Code: lean exploration, conditional review/research, and /simplify + /code-review native-skill review'
 ---
 # Add New Functions to an Existing Repo
 
@@ -30,9 +30,9 @@ Subagent launch rule: Follow the Subagent Launch Contract in `_lib/workflow_cont
 If important files are specified in [inputs], read them. Combine that understanding with [key md files] into a condensed [repo context digest] to pass inline to any subagent.
 
 ### Step 2 - Planning
-Per _fast_rules §1: if [inputs] is narrowly scoped (≤ ~3 named files / a single function), the main agent reads those files and drafts the plan directly — skip to Step 3. Otherwise launch **at most two** analysts.
+Per _fast_rules §1: if [inputs] is narrowly scoped (≤ ~3 named files / a single function), the main agent reads those files and drafts the plan directly — skip to Step 3. Otherwise launch **one Focus Analyst** (Plan A). Add the **Free Analyst** (Plan B) in parallel only when the integration surface is unclear or spans multiple subsystems — never more than two (_fast_rules §1).
 
-**[PARALLEL EXECUTION - launch both subagents in parallel via Claude Code Agent tool; if parallel not supported, run sequentially with the same output labels]**
+**[PARALLEL EXECUTION (applies when two analysts run) - launch both subagents in parallel via Claude Code Agent tool; if parallel not supported, run sequentially with the same output labels]**
 
 | Subagent | Agent | Role | Task |
 |----------|-------|------|------|
@@ -42,13 +42,13 @@ Per _fast_rules §1: if [inputs] is narrowly scoped (≤ ~3 named files / a sing
 ### Step 3 - Main-Agent Final Plan
 The main agent reviews the plan(s) from Step 2 (or its own direct analysis), reads any necessary files, rejects incorrect or redundant parts, and drafts [final plan] that is feasible, stable, and correct against existing tests and behavior.
 
-### Step 4 - Final Plan Challenge and Research
-Always spawn both agents.
+### Step 4 - Final Plan Challenge and Research (conditional)
+Per _fast_rules §4–§5, spawn only the agents whose triggers fire; otherwise the main agent performs the adversarial pass inline as part of its review and skips research.
 
 | Subagent | Agent | When to spawn | Task |
 |----------|-------|---------------|------|
-| Challenge | **Devils Advocate** (`agents/devils-advocate.agent.md`) | Always | Read [repo context digest] + relevant scripts + [final plan] + [inputs]. Identify overlooked side effects, integration risks, incorrect assumptions, and regressions. Return [challenge report]. |
-| Research | **Online Researcher** (`agents/online-researcher.agent.md`) | Always | Read [repo context digest] + [final plan] + [inputs]. Search online for reliable resources and better solutions. Return [online resource]. |
+| Challenge | **Devils Advocate** (`agents/devils-advocate.agent.md`) | any §5 trigger: > ~5 files, shared/upstream/public-interface code, security/data-loss/migration-sensitive, or an open risk from the Step 3 review | Read [repo context digest] + relevant scripts + [final plan] + [inputs]. Identify overlooked side effects, integration risks, incorrect assumptions, and regressions. Return [challenge report]. |
+| Research | **Online Researcher** (`agents/online-researcher.agent.md`) | a genuine §4 external-information need: new dependency/package/API, unfamiliar error, version-compatibility question, or explicit research request | Read [repo context digest] + [final plan] + [inputs]. Search online for reliable resources and better solutions. Return [online resource]. |
 
 ### Step 5 - Refine and Approval Gate
 The main agent incorporates [challenge report] and [online resource] (when produced) into [final plan]. Print the updated [final plan].
@@ -56,13 +56,12 @@ The main agent incorporates [challenge report] and [online resource] (when produ
 **Approval gate:** See `_lib/approval_gate.md`.
 
 ### Step 6 - Implementation
-The main agent implements [final plan] directly and records [implementation report] containing changes only, with no explanations.
+Per _fast_rules §2: the main agent implements [final plan] directly for changes within the §2 thresholds; above them, create an **Implementer** subagent (`agents/implementer.agent.md`) and pass [final plan] + [inputs] + [repo context digest]. Record [implementation report] containing changes only, with no explanations.
 
-### Step 7 - Code Review and Validation
-Skipped — covered by Step 7.5 native skill review.
+### Step 7 - Code Review and Validation (mandatory — never skip)
+Run the native review skills per _fast_rules §6, using the skill at `skills/claude-native-skills-subagents/SKILL.md` directly: `/simplify` first, then `/code-review` (review-only, medium effort) on the resulting diff; if the native `/code-review` skill is unavailable, follow the §6 fallback chain (community review skill, e.g. requesting-code-review or karpathy-guidelines criteria → embedded Karpathy self-review). Apply clearly-correct, low-risk findings in one editing pass; record which review tier ran.
 
-### Step 7.5 - Claude Code Native Skills
-Since this is a Claude Code environment, search `skills/index.md` for `claude-native-skills-subagents`, then use the skill at `skills/claude-native-skills-subagents/SKILL.md`. (That skill runs `/simplify` automatically — do not invoke it separately.)
+Then the main agent validates the final diff against [final plan] and the §6 validation checklist: functionalities achieved, no regressions, existing tests/behavior preserved. If validation fails, perform **one** remediation pass (fix, then re-validate once); record any remaining gaps for Step 8.
 
 ### Step 8 - Documentation and Summary
 1. Update codebase_overview.md and scripts_overview.md based on actual changes.
@@ -75,4 +74,4 @@ Since this is a Claude Code environment, search `skills/index.md` for `claude-na
 {Implementation (what was changed)}
 {Achieved (yes/no, gaps if any)}
 ```
-3. Summarize changes in bullet points to chat.
+3. Summarize changes in bullet points to chat, including any deferred [code-review report] findings and unresolved gaps.

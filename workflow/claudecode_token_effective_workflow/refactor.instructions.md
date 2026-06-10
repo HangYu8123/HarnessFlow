@@ -1,20 +1,8 @@
 ---
 name: 'Fast Code Refactor (Claude Code)'
-description: 'Fast refactor for Claude Code: one specialist-lens analysis, main-agent behavior-preservation review, approval gate, and /simplify'
+description: 'Fast refactor for Claude Code: one specialist-lens analysis, /simplify + /code-review native-skill review, and behavior-preservation validation'
 ---
 # Refactor an Existing Repo
-
-<!-- Required Context Files:
-  - philosophy/philosophy.instructions.md
-  - _lib/safety_rules.md
-  - _lib/workflow_contract.md
-  - _lib/approval_gate.md
-  - workflow/claudecode_token_effective_workflow/_fast_rules.md
-  - repo_info/codebase_overview.md
-  - repo_info/scripts_overview.md
-  - repo_info/update_logs.md
-  - repo_info/known_issues.md
--->
 
 **Safety: follow `_lib/safety_rules.md`.**
 
@@ -30,7 +18,7 @@ Every subagent created by this workflow must read _lib/workflow_contract.md and 
 Subagent launch rule: Follow the Subagent Launch Contract in `_lib/workflow_contract.md`. After each subagent returns, the main agent must check that the result is complete, task-specific, grounded in the requested files, and uses the expected output label.
 
 > **Subagent invocation:** See `_lib/workflow_contract.md` §Subagent Invocation.
-> **Fast-tier rules (apply to every step below):** See `workflow/claudecode_token_effective_workflow/_fast_rules.md` — no Broad Analyst, no QA/Principal/Senior subagents (main reviews), single-analyst default, conditional Devils Advocate / Online Researcher.
+> **Fast-tier rules (apply to every step below):** See `workflow/claudecode_token_effective_workflow/_fast_rules.md` — no Broad Analyst, no QA/Principal/Senior subagents (main reviews), single-analyst default, default-on Devils Advocate, conditional Online Researcher.
 
 [key md files]: codebase_overview.md, scripts_overview.md, update_logs.md, known_issues.md (under .github/HarnessFlow/repo_info).
 

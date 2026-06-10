@@ -1,20 +1,8 @@
 ---
 name: 'Fast Debug Workflow (Claude Code)'
-description: 'Fast debugging for Claude Code: optional reproduction, lean root-cause diagnosis, approval gate, and main-agent fix verification'
+description: 'Fast debugging for Claude Code: optional reproduction, lean root-cause diagnosis, /simplify + /code-review native-skill review, and fix verification'
 ---
 # Debug Instructions
-
-<!-- Required Context Files:
-  - philosophy/philosophy.instructions.md
-  - _lib/safety_rules.md
-  - _lib/workflow_contract.md
-  - _lib/approval_gate.md
-  - workflow/claudecode_token_effective_workflow/_fast_rules.md
-  - repo_info/codebase_overview.md
-  - repo_info/scripts_overview.md
-  - repo_info/update_logs.md
-  - repo_info/known_issues.md
--->
 
 **Safety: follow `_lib/safety_rules.md`.**
 
@@ -30,7 +18,7 @@ Every subagent created by this workflow must read _lib/workflow_contract.md and 
 Subagent launch rule: Follow the Subagent Launch Contract in `_lib/workflow_contract.md`. After each subagent returns, the main agent must check that the result is complete, task-specific, grounded in the requested files, and uses the expected output label.
 
 > **Subagent invocation:** See `_lib/workflow_contract.md` §Subagent Invocation.
-> **Fast-tier rules (apply to every step below):** See `workflow/claudecode_token_effective_workflow/_fast_rules.md` — no Broad Analyst, no QA/Principal/Senior subagents (main reviews), single-analyst default, conditional Devils Advocate / Online Researcher.
+> **Fast-tier rules (apply to every step below):** See `workflow/claudecode_token_effective_workflow/_fast_rules.md` — no Broad Analyst, no QA/Principal/Senior subagents (main reviews), single-analyst default, default-on Devils Advocate, conditional Online Researcher.
 
 [key md files]: codebase_overview.md, scripts_overview.md, update_logs.md, known_issues.md (under .github/HarnessFlow/repo_info).
 
@@ -41,10 +29,10 @@ Subagent launch rule: Follow the Subagent Launch Contract in `_lib/workflow_cont
 ### Step 0 (Optional) - Reproduce the Bug
 This step is skipped by default; only run it if `reproduce: true` is set in the debug request.
 
-Create a **Bug Reproducer** subagent (`agents/bug-reproducer.agent.md`). Pass [inputs] + [repo context digest]. The subagent identifies target scripts and entry points, runs the relevant bug path in the correct order per scripts_overview.md, captures stdout, stderr, exit codes, error messages, and tracebacks, then returns [reproduction report]. The main agent stores [reproduction report] and passes it to later analysis.
+Create a **Bug Reproducer** subagent (`agents/bug-reproducer.agent.md`). Pass [inputs] + [repo context digest]. The subagent identifies target scripts and entry points, runs the relevant bug path in the correct order per scripts_overview.md, captures stdout, stderr, exit codes, error messages, and tracebacks, then returns [reproduction report]. The main agent stores [reproduction report] and passes it to later analysis. When this step runs, build [repo context digest] from [key md files] + [inputs] here; Step 1 reuses it.
 
 ### Step 1 - Diagnosis
-The main agent first builds [repo context digest] from [key md files] + [inputs]. If a narrow set of suspected scripts is named, the main agent may diagnose directly and skip the subagent.
+The main agent reuses [repo context digest] from Step 0 if it exists; otherwise it builds the digest from [key md files] + [inputs]. If a narrow set of suspected scripts is named, the main agent may diagnose directly and skip the subagent.
 
 Otherwise create **one Free Analyst** subagent (`agents/free-analyst.agent.md`). Pass [repo context digest] + [inputs] + [reproduction report] (if any). The analyst:
 - Checks update_logs.md / known_issues.md for whether this bug was previously addressed and, if so, infers why the prior fix failed.
@@ -59,12 +47,12 @@ The main agent reads [reproduction report] (if any) and [bug reasons], rejects r
 The main agent reads all scripts associated with [bug info] and [inputs] and drafts [final bug fix plan] that fixes the bug without breaking the codebase or repeating known_issues.md issues.
 
 ### Step 4 - Final Plan Challenge and Research
-Always spawn both agents.
+**Devils Advocate is default-on for debug** (_fast_rules §5 — a wrong root cause is expensive). Skip it only when none of §5's triggers hold AND the root cause was reproduced or directly evidenced with a fix of ≤ ~2 files. **Online Researcher is conditional** (_fast_rules §4): spawn for an unfamiliar error string, external dependency, or version question; skip for routine internal logic bugs.
 
 | Subagent | Agent | When to spawn | Task |
 |----------|-------|---------------|------|
-| Challenge | **Devils Advocate** (`agents/devils-advocate.agent.md`) | Always | Read [repo context digest] + relevant scripts + [final bug fix plan] + [bug info] + [inputs]. Identify overlooked root causes, side effects, integration risks, and regressions. Return [valid criticisms]. |
-| Research | **Online Researcher** (`agents/online-researcher.agent.md`) | Always | Read [repo context digest] + [final bug fix plan] + [bug info] + [inputs]. Search online for error references and known solutions. Return [online resource]. |
+| Challenge | **Devils Advocate** (`agents/devils-advocate.agent.md`) | default-on; skip only per the rule above | Read [repo context digest] + relevant scripts + [final bug fix plan] + [bug info] + [inputs]. Identify overlooked root causes, side effects, integration risks, and regressions. Return [valid criticisms]. |
+| Research | **Online Researcher** (`agents/online-researcher.agent.md`) | unfamiliar error / external dependency / version question (§4) | Read [repo context digest] + [final bug fix plan] + [bug info] + [inputs]. Search online for error references and known solutions. Return [online resource]. |
 
 ### Step 5 - Refine and Approval Gate
 The main agent incorporates [valid criticisms] and [online resource] (when produced) into [final bug fix plan]. Print [final bug fix plan].
@@ -72,13 +60,12 @@ The main agent incorporates [valid criticisms] and [online resource] (when produ
 **Approval gate:** See `_lib/approval_gate.md`.
 
 ### Step 6 - Implementation
-The main agent implements [final bug fix plan] directly and records [implementation report] containing changes only, with no explanations.
+Per _fast_rules §2: the main agent implements [final bug fix plan] directly for changes within the §2 thresholds; above them, create an **Implementer** subagent (`agents/implementer.agent.md`) and pass [final bug fix plan] + [inputs] + [repo context digest]. Record [implementation report] containing changes only, with no explanations.
 
-### Step 7 - Code Review and Validation
-Skipped — covered by Step 7.5 native skill review.
+### Step 7 - Code Review and Validation (mandatory — never skip)
+Run the native review skills per _fast_rules §6, using the skill at `skills/claude-native-skills-subagents/SKILL.md` directly: `/simplify` first, then `/code-review` (review-only, medium effort) on the resulting diff; if the native `/code-review` skill is unavailable, follow the §6 fallback chain. Apply clearly-correct, low-risk findings in one editing pass; record which review tier ran.
 
-### Step 7.5 - Claude Code Native Skills
-Since this is a Claude Code environment, search `skills/index.md` for `claude-native-skills-subagents`, then use the skill at `skills/claude-native-skills-subagents/SKILL.md`. (That skill runs `/simplify` automatically — do not invoke it separately.)
+Then the main agent validates the fix against [final bug fix plan] and the §6 validation checklist, and — when a reproduction path exists (Step 0) or the user requested runs — re-runs the failing path to confirm the bug no longer occurs. If validation fails, perform **one** remediation pass (fix, then re-validate once); record any remaining gaps for Step 8.
 
 ### Step 8 - Documentation and Summary
 1. Update codebase_overview.md and scripts_overview.md based on actual changes.
@@ -99,4 +86,4 @@ b. Last attempt summary
 c. Why last fix failed
 d. Current fix
 ```
-4. Summarize in bullet points to chat.
+4. Summarize in bullet points to chat, including any deferred [code-review report] findings and unresolved gaps.
