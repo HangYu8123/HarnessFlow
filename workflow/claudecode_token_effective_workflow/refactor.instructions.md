@@ -1,72 +1,56 @@
 ---
 name: 'Fast Code Refactor (Claude Code)'
-description: 'Fast refactor for Claude Code: one specialist-lens analysis, /simplify + /code-review native-skill review, and behavior-preservation validation'
+description: 'Fast refactor for Claude Code: main-agent plan, parallel challenge + research subagents, direct implementation, /simplify + /code-review review, and behavior-preservation validation'
 ---
 # Refactor an Existing Repo
-
-**Safety: follow `_lib/safety_rules.md`.**
 
 [inputs]:
 - input 1: target refactor functionalities/repository/scripts
 - input 2: target files (optional)
 - input 3: target repo (optional)
 
-**Read this file fully and follow each step.**
-Before doing any workflow-specific work, the main agent must read and follow _lib/workflow_contract.md and philosophy/philosophy.instructions.md before proceeding.
-Every subagent created by this workflow must read _lib/workflow_contract.md and philosophy/philosophy.instructions.md once. The main agent reads [key md files] in Step 1 and passes a context digest to each subagent; subagents must not re-read [key md files] unless a specific file path is needed for their task.
-
-Subagent launch rule: Follow the Subagent Launch Contract in `_lib/workflow_contract.md`. After each subagent returns, the main agent must check that the result is complete, task-specific, grounded in the requested files, and uses the expected output label.
-
-> **Subagent invocation:** See `_lib/workflow_contract.md` §Subagent Invocation.
-> **Fast-tier rules (apply to every step below):** See `workflow/claudecode_token_effective_workflow/_fast_rules.md` — no Broad Analyst, no QA/Principal/Senior subagents (main reviews), single-analyst default, default-on Devils Advocate, conditional Online Researcher.
-
 [key md files]: codebase_overview.md, scripts_overview.md, update_logs.md, known_issues.md (under .github/HarnessFlow/repo_info).
 
----
+**Read this file fully and follow each step.**
+Before doing any workflow-specific work, the main agent must read and follow _lib/workflow_contract.md and philosophy/philosophy.instructions.md before proceeding.
+The main agent reads [key md files] in Step 1 and passes a context digest to each subagent; subagents read repo_info/codebase_overview.md and repo_info/scripts_overview.md directly.
+
+Subagent launch rule: Follow the Subagent Launch Contract in `_lib/workflow_contract.md`.
+
+> **Subagent invocation:** See `_lib/workflow_contract.md` §Subagent Invocation.
 
 ## CREATE ONE TODO PER STEP
 
 ### Step 1 - Context Gathering
-If target files are specified in [inputs], read them. Combine that understanding with [key md files] into a condensed [repo context digest].
+Read [key md files]. If target files are specified in [inputs], read them. Condense into a [repo context digest].
 
 ### Step 2 - Refactor Analysis
-Launch **one** specialist analyst matched to the refactor intent in [inputs] (default to Complexity Analyst when unspecified):
+Based on [repo context digest] + [inputs], read the relevant files and propose a [plan] for addressing the target refactors + a [comparison] (before/after) indicating the changes + behavior-preservation notes.
 
-| Intent | Agent |
-|--------|-------|
-| simplify / reduce complexity (default) | **Complexity Analyst** (`agents/complexity-analyst.agent.md`) |
-| remove duplication / overlap | **Redundancy Analyst** (`agents/redundancy-analyst.agent.md`) |
-| restructure design / architecture | **Architecture Analyst** (`agents/architecture-analyst.agent.md`) |
-| harden robustness / fix fragility | **Robustness Analyst** (`agents/robustness-analyst.agent.md`) |
-
-Pass [repo context digest] + [inputs]. The analyst reads relevant files and returns [plan] + [comparison] (before/after) plus behavior-preservation notes. For narrowly-scoped [inputs] (≤ ~3 files), the main agent may skip the subagent and analyze directly.
-
-### Step 3 - Main-Agent Final Plan
-The main agent reads the necessary target files and performs the code-quality review directly (maintainability, robustness, readability, behavioral risks). It combines [plan] + [comparison] with its own review, rejects incorrect or redundant parts, and drafts [final plan], verifying each step against target files, known_issues.md conflicts, upstream/downstream dependencies, and behavior preservation.
-
-### Step 4 - Final Plan Challenge and Research
-Always spawn both agents.
+### Step 3 - Plan Challenge and Research
+**Spawn 2 subagents in parallel.** This is the only step that spawns subagents.
 
 | Subagent | Agent | When to spawn | Task |
 |----------|-------|---------------|------|
-| Challenge | **Devils Advocate** (`agents/devils-advocate.agent.md`) | Always | Read [repo context digest] + relevant scripts + [final plan] + [inputs]. Identify overlooked side effects, integration risks, incorrect assumptions, and regressions. Return [challenge report]. |
-| Research | **Online Researcher** (`agents/online-researcher.agent.md`) | Always | Read [repo context digest] + [final plan] + [inputs]. Search online for reliable migration references and solutions. Return [online resource]. |
+| Challenge | **Devils Advocate** (`agents/devils-advocate.agent.md`) | Always | Read [repo context digest] + [plan] + [comparison] + [inputs]. Read additional files if needed. Assume the [plan] is wrong and flawed; identify overlooked side effects, integration risks, incorrect assumptions, and regressions. Return [challenge report]. |
+| Research | **Online Researcher** (`agents/online-researcher.agent.md`) | Always | Read [repo context digest] + [plan] + [comparison] + [inputs]. Search online for reliable references, established solutions, and available resources. Return [online resource]. |
 
-### Step 5 - Refine and Approval Gate
-The main agent incorporates [challenge report] and [online resource] (when produced) into [final plan]. Print [final plan].
+### Step 4 - Refine and Approval Gate
+The main agent incorporates [challenge report] and [online resource] (when produced) into a [final plan]. Print [final plan].
 
-**Approval gate:** See `_lib/approval_gate.md`.
+**Approval gate (opt-in):** see `_lib/approval_gate.md` — proceed directly to Step 5 unless the user asked for no code/file changes or a plan-only review.
 
-### Step 6 - Implementation
+### Step 5 - Implementation
 The main agent implements [final plan] directly and records [implementation report] containing changes only, with no explanations.
 
-### Step 7 - Code Review and Validation
-Skipped — covered by Step 7.5 native skill review.
+### Step 6 - Code Review and Validation
+1. The main agent reviews the changes directly (correctness, integration, unintended edits).
+2. Run the native review skills using the skill at `skills/claude-native-skills-subagents/SKILL.md`: `/simplify` first, then `/code-review` (review-only, medium effort) on the resulting diff. If the native `/code-review` skill is unavailable, review the code directly instead.
+3. The main agent validates the final diff against [final plan] and [implementation report]. Checklist: refactor targets achieved, behavior preserved, no regressions, existing tests/behavior intact.
 
-### Step 7.5 - Claude Code Native Skills
-Since this is a Claude Code environment, search `skills/index.md` for `claude-native-skills-subagents`, then use the skill at `skills/claude-native-skills-subagents/SKILL.md`. (That skill runs `/simplify` automatically — do not invoke it separately.)
+If validation fails, perform **one** remediation pass (fix, then re-validate once); record any remaining gaps for Step 7.
 
-### Step 8 - Documentation and Summary
+### Step 7 - Documentation and Summary
 1. Update codebase_overview.md and scripts_overview.md based on actual changes.
 2. Write to update_logs.md:
 ```md
@@ -74,6 +58,7 @@ Since this is a Claude Code environment, search `skills/index.md` for `claude-na
 {Refactor Summary + ID (last ID + 1)}
 {Description (1-2 sentences)}
 {Repos involved}
+{Request (what was requested)}
 {Implementation (what was changed)}
 {Achieved (yes/no, gaps if any)}
 ```

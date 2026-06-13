@@ -29,7 +29,7 @@ This protocol applies to every `[PARALLEL EXECUTION]` directive in all workflow 
 
 ## Approval Gate Principle
 
-All code-modifying workflows (code, debug, refactor) must print the finalized plan and allow the user to optionally stop before implementation begins. If the user requests no code changes, the workflow stops after printing the plan.
+All code-modifying workflows (code, debug, refactor) must print the finalized plan, then proceed directly to implementation unless the user activated the approval gate (see `_lib/approval_gate.md`). If the user requests no code changes, the workflow stops after printing the plan.
 
 
 KEY PHILOSOPHIES:

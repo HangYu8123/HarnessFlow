@@ -4,15 +4,7 @@ description: 'Fast repo initialization for Claude Code: single-pass overview gen
 ---
 # Create Necessary Files for Agentic Coding Workflow
 
-<!-- Required Context Files:
-  - philosophy/philosophy.instructions.md
-  - _lib/safety_rules.md
-  - _lib/workflow_contract.md
-  - workflow/claudecode_token_effective_workflow/_fast_rules.md
-  - repo_info/ (created by this workflow)
--->
-
-**Safety: follow `_lib/safety_rules.md`.** This workflow generates documentation; it does not modify source code, so there is no approval gate.
+This workflow generates documentation; it does not modify source code, so there is no approval gate.
 
 [inputs]:
 - input 1: target repo (optional, default to current repo)
@@ -20,14 +12,11 @@ description: 'Fast repo initialization for Claude Code: single-pass overview gen
 
 **Read this file fully and follow each step.**
 Before doing any workflow-specific work, the main agent must read and follow _lib/workflow_contract.md and philosophy/philosophy.instructions.md before proceeding.
-Every subagent created by this workflow must read _lib/workflow_contract.md and philosophy/philosophy.instructions.md once. The main agent passes repo context to each subagent; subagents do not re-read files already summarized by the main agent.
+The main agent passes repo context to each subagent; subagents do not re-read files already summarized by the main agent (repo_info overviews do not exist yet — this workflow creates them).
 
-Subagent launch rule: Follow the Subagent Launch Contract in `_lib/workflow_contract.md`. After each subagent returns, the main agent must check that the result is complete, task-specific, grounded in the requested files, and uses the expected output label.
+Subagent launch rule: Follow the Subagent Launch Contract in `_lib/workflow_contract.md`.
 
 > **Subagent invocation:** See `_lib/workflow_contract.md` §Subagent Invocation.
-> **Fast-tier rules (apply to every step below):** See `workflow/claudecode_token_effective_workflow/_fast_rules.md` — no Broad Analyst, one generator per overview (no 3-way generation/merge), main-agent file-structure and issue scan.
-
----
 
 ## CREATE ONE TODO PER STEP
 
@@ -50,9 +39,7 @@ Subagent launch rule: Follow the Subagent Launch Contract in `_lib/workflow_cont
 From the Step 1 scan, the main agent produces [file structure] (the directory/file tree) and validates it for completeness. No subagent is needed — the main agent already holds the listing.
 
 ### Step 3 - Documentation Generation
-Generate each overview **once** (no triple-generation). Launch the two generators in parallel.
-
-**[PARALLEL EXECUTION - launch both subagents in parallel via Claude Code Agent tool; if parallel not supported, run sequentially with the same output labels]**
+Generate each overview **once**. **Spawn 2 subagents in parallel.** This is the only step that spawns subagents.
 
 | Subagent | Agent | Role | Task |
 |----------|-------|------|------|

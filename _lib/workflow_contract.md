@@ -16,7 +16,7 @@ These rules apply to **every** workflow, agent, and subagent — no exceptions.
 
 ## Approval Gate (Code / Debug / Refactor / Exec / PR Workflows)
 
-**Rule:** The workflow **always stops after printing the plan** and waits for user approval before proceeding to implementation. The workflow continues to the implementation step only when the user explicitly approves (e.g., "implement", "proceed", "go ahead", "approve", "yes"). If the user requests no code changes (e.g., "plan only"), the workflow stops after the plan without prompting.
+**Rule:** No approval is needed unless the user explicitly requests it. After printing the plan, the workflow **proceeds directly to implementation by default**; it stops and waits for explicit approval only when the user's prompt activates the gate (e.g., `plan:`, `plan only`, `review first`, `no filechanges`, `no changes`). See `_lib/approval_gate.md` for the operative rule.
 
 This gate applies regardless of which CLI tool or IDE is being used.
 

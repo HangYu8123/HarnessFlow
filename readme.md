@@ -264,16 +264,16 @@ query_request_template.md
 refactor_request_template.md
 ```
 
-Templates use:
-
-```text
-mode: general
-```
-
-or:
+Templates ship with the token-efficient fast mode prefilled:
 
 ```text
 mode: fast
+```
+
+Switch to the full general pipeline with:
+
+```text
+mode: general
 ```
 
 For VS Code Copilot, `general` selects `workflow/vscode_workflow/` and `fast` selects `workflow/vscode_token_effective_workflow/`.

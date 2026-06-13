@@ -1,4 +1,4 @@
-mode: general
+mode: fast
 agent type: copilot
 subagent_model: claude-sonnet-4-6
 
