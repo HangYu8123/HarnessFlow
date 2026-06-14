@@ -4,7 +4,7 @@
 **Activate the gate** only when the user's prompt explicitly contains one of:
 - `plan:` or `plan only`
 - `review first`
-- `no filechanges`
+- `no file changes`
 - `no changes`
 
 When the gate is active, stop after printing the plan and wait for explicit approval (e.g., "implement", "proceed", "go ahead", "approve", "yes") before continuing.
