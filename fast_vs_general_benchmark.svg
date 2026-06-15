@@ -1,0 +1,64 @@
+<svg viewBox="0 0 760 456" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="ttl desc" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <title id="ttl">Token cost: fast vs general workflow across two benchmarks</title>
+  <desc id="desc">Grouped bar chart of token cost in millions. ShapeLab build: baseline 0.68M, fast 2.49M, general 5.00M. SWE-bench fix: baseline 0.14M, fast 1.74M, general 4.45M. The fast workflow costs roughly half of general on both benchmarks while reaching the same outcome.</desc>
+  <style>
+    .card { fill: #ffffff; stroke: #d0d7de; }
+    .title { fill: #1f2328; font-size: 18px; font-weight: 500; }
+    .sub   { fill: #57606a; font-size: 12px; font-weight: 400; }
+    .axis  { fill: #57606a; font-size: 12px; font-weight: 400; }
+    .xlab  { fill: #1f2328; font-size: 13px; font-weight: 500; }
+    .grid  { stroke: rgba(0,0,0,0.09); stroke-width: 1; }
+    .base  { stroke: rgba(0,0,0,0.22); stroke-width: 1; }
+    .vlab  { font-size: 11px; font-weight: 500; }
+    @media (prefers-color-scheme: dark) {
+      .card { fill: #161b22; stroke: #30363d; }
+      .title, .xlab { fill: #e6edf3; }
+      .sub, .axis { fill: #9da7b3; }
+      .grid { stroke: rgba(255,255,255,0.11); }
+      .base { stroke: rgba(255,255,255,0.28); }
+    }
+  </style>
+
+  <rect class="card" x="0.5" y="0.5" width="759" height="455" rx="12"/>
+
+  <text class="title" x="40" y="40">Token cost: fast vs general — identical outcomes</text>
+  <text class="sub" x="40" y="61">Lower is better. Both arms reach 100% accuracy / SWE-bench resolved. Tokens in millions.</text>
+
+  <line class="grid" x1="70" y1="92"  x2="736" y2="92"/>
+  <line class="grid" x1="70" y1="148" x2="736" y2="148"/>
+  <line class="grid" x1="70" y1="204" x2="736" y2="204"/>
+  <line class="grid" x1="70" y1="260" x2="736" y2="260"/>
+  <line class="grid" x1="70" y1="316" x2="736" y2="316"/>
+  <line class="base" x1="70" y1="372" x2="736" y2="372"/>
+
+  <text class="axis" x="58" y="96"  text-anchor="end">5M</text>
+  <text class="axis" x="58" y="152" text-anchor="end">4M</text>
+  <text class="axis" x="58" y="208" text-anchor="end">3M</text>
+  <text class="axis" x="58" y="264" text-anchor="end">2M</text>
+  <text class="axis" x="58" y="320" text-anchor="end">1M</text>
+  <text class="axis" x="58" y="376" text-anchor="end">0</text>
+  <text class="axis" transform="rotate(-90 22 232)" x="22" y="232" text-anchor="middle">Tokens (millions)</text>
+
+  <rect x="155.5" y="333.9" width="46" height="38.1" rx="3" fill="#888780"/>
+  <rect x="213.5" y="232.6" width="46" height="139.4" rx="3" fill="#1D9E75"/>
+  <rect x="271.5" y="92"    width="46" height="280"   rx="3" fill="#D85A30"/>
+  <text class="vlab" x="178.5" y="327.9" text-anchor="middle" fill="#888780">0.68M</text>
+  <text class="vlab" x="236.5" y="226.6" text-anchor="middle" fill="#1D9E75">2.49M</text>
+  <text class="vlab" x="294.5" y="86"    text-anchor="middle" fill="#D85A30">5.00M</text>
+  <text class="xlab" x="236.5" y="394" text-anchor="middle">ShapeLab build (greenfield)</text>
+
+  <rect x="488.5" y="364.2" width="46" height="7.8"   rx="3" fill="#888780"/>
+  <rect x="546.5" y="274.6" width="46" height="97.4"  rx="3" fill="#1D9E75"/>
+  <rect x="604.5" y="122.8" width="46" height="249.2" rx="3" fill="#D85A30"/>
+  <text class="vlab" x="511.5" y="358.2" text-anchor="middle" fill="#888780">0.14M</text>
+  <text class="vlab" x="569.5" y="268.6" text-anchor="middle" fill="#1D9E75">1.74M</text>
+  <text class="vlab" x="627.5" y="116.8" text-anchor="middle" fill="#D85A30">4.45M</text>
+  <text class="xlab" x="569.5" y="394" text-anchor="middle">SWE-bench fix (real bug)</text>
+
+  <rect x="206" y="424" width="12" height="12" rx="2" fill="#888780"/>
+  <text class="sub" x="223" y="434">baseline</text>
+  <rect x="296" y="424" width="12" height="12" rx="2" fill="#1D9E75"/>
+  <text class="sub" x="313" y="434">fast — best value</text>
+  <rect x="436" y="424" width="12" height="12" rx="2" fill="#D85A30"/>
+  <text class="sub" x="453" y="434">general</text>
+</svg>

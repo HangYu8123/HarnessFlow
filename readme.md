@@ -8,7 +8,7 @@
 
 Drop it into any repository and your AI coding assistant stops one-shotting changes. Instead it classifies your request, routes it to a real workflow, fans out parallel analysis agents, challenges its own plan, validates the result with QA, and records what it learned to persistent repo memory.
 
-[What it does](#what-it-does) · [Install](#install) · [Get started](#get-started) · [Platforms](#platforms) · [Architecture](#architecture)
+[What it does](#what-it-does) · [Benchmarks](#benchmarks-fast-vs-general) · [Install](#install) · [Get started](#get-started) · [Platforms](#platforms) · [Architecture](#architecture)
 
 **English** | **简体中文**
 
@@ -50,6 +50,32 @@ Every supported platform is a first-class citizen — pick the one you already u
 | **Initialize** | Bootstrap repo memory for first-time setup |
 
 Each category is backed by per-platform workflow files under `workflow/`, in both `general` and `fast` modes, and a matching fill-in prompt in `request_template/`.
+
+## Benchmarks: fast vs general
+
+The `fast` workflow is the efficiency–quality sweet spot. Across two independent benchmarks — a 1,000-line greenfield OpenCV + scikit-learn build, and a real [SWE-bench](https://www.swebench.com/) bug fix (`sympy__sympy-24213`) — it reaches the **same successful outcome as the heavyweight `general` workflow while spending 39–50% of the tokens**, and ships the leanest, fully-documented code of any approach tested.
+
+| Metric | baseline | **fast** | general |
+|---|---|---|---|
+| Code lines (AST) | 1,225 | **860 ⬅ leanest** | 1,173 |
+| Docstring coverage | 96.3% | **100%** | 100% |
+| Largest function | 151 | **146 ⬅ best** | 151 |
+| SWE: matches gold/canonical fix | ❌ | **✅** | ✅ |
+| Self-verified before shipping | ❌ none | **✅ 32 tests green** | ✅ tests + edge probes |
+| Contract tests | 7/10 | **10/10** | 10/10 |
+
+<div align="center">
+<img src="fast_vs_general_benchmark.svg" alt="Token cost of the fast workflow versus the general workflow across two benchmarks. On the ShapeLab build, fast uses 2.49M tokens vs general's 5.00M; on the SWE-bench fix, fast uses 1.74M vs general's 4.45M. Both arms reach identical outcomes." width="100%">
+</div>
+
+| Dimension | baseline (no harness) | **fast** | general |
+|---|---|---|---|
+| Token cost vs `general` | cheapest, but no assurance | **2.0–2.6× cheaper, same result** | most expensive (baseline) |
+| Outcome | resolved / 100% accuracy | **resolved / 100% accuracy** | resolved / 100% accuracy |
+| Code footprint (ShapeLab) | 1,225 lines, 96% docs | **860 lines (leanest), 100% docs** | 1,173 lines, 100% docs |
+| SWE-bench fix | non-canonical, unverified | **exact canonical fix, verified** | exact canonical fix, verified |
+
+The model is held constant (Claude Sonnet 4.6 subagents, Opus 4.8 orchestrator) so the comparison isolates the *harness*, not the model. Full methodology, per-role token breakdowns, and caveats: **[FAST_WORKFLOW_PERFORMANCE_REPORT.md](FAST_WORKFLOW_PERFORMANCE_REPORT.md)**.
 
 ## Install
 
