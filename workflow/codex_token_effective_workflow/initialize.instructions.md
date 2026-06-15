@@ -1,6 +1,6 @@
 ---
 name: 'Token-Effective Initialize Repo (Codex)'
-description: 'Token-effective Codex instructions for creating repo documentation files with Codex agent workers, Codex-in-VS-Code compatibility, and sequential fallback'
+description: 'Token-effective Codex instructions for creating repo documentation files: single-pass overview generation with one parallel doc subagent step, main-agent issue/history detection, and cross-tool entry-point refresh — with Codex agent workers and sequential fallback'
 ---
 # Create Necessary Files for Agentic Coding Workflow
 
@@ -13,13 +13,15 @@ description: 'Token-effective Codex instructions for creating repo documentation
 
 **Safety: follow `_lib/safety_rules.md`.**
 
+This workflow generates documentation; it does not modify source code, so there is no approval gate.
+
 [inputs]:
 - input 1: target repo (optional, default to current repo)
 - input 2: important files or docs to preserve (optional)
 
 **Read this file fully and follow each step.**
 Before doing any workflow-specific work, the main agent must read and follow _lib/workflow_contract.md and philosophy/philosophy.instructions.md before proceeding.
-Every subagent created by this workflow must read _lib/workflow_contract.md and philosophy/philosophy.instructions.md once. The main agent passes repo context to each subagent; subagents do not re-read files already summarized by the main agent.
+Every subagent created by this workflow must read _lib/workflow_contract.md and philosophy/philosophy.instructions.md once. The main agent passes repo context to each subagent; subagents do not re-read files already summarized by the main agent (repo_info overviews do not exist yet — this workflow creates them).
 
 Subagent launch rule: Follow the Subagent Launch Contract in `_lib/workflow_contract.md`. After each subagent returns, the main agent must check that the result is complete, task-specific, grounded in the requested files, and uses the expected output label.
 
@@ -46,43 +48,31 @@ Subagent launch rule: Follow the Subagent Launch Contract in `_lib/workflow_cont
 6. Use `past_Q&A.md` for query history and `past_Correctness_Check.md` for correctness-check history; do not create alternate history filenames.
 
 ### Step 2 - File Structure
-Create **Focus Analyst** subagent (`agents/focus-analyst.agent.md`). Pass [inputs] and the repo file listing. The subagent reads the repo structure and returns [file structure]. The main agent validates [file structure] for completeness.
+From the Step 1 scan, the main agent produces [file structure] (the directory/file tree) and validates it for completeness. No subagent is needed — the main agent already holds the listing.
 
-### Step 3 - Parallel Documentation Generation
-**[PARALLEL EXECUTION - launch ALL six subagents in parallel via Codex agent workers; if unavailable, run sequentially with the same output labels]**
+### Step 3 - Documentation Generation
+Generate each overview **once**. **[PARALLEL EXECUTION - launch BOTH subagents in parallel via Codex agent workers; if unavailable, run sequentially with the same output labels]** This is the only step that spawns subagents.
 
 | Subagent | Agent | Role | Task |
 |----------|-------|------|------|
-| Codebase A | **Focus Analyst** (`agents/focus-analyst.agent.md`) | Order mode | Read [inputs] + [file structure]. Follow folders in order, read files, and construct [codebase_overview 1]. |
-| Codebase B | **Broad Analyst** (`agents/broad-analyst.agent.md`) | Expand mode | Read [inputs] + [file structure]. Start from main entry points, follow imports recursively, and construct [codebase_overview 2]. |
-| Codebase C | **Free Analyst** (`agents/free-analyst.agent.md`) | Free mode | Read [inputs] + [file structure]. Decide reading order, understand each file's pipeline position, and construct [codebase_overview 3]. |
-| Scripts D | **Focus Analyst** (`agents/focus-analyst.agent.md`) | Folder mode | Read [inputs] + [file structure]. Go folder-by-folder and summarize each function/class in code files with dependencies. Return [scripts overview 1]. |
-| Scripts E | **Broad Analyst** (`agents/broad-analyst.agent.md`) | Guided mode | Read [inputs] + [file structure]. Follow pipeline upstream->downstream and summarize each function/class with dependencies. Return [scripts overview 2]. |
-| Scripts F | **Free Analyst** (`agents/free-analyst.agent.md`) | File mode | Read [inputs] + [file structure]. Go file-by-file freely and summarize each function/class with dependencies. Return [scripts overview 3]. |
+| Codebase | **Free Analyst** (`agents/free-analyst.agent.md`) | Free mode | Read [inputs] + [file structure]. Decide the reading order (entry points → imports → pipeline position), read the files, and construct [codebase_overview draft]. |
+| Scripts | **Focus Analyst** (`agents/focus-analyst.agent.md`) | Folder mode | Read [inputs] + [file structure]. Go folder-by-folder and summarize each function/class in code files with their dependencies. Return [scripts overview draft]. |
 
 ### Step 4 - Synthesize and Write Codebase Overview
-1. The main agent combines [codebase_overview 1], [codebase_overview 2], and [codebase_overview 3], rejecting redundant or incorrect parts.
-2. Draft [pipeline] diagram with associated scripts in each block.
-3. The main agent validates diagram consistency against actual code.
-4. Finalize and write codebase_overview.md with the diagram and repo description.
+1. The main agent validates [codebase_overview draft] against the actual files, fixing inaccuracies.
+2. Draft the [pipeline] diagram with associated scripts in each block and validate it against the code.
+3. Write codebase_overview.md with the diagram and repo description.
 
 ### Step 5 - Synthesize and Write Scripts Overview
-1. The main agent combines [scripts overview 1], [scripts overview 2], and [scripts overview 3], rejecting redundant or incorrect parts.
-2. Draft scripts_overview.md.
-3. The main agent spot-checks scripts_overview.md against actual files, fixes inconsistencies, and writes the final version.
+1. The main agent spot-checks [scripts overview draft] against actual files and fixes inconsistencies.
+2. Write the final scripts_overview.md.
 
-### Step 6 - Parallel Remaining Files
-**[PARALLEL EXECUTION - launch BOTH subagents in parallel via Codex agent workers; if unavailable, run sequentially with the same output labels]**
-
-| Subagent | Agent | Role | Task |
-|----------|-------|------|------|
-| Plan | **Focus Analyst** (`agents/focus-analyst.agent.md`) | Planning review | Read [inputs] + codebase_overview.md + scripts_overview.md. Identify architectural weaknesses, potential bugs, and error-prone code. Return [issues report]. |
-| Code | **Broad Analyst** (`agents/broad-analyst.agent.md`) | Code scan | Read [inputs] + codebase_overview.md + scripts_overview.md, then read all scripts. Find anything preventing correct execution. Return [code issues report]. |
-
-Additionally, the main agent gets git commit history and writes update_logs_auto_generated.md.
+### Step 6 - Issue Scan and History
+1. The main agent scans for issues directly: using scripts_overview.md and the pipeline, read the key scripts and identify architectural weaknesses, potential bugs, error-prone code, and anything preventing correct execution. Record [issues report].
+2. The main agent gets the git commit history and writes update_logs_auto_generated.md.
 
 ### Step 7 - Finalize Issues
-The main agent combines [issues report] and [code issues report]. Write to known_issues_auto_generated.md:
+Write [issues report] to known_issues_auto_generated.md:
 ```md
 {Problem Title}
 {Problem description}

@@ -1,6 +1,6 @@
 ---
 name: 'Fast Cmd/Skill Execution'
-description: 'Streamlined instructions for executing commands and skills with maximum parallelization'
+description: 'Streamlined command/skill execution: main-agent plan, one parallel challenge + research subagent step, and direct execution with captured-output validation'
 ---
 # Execute Cmds/Skills in a Repo
 
@@ -38,47 +38,35 @@ Subagent launch rule: Follow the Subagent Launch Contract in `#file:../../_lib/w
 ## CREATE ONE TODO PER STEP
 
 ### Step 1 - Context Gathering
-If important files are specified in [inputs], read them. Combine with [key md files].
+Read [key md files]. If important files are specified in [inputs], read them. Condense the understanding for use in later steps.
 
-### Step 2 - Parallel Execution Planning
-**[PARALLEL EXECUTION - launch BOTH subagents in parallel via VS Code Copilot `agent` tool]**
+### Step 2 - Execution Planning
+**Local skill discovery (before drafting [plan]):** When the target involves a named skill, or the task could be accomplished or aided by a local skill, perform Local Skill Discovery per `_lib/local_skill_discovery.md` (scan `skills/index.md`; on a confirmed match, read its `SKILL.md`), recorded as [local skills]. Skip when the target is plainly shell commands with no relevant skill ([local skills]: none relevant).
 
-| Subagent | Agent | Role | Task |
-|----------|-------|------|------|
-| Plan A | **Focus Analyst** (`agents/focus-analyst.agent.md`) | Focus mode | Read [key md files] + [inputs]. Identify associated scripts/files, read them, and draft [plan 1] + [diagram 1] covering preconditions, commands to run, expected outputs, and failure modes. |
-| Plan B | **Free Analyst** (`agents/free-analyst.agent.md`) | Free mode | Read [key md files] + [inputs]. Decide the reading strategy and draft [plan 2] with execution approach and validation criteria. |
+Based on [key md files] + [inputs] + [local skills], the main agent reads the relevant files and proposes a [plan] covering exact commands/skills to run, preconditions, expected outputs, validation criteria, failure modes, and rollback strategy.
 
-### Step 3 - Main-Agent Final Execution Plan
-The main agent reviews [plan 1], [plan 2], and [diagram 1], then reads any necessary files. Reject incorrect or redundant parts. Draft [final plan] covering exact commands to run, preconditions, expected outputs, validation criteria, and rollback strategy. The plan must be feasible, safe, and 100% correct.
+### Step 3 - Plan Challenge and Research
+**[PARALLEL EXECUTION - launch BOTH subagents in parallel via VS Code Copilot `agent` tool]** This is the only step that spawns subagents.
 
-### Step 4 - Final Plan Challenge and Research
-**[PARALLEL EXECUTION - launch BOTH subagents in parallel via VS Code Copilot `agent` tool]**
+| Subagent | Agent | When to spawn | Task |
+|----------|-------|---------------|------|
+| Challenge | **Devils Advocate** (`agents/devils-advocate.agent.md`) | Always | Read [key md files] + [plan] + [inputs], and all relevant scripts if needed. Assume the [plan] is wrong and flawed; identify wrong flags, destructive or irreversible side effects, missing prerequisites, and environment assumptions. Return [challenge report]. |
+| Research | **Online Researcher** (`agents/online-researcher.agent.md`) | Always | Read [key md files] + [plan] + [inputs]. Search online for reliable command/skill references, known issues, and version compatibility. Return [online resource]. |
 
-| Subagent | Agent | Role | Task |
-|----------|-------|------|------|
-| Challenge | **Devils Advocate** (`agents/devils-advocate.agent.md`) | Critical challenger | Read [key md files] + all relevant scripts + [final plan] + [inputs]. Identify wrong flags, destructive side effects, missing prerequisites, and environment assumptions. Return [challenge report]. |
-| Research | **Online Researcher** (`agents/online-researcher.agent.md`) | Resource lookup | Read [key md files] + [final plan] + [inputs]. Identify needs for tools, command syntax, known issues, version compatibility, or reliable references. Return [online resource]. |
+### Step 4 - Refine and Approval Gate
+The main agent incorporates [challenge report] and [online resource] (when produced) into a [final plan]. Print [final plan].
 
-### Step 5 - Refine and Approval Gate
-The main agent incorporates [challenge report] and [online resource] into [final plan]. Print [final plan].
+**Approval gate (opt-in):** see `_lib/approval_gate.md` — proceed directly to Step 5 unless the user asked for no changes or a plan-only review.
 
-**Approval gate:** See `_lib/approval_gate.md`.
+### Step 5 - Execution
+The main agent validates preconditions, executes the commands or skills per [final plan] directly, and captures stdout, stderr, exit codes, and pass/fail state into [execution report] with no explanations.
 
-### Step 6 - Execution
-Create **Executor** subagent (`agents/executor.agent.md`). Pass [final plan] + [inputs] + [key md files].
+### Step 6 - Review and Validation
+1. The main agent should claim every item in the [execution report] is wrong, and start explaining why it is wrong. After explaining all the items, the main agent should then draft a [challenge report].
+2. The main agent validates [execution report] against [final plan] and [challenge report]: outputs match expectations, side effects and state changes are intended, and modified files are inspected when applicable. If the execution edited source files, the main agent reviews the edits directly for correctness and unintended changes.
+3. If any validation fails, perform **one** remediation pass (revise [final plan] and re-execute once, only when another attempt is safe); record any remaining gaps for Step 7.
 
-**Executor Model Verification (see #file:../../_lib/workflow_contract.md):** Before the subagent begins any work, the main agent must confirm the subagent's model matches [main agent model]. If the model does not match, stop that subagent and re-create it (retry up to 3 times). If after 3 retries the subagent still cannot use [main agent model], the main agent must abandon that subagent and perform the execution directly itself, recording a [fallback result] with `status: fallback-single-agent` and `reason: executor-model-mismatch`.
-
-The Executor validates preconditions, executes commands or skills per [final plan], captures stdout, stderr, exit codes, and pass/fail state, then returns [execution report] with no explanations.
-
-### Step 7 - Main-Agent Review and QA
-The main agent reads [execution report], validates outputs against [final plan], checks side effects, and inspects modified files when applicable.
-
-Create **QA Engineer** subagent (`agents/qa-engineer.agent.md`) if additional validation is needed. Pass [inputs] + [final plan] + [execution report] + changed files if any. The subagent checks side effects, state changes, file modifications, and validation scripts requested by the user. Return [execution QA report].
-
-If the main-agent review or [execution QA report] finds issues, revise [final plan] and repeat from Step 6 when another execution attempt is safe.
-
-### Step 8 - Documentation and Summary
+### Step 7 - Documentation and Summary
 1. If execution changed repo state, update codebase_overview.md and scripts_overview.md based on actual changes.
 2. Write to update_logs.md:
 ```md
@@ -86,6 +74,7 @@ If the main-agent review or [execution QA report] finds issues, revise [final pl
 {Cmd/Skill Name + Execution ID (last ID + 1)}
 {Description (1-2 sentences)}
 {Repos involved}
+{Request (what was requested)}
 {Commands/Skills executed (what was run and parameters)}
 {Result (success/failure, key outputs, side effects)}
 {Achieved (yes/no, gaps if any)}

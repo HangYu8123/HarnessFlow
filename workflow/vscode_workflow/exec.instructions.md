@@ -26,6 +26,8 @@ When asked to execute cmds/skills, always, first read the following files .githu
 Understand them, and keep them inside the memory.
 
 
+**Local Skill Discovery (before any plan drafting):** When the target involves a named skill, or the task could be aided by a local skill, perform Local Skill Discovery per `_lib/local_skill_discovery.md` (scan `skills/index.md`; on a confirmed match, read its `SKILL.md`); pass the result [local skills] to the planning subagents, and integrate it when the main agent drafts [final plan]. Skip for plain shell commands with no relevant skill ([local skills]: none relevant).
+
 #CREATE ONE TODO FOR EACH OF THE FOLLOWING STEPS
 then, for executing cmds/skills, **CREATE ONE TODO FOR EACH STEP**:
 1. if preferred files are specified, the main agent must read through the preferred files, then combine the understood knowledge with [key md files].

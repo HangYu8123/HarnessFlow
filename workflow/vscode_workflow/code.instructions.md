@@ -26,6 +26,8 @@ When ask to implement new functionalities, always, first read the following file
 Understand them, and keep them inside the memory.
 
 
+**Local Skill Discovery (before any plan drafting):** Perform Local Skill Discovery per `_lib/local_skill_discovery.md` — scan `skills/index.md` for any local skill whose trigger fits [inputs]/the task; on a confirmed match, read its `SKILL.md`. Keep the result as [local skills], pass it to the planning subagents, and integrate it when the main agent drafts its final plan. If nothing matches, record [local skills]: none relevant.
+
 #CREATE ONE TODO FOR EACH OF THE FOLLOWING STEPS
 then, for implementing new functionalities to an existing codebase, **CREATE ONE TODO FOR EACH STEP**:
 1. if preferred files are specified, the main agent must read through the preferred files, then combine the understood knowledge with [key md files].

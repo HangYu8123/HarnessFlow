@@ -44,6 +44,8 @@ Understand them, and keep them inside the memory.
 
 Also read the breakdown-pr skill at `skills/breakdown-pr/SKILL.md` and keep it as [breakdown-pr skill].
 
+**Local Skill Discovery (before any plan drafting):** [breakdown-pr skill] is already loaded as the primary skill. Additionally perform Local Skill Discovery per `_lib/local_skill_discovery.md` for any *other* local skill relevant to this task (skip breakdown-pr during matching); pass the result [local skills] to the planning subagents, and integrate it when the main agent drafts [final pr plan]. If nothing else matches, record [local skills]: none relevant.
+
 #CREATE ONE TODO FOR EACH OF THE FOLLOWING STEPS
 then, for creating PRs from a feature branch, **CREATE ONE TODO FOR EACH STEP**:
 1. if a target branch is specified, the main agent must inspect the branch and its diff against the base branch. Then combine the understood knowledge with [key md files]. Additionally, the main agent must:

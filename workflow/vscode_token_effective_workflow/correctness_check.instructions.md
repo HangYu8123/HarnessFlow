@@ -1,6 +1,6 @@
 ---
 name: 'Fast Correctness Check'
-description: 'Streamlined instructions for verifying repo correctness with maximum parallelization'
+description: 'Streamlined correctness review: main-agent scope-driven inspection with optional script runs and one parallel challenge + research subagent step. Read-only'
 ---
 # Examine Existing Repo for Correctness
 
@@ -16,6 +16,8 @@ description: 'Streamlined instructions for verifying repo correctness with maxim
 -->
 
 **Safety: follow `_lib/safety_rules.md`.**
+
+This workflow is read-only — it inspects and reports, and does not modify code, so there is no approval gate or implementation step.
 
 [inputs]:
 - input 1: target repo
@@ -37,33 +39,29 @@ Subagent launch rule: Follow the Subagent Launch Contract in `#file:../../_lib/w
 ## CREATE ONE TODO PER STEP
 
 ### Step 1 - Context Gathering
-If important files or target functionalities are specified in [inputs], read them. Combine with [key md files]. Create [important information] - the most relevant code, scripts, and functionalities. If checking the entire repo, include the full pipeline diagram. If checking target functionalities, include upstream/downstream pipeline context.
+Read [key md files]. If important files or target functionalities are specified in [inputs], read them. Condense the understanding and identify [important information] — the most relevant code, scripts, and functionalities. Decide the **scope**: whole-repo (include the full pipeline diagram) or target functionality (include upstream/downstream context).
 
-### Step 2 - Parallel Correctness Check
-**[PARALLEL EXECUTION - launch ALL four subagents in parallel via VS Code Copilot `agent` tool]**
+### Step 2 - Correctness Analysis
+Based on [key md files] + [important information] + the chosen scope, the main agent lists the relevant files, orders them by pipeline flow, reads them, and examines correctness:
+- **Target scope:** focus on the named functionality and its upstream/downstream.
+- **Whole-repo scope:** traverse the full pipeline upstream→downstream.
 
-| Subagent | Agent | Role | Task |
-|----------|-------|------|------|
-| Code A | **Focus Analyst** (`agents/focus-analyst.agent.md`) | Focus mode | Read [key md files] + [important information] + [inputs]. List important files, order them upstream->downstream, examine correctness, and return [answers 1]. |
-| Code B | **Broad Analyst** (`agents/broad-analyst.agent.md`) | Broad mode | Read [key md files] + [inputs]. List all relevant files, order them by pipeline flow, examine correctness, and return [answers 2]. |
-| Code C | **Free Analyst** (`agents/free-analyst.agent.md`) | Free mode | Read [key md files] + [inputs]. Decide the reading order and strategy, check the repo for correctness, and return [answers 3]. |
-| QA | **QA Engineer** (`agents/qa-engineer.agent.md`) | QA/SQA engineer | Read [key md files] + [inputs]. List runnable scripts, order them by pipeline, run scripts when requested by the user, record errors/unexpected outputs, and return [answers 4]. |
+If the user requested script runs, run the runnable scripts directly in pipeline order and record any errors or unexpected outputs as [run results].
 
-### Step 3 - Main-Agent Draft Correctness Report
-The main agent reads [answers 1], [answers 2], [answers 3], and [answers 4]. Combine insights, reject redundant or incorrect parts, read necessary files, and draft [draft correctness report]. Include all script failures from [answers 4].
+Draft [draft correctness report], including all script failures from [run results].
 
-### Step 4 - Draft Report Challenge and Research
-**[PARALLEL EXECUTION - launch BOTH subagents in parallel via VS Code Copilot `agent` tool]**
+### Step 3 - Report Challenge and Research
+**[PARALLEL EXECUTION - launch BOTH subagents in parallel via VS Code Copilot `agent` tool]** This is the only step that spawns subagents.
 
-| Subagent | Agent | Role | Task |
-|----------|-------|------|------|
-| Challenge | **Devils Advocate** (`agents/devils-advocate.agent.md`) | Critical challenger | Read [key md files] + all relevant scripts + [draft correctness report] + [inputs]. Challenge false positives, overlooked issues, misattributed causes, and incorrect assumptions. Return [valid criticisms]. |
-| Research | **Online Researcher** (`agents/online-researcher.agent.md`) | External resource lookup | Read [key md files] + [draft correctness report] + [inputs]. Identify issues needing external documentation, known dependency bugs, or best-practice references. Search online for reliable resources and solutions. Return [online resource]. |
+| Subagent | Agent | When to spawn | Task |
+|----------|-------|---------------|------|
+| Challenge | **Devils Advocate** (`agents/devils-advocate.agent.md`) | Always | Read [key md files] + [draft correctness report] + [inputs], and all relevant scripts if needed. Assume the report is wrong and flawed; challenge false positives, overlooked issues, misattributed causes, and incorrect assumptions. Return [challenge report]. |
+| Research | **Online Researcher** (`agents/online-researcher.agent.md`) | Always | Read [key md files] + [draft correctness report] + [inputs]. Search online for reliable references and known dependency bugs. Return [online resource]. |
 
-### Step 5 - Main-Agent Final Correctness Report
-The main agent incorporates [valid criticisms] and [online resource], prioritizing codebase evidence over external sources. Finalize the correctness report.
+### Step 4 - Final Correctness Report
+The main agent incorporates [challenge report] and [online resource] (when produced), prioritizing codebase evidence over external sources, and finalizes the correctness report. Print it.
 
-### Step 6 - Documentation
+### Step 5 - Documentation
 1. Append to past_Correctness_Check.md, using the existing contents to determine the last CC ID (create if missing):
 ```md
 {=============================Correctness Check: (last CC ID + 1)===============================}

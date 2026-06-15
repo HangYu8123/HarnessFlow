@@ -1,6 +1,6 @@
 ---
 name: 'Fast Code Implementation'
-description: 'Streamlined instructions for implementing new functionalities with maximum parallelization'
+description: 'Streamlined new-feature implementation: main-agent plan, one parallel challenge + research subagent step, direct implementation, and main-agent review'
 ---
 # Add New Functions to an Existing Repo
 
@@ -26,48 +26,36 @@ Subagent launch rule: Follow the Subagent Launch Contract in `#file:../../_lib/w
 ## CREATE ONE TODO PER STEP
 
 ### Step 1 - Context Gathering
-If important files are specified in [inputs], read them. Combine that understanding with [key md files].
+Read [key md files]. If important files are specified in [inputs], read them. Condense the understanding for use in later steps.
 
-### Step 2 - Parallel Planning
-**[PARALLEL EXECUTION - launch ALL three subagents in parallel via VS Code Copilot `agent` tool]**
+### Step 2 - Implementation Planning
+**Local skill discovery (before drafting [plan]):** Perform Local Skill Discovery per `_lib/local_skill_discovery.md` — scan `skills/index.md` for any local skill whose trigger fits this task; on a confirmed match, read its `SKILL.md` and integrate it into [plan]. Record the result as [local skills] (or "none relevant").
 
-| Subagent | Agent | Role | Task |
-|----------|-------|------|------|
-| Plan A | **Focus Analyst** (`agents/focus-analyst.agent.md`) | Focus mode | Read [key md files] + [inputs]. Identify highly associated scripts/files, read them, and draft [plan 1] + [diagram 1] for integrating the new functionalities while keeping the codebase stable. |
-| Plan B | **Broad Analyst** (`agents/broad-analyst.agent.md`) | Broad mode | Read [key md files] + [inputs]. Follow the pipeline upstream->downstream, read all scripts, and draft [plan 2] + [diagram 2] for integrating the new functionalities. |
-| Plan C | **Free Analyst** (`agents/free-analyst.agent.md`) | Free mode | Read [key md files] + [inputs]. Decide the reading strategy and draft [plan 3] with the integration approach. |
+Based on [key md files] + [inputs], the main agent reads the relevant files and proposes a [plan] for integrating the target functionalities (files to add/change, integration points, dependencies) + notes on keeping existing behavior and tests stable.
 
-### Step 3 - Main-Agent Final Plan
-The main agent reviews [plan 1], [plan 2], [plan 3], [diagram 1], and [diagram 2], then reads any necessary files. Reject incorrect or redundant parts. Draft [final plan] that is feasible, stable, and 100% correct.
+### Step 3 - Plan Challenge and Research
+**[PARALLEL EXECUTION - launch BOTH subagents in parallel via VS Code Copilot `agent` tool]** This is the only step that spawns subagents.
 
-### Step 4 - Final Plan Challenge and Research
-**[PARALLEL EXECUTION - launch BOTH subagents in parallel via VS Code Copilot `agent` tool]**
+| Subagent | Agent | When to spawn | Task |
+|----------|-------|---------------|------|
+| Challenge | **Devils Advocate** (`agents/devils-advocate.agent.md`) | Always | Read [key md files] + [plan] + [inputs], and additional scripts if needed. Assume the [plan] is wrong and flawed; identify overlooked side effects, integration risks, incorrect assumptions, and regressions. Return [challenge report]. |
+| Research | **Online Researcher** (`agents/online-researcher.agent.md`) | Always | Read [key md files] + [plan] + [inputs]. Search online for reliable references, established solutions, and available resources. Return [online resource]. |
 
-| Subagent | Agent | Role | Task |
-|----------|-------|------|------|
-| Challenge | **Devils Advocate** (`agents/devils-advocate.agent.md`) | Critical challenger | Read [key md files] + all relevant scripts + [final plan] + [inputs]. Identify overlooked side effects, integration risks, incorrect assumptions, and regressions. Return [challenge report]. |
-| Research | **Online Researcher** (`agents/online-researcher.agent.md`) | Resource lookup | Read [key md files] + [final plan] + [inputs]. Identify extra needs for skills, tools, packages, or reliable external references. Search online for reliable resources and better solutions. Return [online resource]. |
+### Step 4 - Refine and Approval Gate
+The main agent incorporates [challenge report] and [online resource] (when produced) into a [final plan]. Print [final plan].
 
-### Step 5 - Refine and Approval Gate
-The main agent reviews [challenge report], [online resource], and [inputs]. Incorporate valid criticisms and relevant findings into [final plan]. Print the updated [final plan].
+**Approval gate (opt-in):** see `_lib/approval_gate.md` — proceed directly to Step 5 unless the user asked for no code/file changes or a plan-only review.
 
-**Approval gate:** See `_lib/approval_gate.md`.
+### Step 5 - Implementation
+The main agent implements [final plan] directly and records [implementation report] containing changes only, with no explanations.
 
-### Step 6 - Implementation
-Create **Implementer** subagent (`agents/implementer.agent.md`). Pass [final plan] + [inputs] + [key md files].
+### Step 6 - Code Review and Validation
+1. The main agent should claim every item in the [implementation report] is wrong, and start explaining why it is wrong. After explaining all the items, the main agent should then draft a [challenge report].
+2. The main agent reviews the changes directly (correctness, integration, unintended edits). The main agent validates the final diff against [final plan], [implementation report], and [challenge report]. Checklist: target functionalities achieved, no regressions, existing tests/behavior preserved.
 
-**Implementer Model Verification:** See `_lib/workflow_contract.md` §Implementer Model Verification Fallback.
+If any validation fails, perform **one** remediation pass (fix, then re-validate once); record any remaining gaps for Step 7.
 
-The subagent (or the main agent, if falling back) implements [final plan] and returns [implementation report] containing changes only, with no explanations.
-
-### Step 7 - Main-Agent Code Review and Validation
-The main agent reads [implementation report] and all changed files. Review implementation correctness, integration quality, maintainability, and whether [final plan] and [inputs] are fully satisfied.
-
-Create **QA Engineer** subagent (`agents/qa-engineer.agent.md`). Pass [inputs] + [final plan] + [implementation report] + changed files. The subagent validates the implementation from a QA perspective and, if the user requested script runs, executes the relevant pipeline. Return [implemented code QA report].
-
-The main agent reviews [implemented code QA report]. If the main-agent code review or QA report finds issues, revise [final plan] and repeat from Step 6 until the implementation is correct and complete.
-
-### Step 8 - Documentation and Summary
+### Step 7 - Documentation and Summary
 1. Update codebase_overview.md and scripts_overview.md based on actual changes.
 2. Write to update_logs.md:
 ```md
@@ -75,6 +63,7 @@ The main agent reviews [implemented code QA report]. If the main-agent code revi
 {Functionality Name + ID (last ID + 1)}
 {Description (1-2 sentences)}
 {Repos involved}
+{Request (what was requested)}
 {Implementation (what was changed)}
 {Achieved (yes/no, gaps if any)}
 ```

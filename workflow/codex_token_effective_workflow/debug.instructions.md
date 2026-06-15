@@ -1,6 +1,6 @@
 ---
 name: 'Token-Effective Debug Workflow (Codex)'
-description: 'Token-effective Codex instructions for debugging with Codex agent workers, Codex-in-VS-Code compatibility, and sequential fallback'
+description: 'Token-effective Codex instructions for debugging: optional reproduction, main-agent diagnosis and fix plan, one parallel challenge + research subagent step, direct fix, and main-agent review — with Codex agent workers and sequential fallback'
 ---
 # Debug Instructions
 
@@ -37,54 +37,44 @@ Subagent launch rule: Follow the Subagent Launch Contract in `_lib/workflow_cont
 ## CREATE ONE TODO PER STEP
 
 ### Step 0 (Optional) - Reproduce the Bug
-This step is skipped by default; only run it if `reproduce: true` is set in the debug request.
+Skipped by default; run only if `reproduce: true` is set in the debug request.
 
-Create a **Bug Reproducer** subagent (`agents/bug-reproducer.agent.md`). Pass [inputs] + [key md files]. The subagent identifies target scripts and entry points, runs the relevant bug path in the correct order per scripts_overview.md, captures stdout, stderr, exit codes, error messages, and tracebacks, then returns [reproduction report]. The main agent stores [reproduction report] and passes it to all later analysis.
+The main agent identifies the target scripts and entry points, runs the relevant bug path in the correct order per scripts_overview.md, and captures stdout, stderr, exit codes, error messages, and tracebacks into [reproduction report].
 
-### Step 1 - Parallel Diagnosis
-**[PARALLEL EXECUTION - launch ALL four subagents in parallel via Codex agent workers; if unavailable, run sequentially with the same output labels]**
+### Step 1 - Context Gathering
+Read [key md files]. If suspected scripts are specified in [inputs], read them. Condense the understanding for use in later steps.
 
-| Subagent | Agent | Role | Task |
-|----------|-------|------|------|
-| Code A | **Focus Analyst** (`agents/focus-analyst.agent.md`) | History check | Read [key md files] + [inputs]. Check whether the bug was previously addressed. If yes, follow the codebase diagram through associated scripts and infer why the prior fix failed. Return [history report]. |
-| Code B | **Focus Analyst** (`agents/focus-analyst.agent.md`) | Focus mode | Read [key md files] + [inputs] + important scripts. Check potential bug causes from suspected reasons and specified scripts. Return [bug reason 1]. |
-| Code C | **Broad Analyst** (`agents/broad-analyst.agent.md`) | Broad mode | Read [key md files] + [inputs]. Follow the pipeline upstream->downstream and check potential bug causes from a broader perspective. Return [bug reason 2]. |
-| Code D | **Free Analyst** (`agents/free-analyst.agent.md`) | Free mode | Read [key md files] + [inputs]. Decide the reading strategy and identify potential bug causes. Return [bug reason 3]. |
+### Step 2 - Diagnosis and Fix Plan
+**Local skill discovery (before drafting [plan]):** Perform Local Skill Discovery per `_lib/local_skill_discovery.md` — scan `skills/index.md` for any local skill whose trigger fits this bug/task; on a confirmed match, read its `SKILL.md` and integrate it into the fix [plan]. Record the result as [local skills] (or "none relevant").
 
-### Step 2 - Main-Agent Bug Analysis
-The main agent reads [reproduction report] if it exists, [history report], [bug reason 1], [bug reason 2], and [bug reason 3]. Combine insights, reject redundant or incorrect parts, read any necessary files, and draft precise [bug info].
+Based on [key md files] + [inputs] + [reproduction report] (if any), the main agent:
+1. Checks update_logs.md and known_issues.md for whether this bug was previously addressed and, if so, why the prior fix failed.
+2. Reads the associated scripts and identifies the most likely root cause(s) with evidence and affected scripts, recorded as [bug info].
+3. Proposes a [plan] that fixes the bug without breaking the codebase or repeating known_issues.md issues.
 
-### Step 3 - Main-Agent Final Bug Fix Plan
-The main agent reads all scripts associated with [bug info] and [inputs]. Draft [final bug fix plan] that fixes the bug without breaking the codebase or repeating known_issues.md issues.
+### Step 3 - Plan Challenge and Research
+**[PARALLEL EXECUTION - launch BOTH subagents in parallel via Codex agent workers; if unavailable, run sequentially with the same output labels]** This is the only step that spawns subagents.
 
-### Step 4 - Final Plan Challenge and Research
-**[PARALLEL EXECUTION - launch BOTH subagents in parallel via Codex agent workers; if unavailable, run sequentially with the same output labels]**
+| Subagent | Agent | When to spawn | Task |
+|----------|-------|---------------|------|
+| Challenge | **Devils Advocate** (`agents/devils-advocate.agent.md`) | Always | Read [key md files] + [bug info] + [plan] + [inputs], and additional scripts if needed. Assume the diagnosis and [plan] are wrong and flawed; identify overlooked root causes, side effects, integration risks, and regressions. Return [challenge report]. |
+| Research | **Online Researcher** (`agents/online-researcher.agent.md`) | Always | Read [key md files] + [bug info] + [plan] + [inputs]. Search online for error references, known solutions, and reliable resources. Return [online resource]. |
 
-| Subagent | Agent | Role | Task |
-|----------|-------|------|------|
-| Challenge | **Devils Advocate** (`agents/devils-advocate.agent.md`) | Critical challenger | Read [key md files] + all relevant scripts + [final bug fix plan] + [bug info] + [inputs]. Identify overlooked root causes, side effects, integration risks, incorrect assumptions, and regressions. Return [valid criticisms]. |
-| Research | **Online Researcher** (`agents/online-researcher.agent.md`) | External resource lookup | Read [key md files] + [final bug fix plan] + [bug info] + [inputs]. Identify extra needs for tools, packages, logs, error references, or reliable external documentation. Return [online resource]. |
+### Step 4 - Refine and Approval Gate
+The main agent incorporates [challenge report] and [online resource] (when produced) into a [final plan]. Print [final plan].
 
-### Step 5 - Refine and Approval Gate
-The main agent incorporates [valid criticisms] and [online resource] into [final bug fix plan]. Print [final bug fix plan].
+**Approval gate (opt-in):** see `_lib/approval_gate.md` — proceed directly to Step 5 unless the user asked for no code/file changes or a plan-only review.
 
-**Approval gate:** See `_lib/approval_gate.md`.
+### Step 5 - Implementation
+The main agent implements [final plan] directly and records [implementation report] containing changes only, with no explanations.
 
-### Step 6 - Implementation
-Create **Implementer** subagent (`agents/implementer.agent.md`). Pass [final bug fix plan] + [bug info] + [inputs] + [key md files].
+### Step 6 - Code Review and Validation
+1. The main agent should claim every item in the [implementation report] is wrong, and start explaining why it is wrong. After explaining all the items, the main agent should then draft a [challenge report].
+2. The main agent reviews the changes directly (correctness, integration, unintended edits). The main agent validates the final diff against [final plan], [implementation report], and [challenge report]. Checklist: root cause addressed and bug fixed, no regressions, existing tests/behavior intact. When a reproduction path exists (Step 0) or the user requested runs, re-run the failing path to confirm the bug no longer occurs.
 
-**Implementer Model Verification:** See `_lib/workflow_contract.md` §Implementer Model Verification Fallback.
+If any validation fails, perform **one** remediation pass (fix, then re-validate once); record any remaining gaps for Step 7.
 
-The subagent (or the main agent, if falling back) implements [final bug fix plan] and returns [implementation report] containing changes only, with no explanations.
-
-### Step 7 - Main-Agent Code Review and Validation
-The main agent reads [implementation report] and all changed files. Review fix correctness, code quality, side effects, and whether the target bug is actually fixed.
-
-Create **QA Engineer** subagent (`agents/qa-engineer.agent.md`). Pass [inputs] + [bug info] + [final bug fix plan] + [implementation report] + changed files. The subagent validates the bug fix from a QA perspective and, if the user requested script runs, executes the relevant pipeline. Return [QA report].
-
-If the main-agent code review or [QA report] finds issues, revise [final bug fix plan] and repeat from Step 6 until the fix is correct and complete.
-
-### Step 8 - Documentation and Summary
+### Step 7 - Documentation and Summary
 1. Update codebase_overview.md and scripts_overview.md based on actual changes.
 2. Write to update_logs.md:
 ```md
@@ -92,6 +82,7 @@ If the main-agent code review or [QA report] finds issues, revise [final bug fix
 {Bug Name + ID (last ID + 1)}
 {Description (1-2 sentences)}
 {Repos involved}
+{Request (what was requested)}
 {Implementation (what was changed)}
 {Fixed (yes/no, gaps if any)}
 ```
@@ -103,4 +94,4 @@ b. Last attempt summary
 c. Why last fix failed
 d. Current fix
 ```
-4. Summarize in bullet points to chat.
+4. Summarize changes in bullet points to chat.

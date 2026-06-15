@@ -35,6 +35,8 @@ Read [key md files] and [breakdown-pr skill]. Inspect the target branch and its 
 - Produce [filtered diff manifest] = [diff file manifest] minus [auto-generated files]. Log excluded auto-generated files so the user can override if needed.
 
 ### Step 2 - PR Planning
+**Local skill discovery (before drafting [plan]):** [breakdown-pr skill] is already loaded and integrated as the primary skill. Additionally perform Local Skill Discovery per `_lib/local_skill_discovery.md` for any *other* local skill relevant to this task (skip breakdown-pr during matching); record the result as [local skills] (or "none relevant") and integrate it into [plan].
+
 Based on the Step 1 manifests + [breakdown-pr skill] + [inputs], the main agent analyzes the diff, identifies change types and logical groupings, and proposes a [plan] + [dependency graph] following the [breakdown-pr skill] output format. Use [filtered diff manifest] as the authoritative file list; **every file in [filtered diff manifest] must be assigned to exactly one PR**, and each PR must be buildable.
 
 File completeness verification: after drafting [plan], rerun `git diff --name-only <base>...<branch>` and cross-reference the output against [plan]. Add missing files to the most appropriate PR; remove files matching [gitignore patterns] or [auto-generated files] unless the user explicitly requested their inclusion. Log discrepancies found and resolved.
@@ -64,9 +66,10 @@ The main agent executes the PR stack creation directly, following [breakdown-pr 
 Record [execution report] containing branches created, commits made, PRs submitted, and failures, with no explanations.
 
 ### Step 6 - Stack Review and Verification
-1. The main agent verifies the stack directly against [final plan] and [execution report]: branch/commit structure, dependency order, no unrelated or auto-generated files included, all necessary files present, and the final stack top matches the original branch diff. Run [breakdown-pr skill] step 7 verification, including `git diff --exit-code` and `git range-diff` where appropriate.
-2. PR re-organization authors no new logic, so run the native review skills (`skills/claude-native-skills-subagents/SKILL.md`) only if source files were actually edited (e.g., conflict resolution).
-3. If verification fails, perform **one** remediation pass (repair the affected branches, then re-verify once); record any remaining gaps for Step 7.
+1. PR re-organization authors no new logic, so run the native review skills (`skills/claude-native-skills-subagents/SKILL.md`) only if source files were actually edited (e.g., conflict resolution); skip when no source was edited or the native skills are unavailable.
+2. The main agent should claim everything item in the [execution report] is wrong, and start explaining why it is wrong. After done explaining all the items, the main agent should then draft a [challenge report]
+3. The main agent verifies the stack directly against [final plan], [execution report], and [challenge report]: branch/commit structure, dependency order, no unrelated or auto-generated files included, all necessary files present, and the final stack top matches the original branch diff. Run [breakdown-pr skill] step 7 verification, including `git diff --exit-code` and `git range-diff` where appropriate.
+4. If any verification fails, perform **one** remediation pass (repair the affected branches, then re-verify once); record any remaining gaps for Step 7.
 
 ### Step 7 - Documentation and Summary
 1. Write to update_logs.md:

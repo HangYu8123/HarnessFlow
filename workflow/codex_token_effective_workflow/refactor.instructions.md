@@ -1,6 +1,6 @@
 ---
 name: 'Token-Effective Code Refactor (Codex)'
-description: 'Token-effective Codex instructions for refactoring with Codex agent workers, Codex-in-VS-Code compatibility, and sequential fallback'
+description: 'Token-effective Codex instructions for refactoring: main-agent plan, one parallel challenge + research subagent step, direct implementation, main-agent review with self-challenge, and behavior-preservation validation — with Codex agent workers and sequential fallback'
 ---
 # Refactor an Existing Repo
 
@@ -37,54 +37,36 @@ Subagent launch rule: Follow the Subagent Launch Contract in `_lib/workflow_cont
 ## CREATE ONE TODO PER STEP
 
 ### Step 1 - Context Gathering
-If target files are specified in [inputs], read them. Combine that understanding with [key md files].
+Read [key md files]. If target files are specified in [inputs], read them. Condense the understanding for use in later steps.
 
-### Step 2 - Parallel Refactor Analysis
-**[PARALLEL EXECUTION - launch ALL five subagents in parallel via Codex agent workers; if unavailable, run sequentially with the same output labels]**
+### Step 2 - Refactor Analysis
+**Local skill discovery (before drafting [plan]):** Perform Local Skill Discovery per `_lib/local_skill_discovery.md` — scan `skills/index.md` for any local skill whose trigger fits this task; on a confirmed match, read its `SKILL.md` and integrate it into [plan]. Record the result as [local skills] (or "none relevant").
 
-| Subagent | Agent | Role | Task |
-|----------|-------|------|------|
-| Plan A | **Architecture Analyst** (`agents/architecture-analyst.agent.md`) | Architecture | Read [key md files] + [inputs]. Analyze inappropriate designs and architecture improvements. Draft [plan 1] + [comparison 1]. |
-| Plan B | **Redundancy Analyst** (`agents/redundancy-analyst.agent.md`) | Redundancy | Read [key md files] + [inputs]. Analyze redundant code and overlapping implementations. Draft [plan 2] + [comparison 2]. |
-| Plan C | **Robustness Analyst** (`agents/robustness-analyst.agent.md`) | Robustness | Read [key md files] + [inputs]. Analyze robustness issues and potential bugs. Draft [plan 3] + [comparison 3]. |
-| Plan D | **Free Analyst** (`agents/free-analyst.agent.md`) | Free mode | Read [key md files] + [inputs]. Decide the reading strategy and draft [plan 4]. |
-| Plan E | **Complexity Analyst** (`agents/complexity-analyst.agent.md`) | Complexity reduction | Read [key md files] + [inputs]. Analyze complexity directly and draft a plan to simplify without changing behavior. Return [plan 5] + [comparison 4]. |
+Based on [key md files] + [inputs], the main agent reads the relevant files and proposes a [plan] for addressing the target refactors + a [comparison] (before/after) indicating the changes + behavior-preservation notes.
 
-### Step 3 - Principal Review and Main-Agent Final Plan
-Create **Principal Engineer** subagent (`agents/principal-engineer.agent.md`). Pass [inputs], [plan 1], [plan 2], [plan 3], [plan 4], [plan 5], [comparison 1], [comparison 2], [comparison 3], [comparison 4], and [key md files]. The subagent reviews correctness, feasibility, dependency ordering, and redundant or risky plan items. Return [plan review].
+### Step 3 - Plan Challenge and Research
+**[PARALLEL EXECUTION - launch BOTH subagents in parallel via Codex agent workers; if unavailable, run sequentially with the same output labels]** This is the only step that spawns subagents.
 
-The main agent reads necessary target files and performs the code-quality review directly. Record [main-agent code review notes] covering maintainability, robustness, readability, and behavioral risks.
+| Subagent | Agent | When to spawn | Task |
+|----------|-------|---------------|------|
+| Challenge | **Devils Advocate** (`agents/devils-advocate.agent.md`) | Always | Read [key md files] + [plan] + [comparison] + [inputs], and additional scripts if needed. Assume the [plan] is wrong and flawed; identify overlooked side effects, integration risks, incorrect assumptions, and regressions. Return [challenge report]. |
+| Research | **Online Researcher** (`agents/online-researcher.agent.md`) | Always | Read [key md files] + [plan] + [comparison] + [inputs]. Search online for reliable references, established solutions, and available resources. Return [online resource]. |
 
-The main agent combines [plan 1-5], [comparison 1-4], [plan review], and [main-agent code review notes]. Reject incorrect or redundant parts. Draft [final plan] and verify each step for target files, known_issues.md conflicts, upstream/downstream dependencies, and behavior preservation.
+### Step 4 - Refine and Approval Gate
+The main agent incorporates [challenge report] and [online resource] (when produced) into a [final plan]. Print [final plan].
 
-### Step 4 - Final Plan Challenge and Research
-**[PARALLEL EXECUTION - launch BOTH subagents in parallel via Codex agent workers; if unavailable, run sequentially with the same output labels]**
+**Approval gate (opt-in):** see `_lib/approval_gate.md` — proceed directly to Step 5 unless the user asked for no code/file changes or a plan-only review.
 
-| Subagent | Agent | Role | Task |
-|----------|-------|------|------|
-| Challenge | **Devils Advocate** (`agents/devils-advocate.agent.md`) | Critical challenger | Read [key md files] + relevant scripts + [final plan] + [inputs]. Identify overlooked side effects, integration risks, incorrect assumptions, and regressions. Return [challenge report]. |
-| Research | **Online Researcher** (`agents/online-researcher.agent.md`) | Resource lookup | Read [key md files] + [final plan] + [inputs]. Identify extra needs for skills, tools, packages, patterns, or migration references. Search online for reliable resources and solutions. Return [online resource]. |
+### Step 5 - Implementation
+The main agent implements [final plan] directly and records [implementation report] containing changes only, with no explanations.
 
-### Step 5 - Refine and Approval Gate
-The main agent incorporates [challenge report] and [online resource] into [final plan]. Print [final plan].
+### Step 6 - Code Review and Validation
+1. The main agent should claim every item in the [implementation report] is wrong, and start explaining why it is wrong. After explaining all the items, the main agent should then draft a [challenge report].
+2. The main agent reviews the changes directly (correctness, integration, unintended edits). The main agent validates the final diff against [final plan], [implementation report], and [challenge report]. Checklist: refactor targets achieved, behavior preserved, no regressions, existing tests/behavior intact.
 
-**Approval gate:** See `_lib/approval_gate.md`.
+If any validation fails, perform **one** remediation pass (fix, then re-validate once); record any remaining gaps for Step 7.
 
-### Step 6 - Implementation
-Create **Implementer** subagent (`agents/implementer.agent.md`). Pass [final plan] + [inputs] + [key md files].
-
-**Implementer Model Verification:** See `_lib/workflow_contract.md` §Implementer Model Verification Fallback.
-
-The subagent (or the main agent, if falling back) implements [final plan] and returns [implementation report] containing changes only, with no explanations.
-
-### Step 7 - Main-Agent Code Review and Validation
-The main agent reads [implementation report] and all changed files. Review refactor correctness, behavior preservation, integration quality, maintainability, and whether [inputs] and [final plan] are fully satisfied.
-
-Create **QA Engineer** subagent (`agents/qa-engineer.agent.md`). Pass [inputs] + [final plan] + [implementation report] + changed files. The subagent validates the refactor from a QA perspective and, if the user requested script runs, executes the relevant pipeline. Return [QA report].
-
-If the main-agent code review or [QA report] finds issues, revise [final plan] and repeat from Step 6 until the refactor is correct and complete.
-
-### Step 8 - Documentation and Summary
+### Step 7 - Documentation and Summary
 1. Update codebase_overview.md and scripts_overview.md based on actual changes.
 2. Write to update_logs.md:
 ```md
@@ -92,6 +74,7 @@ If the main-agent code review or [QA report] finds issues, revise [final plan] a
 {Refactor Summary + ID (last ID + 1)}
 {Description (1-2 sentences)}
 {Repos involved}
+{Request (what was requested)}
 {Implementation (what was changed)}
 {Achieved (yes/no, gaps if any)}
 ```

@@ -40,6 +40,8 @@ Understand the structure of the repo, functions inside each script, previous upd
 After reading [key md files], create a condensed **[repo context digest]** — a concise bullet-point summary covering: codebase structure/pipeline, key scripts and their roles, recent changes, and active known issues. This digest will be passed to all subagents so they do not need to independently re-read these files (see `_lib/workflow_contract.md` §Context Passing for Subagents).
 
 
+**Local Skill Discovery (before any plan drafting):** Perform Local Skill Discovery per `_lib/local_skill_discovery.md` — scan `skills/index.md` for any local skill whose trigger fits [inputs]/the task; on a confirmed match, read its `SKILL.md`. Keep the result as [local skills], fold it into [repo context digest] so every planning subagent receives it, and integrate it when the main agent drafts its final plan. If nothing matches, record [local skills]: none relevant.
+
 #CREATE ONE TODO FOR EACH OF THE FOLLOWING STEPS
 Then, the main agent must, **CREATE ONE TODO FOR EACH STEP**:
 

@@ -38,6 +38,8 @@ When ask to debug, always, first read the following files .github/HarnessFlow/re
 Understand the structure of the repo, functions inside each script, previous update, and previous bug fix attempts. **KEEP THESE IN THE MEMORY**.
 
 
+**Local Skill Discovery (before any plan drafting):** Perform Local Skill Discovery per `_lib/local_skill_discovery.md` — scan `skills/index.md` for any local skill whose trigger fits [inputs]/the task; on a confirmed match, read its `SKILL.md`. Keep the result as [local skills], pass it to the planning subagents, and integrate it when the main agent drafts its final plan. If nothing matches, record [local skills]: none relevant.
+
 #CREATE ONE TODO FOR EACH OF THE FOLLOWING STEPS
 Then, the main agent must, **CREATE ONE TODO FOR EACH STEP**:
 

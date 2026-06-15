@@ -25,7 +25,9 @@ Subagent launch rule: Follow the Subagent Launch Contract in `_lib/workflow_cont
 Read [key md files]. If important files are specified in [inputs], read them. Condense into a [repo context digest].
 
 ### Step 2 - Execution Planning
-Based on [repo context digest] + [inputs], read the relevant files (and `skills/index.md` when a skill is named) and propose a [plan] covering exact commands/skills to run, preconditions, expected outputs, validation criteria, failure modes, and rollback strategy.
+**Local skill discovery (before drafting [plan]):** When the target involves a named skill, or the task could be accomplished or aided by a local skill, perform Local Skill Discovery per `_lib/local_skill_discovery.md` (scan `skills/index.md`; on a confirmed match, read its `SKILL.md`), recorded as [local skills]. Skip when the target is plainly shell commands with no relevant skill ([local skills]: none relevant).
+
+Based on [repo context digest] + [inputs] + [local skills], read the relevant files and propose a [plan] covering exact commands/skills to run, preconditions, expected outputs, validation criteria, failure modes, and rollback strategy.
 
 ### Step 3 - Plan Challenge and Research
 **Spawn 2 subagents in parallel.** This is the only step that spawns subagents.
@@ -44,9 +46,10 @@ The main agent incorporates [challenge report] and [online resource] (when produ
 The main agent validates preconditions, executes the commands or skills per [final plan] directly, and captures stdout, stderr, exit codes, and pass/fail state into [execution report] with no explanations.
 
 ### Step 6 - Review and Validation
-1. The main agent validates [execution report] against [final plan]: outputs match expectations, side effects and state changes are intended, and modified files are inspected when applicable.
-2. If the execution edited source files, run the native review skills using the skill at `skills/claude-native-skills-subagents/SKILL.md`: `/simplify` first, then `/code-review` (review-only, medium effort) on the resulting diff; if the native `/code-review` skill is unavailable, review the edits directly. Skip this item when the execution only ran commands without editing source.
-3. If validation fails, perform **one** remediation pass (revise [final plan] and re-execute once, only when another attempt is safe); record any remaining gaps for Step 7.
+1. If the execution edited source files, run the native review skills using the skill at `skills/claude-native-skills-subagents/SKILL.md`: `/simplify` first, then `/code-review` (review-only, medium effort) on the resulting diff. Skip this item when the execution only ran commands without editing source, or when the native skills are unavailable.
+2. The main agent should claim everything item in the [execution report] is wrong, and start explaining why it is wrong. After done explaining all the items, the main agent should then draft a [challenge report]
+3. The main agent validates [execution report] against [final plan] and [challenge report]: outputs match expectations, side effects and state changes are intended, and modified files are inspected when applicable.
+4. If any validation fails, perform **one** remediation pass (revise [final plan] and re-execute once, only when another attempt is safe); record any remaining gaps for Step 7.
 
 ### Step 7 - Documentation and Summary
 1. If execution changed repo state, update codebase_overview.md and scripts_overview.md based on actual changes.

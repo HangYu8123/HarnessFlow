@@ -40,6 +40,8 @@ When ask to refactor existing functionalities, repositories, and scripts, always
 Understand them, and keep them inside the memory.
 
 
+**Local Skill Discovery (before any plan drafting):** Perform Local Skill Discovery per `_lib/local_skill_discovery.md` — scan `skills/index.md` for any local skill whose trigger fits [inputs]/the task; on a confirmed match, read its `SKILL.md`. Keep the result as [local skills], pass it to the planning subagents, and integrate it when the main agent drafts its final plan. If nothing matches, record [local skills]: none relevant.
+
 #CREATE ONE TODO FOR EACH OF THE FOLLOWING STEPS
 then, for refactoring existing functionalities, repositories, and scripts, **CREATE ONE TODO FOR EACH STEP**:
 1. if input 1 or input 2 are specified in [inputs], the main agent must read through the files associated with [inputs], then combine the understood knowledge with [key md files].

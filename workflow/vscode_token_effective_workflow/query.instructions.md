@@ -1,6 +1,6 @@
 ---
 name: 'Fast Query'
-description: 'Streamlined instructions for answering repo questions with maximum parallelization'
+description: 'Streamlined repo Q&A: main-agent answer drafting with one parallel challenge + research subagent step. Read-only'
 ---
 # Ask About an Existing Repo
 
@@ -16,6 +16,8 @@ description: 'Streamlined instructions for answering repo questions with maximum
 -->
 
 **Safety: follow `_lib/safety_rules.md`.**
+
+This workflow is read-only — it answers questions and does not modify code, so there is no approval gate or implementation step.
 
 [inputs]:
 - input 1: target repo, questions
@@ -36,32 +38,23 @@ Subagent launch rule: Follow the Subagent Launch Contract in `#file:../../_lib/w
 ## CREATE ONE TODO PER STEP
 
 ### Step 1 - Context Gathering
-If important files are specified in [inputs], read them. Combine with [key md files]. Identify [important information] - the most relevant code, scripts, files, and functionalities for the questions.
+Read [key md files]. If important files are specified in [inputs], read them. Condense the understanding and identify [important information] — the most relevant code, scripts, files, and functionalities for the questions.
 
-### Step 2 - Parallel Answer Drafting
-**[PARALLEL EXECUTION - launch ALL three subagents in parallel via VS Code Copilot `agent` tool]**
+### Step 2 - Answer Drafting
+Based on [key md files] + [important information] + [inputs], the main agent reads the relevant files and drafts [draft answers] grounded in the codebase.
 
-| Subagent | Agent | Role | Task |
-|----------|-------|------|------|
-| Code A | **Focus Analyst** (`agents/focus-analyst.agent.md`) | Focus mode | Read [key md files] + [important information] + [inputs]. Answer the questions from the most relevant files. Return [answers 1]. |
-| Code B | **Broad Analyst** (`agents/broad-analyst.agent.md`) | Broad mode | Read [key md files] + [inputs]. Follow the pipeline and read upstream/downstream scripts needed for the questions. Return [answers 2]. |
-| Code C | **Free Analyst** (`agents/free-analyst.agent.md`) | Free mode | Read [key md files] + [inputs]. Decide the reading strategy needed for correct answers. Return [answers 3]. |
+### Step 3 - Answer Challenge and Research
+**[PARALLEL EXECUTION - launch BOTH subagents in parallel via VS Code Copilot `agent` tool]** This is the only step that spawns subagents.
 
-### Step 3 - Main-Agent Draft Answers
-The main agent reads [answers 1], [answers 2], and [answers 3], then reads any necessary files. Combine advantages, reject redundant or incorrect parts, and draft [draft answers].
+| Subagent | Agent | When to spawn | Task |
+|----------|-------|---------------|------|
+| Challenge | **Devils Advocate** (`agents/devils-advocate.agent.md`) | Always | Read [key md files] + [important information] + [draft answers] + [inputs], and additional files if needed. Assume [draft answers] are wrong and flawed; challenge factual errors, unsupported claims, missing edge cases, and contradictions with the codebase. Return [challenge report]. |
+| Research | **Online Researcher** (`agents/online-researcher.agent.md`) | Always | Read [key md files] + [draft answers] + [inputs]. Search online to validate external facts (APIs, tools, versions) and find reliable references. Return [online resource]. |
 
-### Step 4 - Draft Answer Challenge and Research
-**[PARALLEL EXECUTION - launch BOTH subagents in parallel via VS Code Copilot `agent` tool]**
+### Step 4 - Final Answers
+The main agent incorporates [challenge report] and [online resource] (when produced) into the final answers, prioritizing codebase evidence when it conflicts with external sources. Print the final answers in bullet points.
 
-| Subagent | Agent | Role | Task |
-|----------|-------|------|------|
-| Challenge | **Devils Advocate** (`agents/devils-advocate.agent.md`) | Critical challenger | Read [key md files] + [important information] + [draft answers] + [inputs]. Challenge answers for factual errors, unsupported claims, missing edge cases, and contradictions. Return [challenge report]. |
-| Research | **Online Researcher** (`agents/online-researcher.agent.md`) | Resource lookup | Read [key md files] + [important information] + [draft answers] + [inputs]. Identify where online resources are needed to validate external facts, tools, packages, APIs, or current best practices. Search online for reliable resources and solutions. Return [online resource]. |
-
-### Step 5 - Main-Agent Final Answers
-The main agent incorporates [challenge report] and [online resource], prioritizing codebase evidence when it conflicts with external sources. Draft precise final answers.
-
-### Step 6 - Documentation
+### Step 5 - Documentation
 Append to past_Q&A.md, using the existing contents to determine the last Q&A ID:
 ```md
 {=============================Q&A: (last ID + 1)===============================}

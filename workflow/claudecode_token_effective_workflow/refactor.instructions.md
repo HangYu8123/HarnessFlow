@@ -25,6 +25,8 @@ Subagent launch rule: Follow the Subagent Launch Contract in `_lib/workflow_cont
 Read [key md files]. If target files are specified in [inputs], read them. Condense into a [repo context digest].
 
 ### Step 2 - Refactor Analysis
+**Local skill discovery (before drafting [plan]):** Perform Local Skill Discovery per `_lib/local_skill_discovery.md` — scan `skills/index.md` for any local skill whose trigger fits this task; on a confirmed match, read its `SKILL.md` and integrate it into [plan]. Record the result as [local skills] (or "none relevant").
+
 Based on [repo context digest] + [inputs], read the relevant files and propose a [plan] for addressing the target refactors + a [comparison] (before/after) indicating the changes + behavior-preservation notes.
 
 ### Step 3 - Plan Challenge and Research
