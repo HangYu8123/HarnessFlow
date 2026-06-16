@@ -743,24 +743,20 @@
           </p>
           <div class="grid">
             <div class="tile accent-teal">
-              <h3>VS Code general</h3>
-              <p><code>workflow/vscode_workflow/</code> contains the full Copilot workflow set.</p>
+              <h3>General (shared)</h3>
+              <p><code>workflow/general_workflow/</code> is one platform-adaptive set used by Claude Code, Codex, and VS Code Copilot (<code>mode: general</code>).</p>
+            </div>
+            <div class="tile accent-green">
+              <h3>Claude Code fast</h3>
+              <p><code>workflow/claudecode_token_effective_workflow/</code> is selected with <code>mode: fast</code> under Claude Code.</p>
+            </div>
+            <div class="tile accent-amber">
+              <h3>Codex fast</h3>
+              <p><code>workflow/codex_token_effective_workflow/</code> is selected by Codex prompts with <code>mode: fast</code>.</p>
             </div>
             <div class="tile accent-blue">
               <h3>VS Code fast</h3>
               <p><code>workflow/vscode_token_effective_workflow/</code> is selected by templates with <code>mode: fast</code>.</p>
-            </div>
-            <div class="tile accent-green">
-              <h3>Claude Code CLI</h3>
-              <p><code>workflow/claudecode_workflow/</code> uses Claude Code native behavior and skill hooks.</p>
-            </div>
-            <div class="tile accent-amber">
-              <h3>Codex general</h3>
-              <p><code>workflow/codex_workflow/</code> uses Codex-oriented text and manual review fallbacks.</p>
-            </div>
-            <div class="tile accent-red">
-              <h3>Codex fast</h3>
-              <p><code>workflow/codex_token_effective_workflow/</code> is selected by Codex prompts with <code>mode: fast</code>.</p>
             </div>
           </div>
 
@@ -769,67 +765,49 @@
               <thead>
                 <tr>
                   <th>Task</th>
-                  <th>VS Code</th>
-                  <th>Claude Code CLI</th>
-                  <th>Codex general</th>
+                  <th>General (shared)</th>
                   <th>Codex fast</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
                   <td>Initialize</td>
-                  <td><code>workflow/vscode_workflow/initialize.instructions.md</code></td>
-                  <td><code>workflow/claudecode_workflow/initialize.instructions.md</code></td>
-                  <td><code>workflow/codex_workflow/initialize.instructions.md</code></td>
+                  <td><code>workflow/general_workflow/initialize.instructions.md</code></td>
                   <td><code>workflow/codex_token_effective_workflow/initialize.instructions.md</code></td>
                 </tr>
                 <tr>
                   <td>Implement</td>
-                  <td><code>workflow/vscode_workflow/code.instructions.md</code></td>
-                  <td><code>workflow/claudecode_workflow/code.instructions.md</code></td>
-                  <td><code>workflow/codex_workflow/code.instructions.md</code></td>
+                  <td><code>workflow/general_workflow/code.instructions.md</code></td>
                   <td><code>workflow/codex_token_effective_workflow/code.instructions.md</code></td>
                 </tr>
                 <tr>
                   <td>Debug</td>
-                  <td><code>workflow/vscode_workflow/debug.instructions.md</code></td>
-                  <td><code>workflow/claudecode_workflow/debug.instructions.md</code></td>
-                  <td><code>workflow/codex_workflow/debug.instructions.md</code></td>
+                  <td><code>workflow/general_workflow/debug.instructions.md</code></td>
                   <td><code>workflow/codex_token_effective_workflow/debug.instructions.md</code></td>
                 </tr>
                 <tr>
                   <td>Question</td>
-                  <td><code>workflow/vscode_workflow/query.instructions.md</code></td>
-                  <td><code>workflow/claudecode_workflow/query.instructions.md</code></td>
-                  <td><code>workflow/codex_workflow/query.instructions.md</code></td>
+                  <td><code>workflow/general_workflow/query.instructions.md</code></td>
                   <td><code>workflow/codex_token_effective_workflow/query.instructions.md</code></td>
                 </tr>
                 <tr>
                   <td>Correctness</td>
-                  <td><code>workflow/vscode_workflow/correctness_check.instructions.md</code></td>
-                  <td><code>workflow/claudecode_workflow/correctness_check.instructions.md</code></td>
-                  <td><code>workflow/codex_workflow/correctness_check.instructions.md</code></td>
+                  <td><code>workflow/general_workflow/correctness_check.instructions.md</code></td>
                   <td><code>workflow/codex_token_effective_workflow/correctness_check.instructions.md</code></td>
                 </tr>
                 <tr>
                   <td>Refactor</td>
-                  <td><code>workflow/vscode_workflow/refactor.instructions.md</code></td>
-                  <td><code>workflow/claudecode_workflow/refactor.instructions.md</code></td>
-                  <td><code>workflow/codex_workflow/refactor.instructions.md</code></td>
+                  <td><code>workflow/general_workflow/refactor.instructions.md</code></td>
                   <td><code>workflow/codex_token_effective_workflow/refactor.instructions.md</code></td>
                 </tr>
                 <tr>
                   <td>Exec</td>
-                  <td><code>workflow/vscode_workflow/exec.instructions.md</code></td>
-                  <td><code>workflow/claudecode_workflow/exec.instructions.md</code></td>
-                  <td><code>workflow/codex_workflow/exec.instructions.md</code></td>
+                  <td><code>workflow/general_workflow/exec.instructions.md</code></td>
                   <td><code>workflow/codex_token_effective_workflow/exec.instructions.md</code></td>
                 </tr>
                 <tr>
                   <td>PR breakdown</td>
-                  <td><code>workflow/vscode_workflow/pr.instructions.md</code></td>
-                  <td><code>workflow/claudecode_workflow/pr.instructions.md</code></td>
-                  <td><code>workflow/codex_workflow/pr.instructions.md</code></td>
+                  <td><code>workflow/general_workflow/pr.instructions.md</code></td>
                   <td><code>workflow/codex_token_effective_workflow/pr.instructions.md</code></td>
                 </tr>
               </tbody>
@@ -849,7 +827,7 @@
               <li><code>AGENTS.md</code><span>Codex router template for CLI and VS Code.</span></li>
               <li><code>_lib/</code><span>Workflow contract, safety rules, and approval gate.</span></li>
               <li><code>philosophy/</code><span>Shared execution guidance for main agents and subagents.</span></li>
-              <li><code>workflow/</code><span>Tool-specific workflow instruction families.</span></li>
+              <li><code>workflow/</code><span>Workflow instruction families: one shared <code>general</code> set plus per-tool <code>fast</code> sets.</span></li>
             </ul>
             <ul class="module-list">
               <li><code>agents/</code><span>Custom coordinator and worker agent definitions.</span></li>
@@ -968,7 +946,7 @@ bash .github/HarnessFlow/cli_setup.sh</code></pre>
             <div>
               <p>
                 VS Code prompts may use <code>@/.github/HarnessFlow/...</code>. CLI entry points use
-                filesystem-relative paths such as <code>.github/HarnessFlow/workflow/codex_workflow/code.instructions.md</code>
+                filesystem-relative paths such as <code>.github/HarnessFlow/workflow/general_workflow/code.instructions.md</code>
                 or <code>.github/HarnessFlow/workflow/codex_token_effective_workflow/code.instructions.md</code>.
               </p>
               <div class="note">

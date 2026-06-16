@@ -125,13 +125,17 @@ When any workflow instruction tells you to read context files (`[key md files]`)
 
 ---
 
-## Context Passing for Subagents (Claude Code)
+## Context Passing for Subagents
 
-To reduce redundant file reads across subagents, Claude Code workflows must follow this pattern:
+The unified general workflow (`workflow/general_workflow/`) is platform-adaptive; how repo context reaches subagents depends on the **active agent**, not the directory:
+
+**Claude Code** — to reduce redundant file reads across subagents, follow this pattern:
 
 1. The main agent reads [key md files] **once** at workflow start.
 2. The main agent creates a condensed **[repo context digest]** — a concise bullet-point summary covering: codebase structure/pipeline, key scripts and their roles, recent changes from update_logs, and active known issues.
 3. When spawning subagents, include [repo context digest] inline in the subagent prompt.
 4. Subagents use [repo context digest] for codebase context and only read additional **specific code files** directly relevant to their task. Subagents do **not** independently re-read the repo_info files.
 
-This applies to all `workflow/claudecode_workflow/` instructions. Other workflow families (VS Code, Codex) continue to have subagents read [key md files] directly, since their subagent mechanisms may not support inline context passing.
+**Codex and VS Code Copilot** — subagents read [key md files] directly, since their subagent mechanisms may not support inline context passing.
+
+In the workflow files, the neutral phrase "the repo context (per §Context Passing)" refers to this rule: it resolves to [repo context digest] on Claude Code and to [key md files] on Codex / VS Code Copilot.

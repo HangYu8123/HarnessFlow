@@ -22,18 +22,18 @@ Apply this rule to every path referenced in this file, workflow files, and agent
 
 Analyze the user's prompt and determine which **one** category best matches.
 Use the trigger phrases as soft signals, not strict rules. Classify based on primary intent.
-If the prompt explicitly includes `mode: fast`, use the matching file under `workflow/claudecode_token_effective_workflow/`. If the prompt includes `mode: general` or does not specify a mode, use `workflow/claudecode_workflow/`.
+If the prompt explicitly includes `mode: fast`, use the matching file under `workflow/claudecode_token_effective_workflow/`. If the prompt includes `mode: general` or does not specify a mode, use `workflow/general_workflow/`.
 
 | Category | Trigger Keywords / Intent | General Instruction File | Fast Instruction File |
 |---|---|---|---|
-| **Code Implementation** | implement, add, create, build, update, modify, write code, new feature | `workflow/claudecode_workflow/code.instructions.md` | `workflow/claudecode_token_effective_workflow/code.instructions.md` |
-| **Refactor** | refactor, restructure, reorganize, redesign, reduce redundancy, improve architecture | `workflow/claudecode_workflow/refactor.instructions.md` | `workflow/claudecode_token_effective_workflow/refactor.instructions.md` |
-| **Debug** | debug, fix, error, bug, crash, broken, failing, not working, traceback, exception | `workflow/claudecode_workflow/debug.instructions.md` | `workflow/claudecode_token_effective_workflow/debug.instructions.md` |
-| **Query / Q&A** | explain, what is, how does, where is, why, describe, summarize, document | `workflow/claudecode_workflow/query.instructions.md` | `workflow/claudecode_token_effective_workflow/query.instructions.md` |
-| **Correctness Check** | test, verify, check, validate, review, audit, examine, ensure correctness | `workflow/claudecode_workflow/correctness_check.instructions.md` | `workflow/claudecode_token_effective_workflow/correctness_check.instructions.md` |
-| **Exec (Cmd/Skill Execution)** | execute, run, exec, invoke, launch command, run skill, run script, trigger | `workflow/claudecode_workflow/exec.instructions.md` | `workflow/claudecode_token_effective_workflow/exec.instructions.md` |
-| **PR Creation** | pull request, PR, stacked PR, break down branch, split PR, create PR | `workflow/claudecode_workflow/pr.instructions.md` | `workflow/claudecode_token_effective_workflow/pr.instructions.md` |
-| **Initialize Repo** | initialize, init, setup repo, create overview, bootstrap, first-time setup | `workflow/claudecode_workflow/initialize.instructions.md` | `workflow/claudecode_token_effective_workflow/initialize.instructions.md` |
+| **Code Implementation** | implement, add, create, build, update, modify, write code, new feature | `workflow/general_workflow/code.instructions.md` | `workflow/claudecode_token_effective_workflow/code.instructions.md` |
+| **Refactor** | refactor, restructure, reorganize, redesign, reduce redundancy, improve architecture | `workflow/general_workflow/refactor.instructions.md` | `workflow/claudecode_token_effective_workflow/refactor.instructions.md` |
+| **Debug** | debug, fix, error, bug, crash, broken, failing, not working, traceback, exception | `workflow/general_workflow/debug.instructions.md` | `workflow/claudecode_token_effective_workflow/debug.instructions.md` |
+| **Query / Q&A** | explain, what is, how does, where is, why, describe, summarize, document | `workflow/general_workflow/query.instructions.md` | `workflow/claudecode_token_effective_workflow/query.instructions.md` |
+| **Correctness Check** | test, verify, check, validate, review, audit, examine, ensure correctness | `workflow/general_workflow/correctness_check.instructions.md` | `workflow/claudecode_token_effective_workflow/correctness_check.instructions.md` |
+| **Exec (Cmd/Skill Execution)** | execute, run, exec, invoke, launch command, run skill, run script, trigger | `workflow/general_workflow/exec.instructions.md` | `workflow/claudecode_token_effective_workflow/exec.instructions.md` |
+| **PR Creation** | pull request, PR, stacked PR, break down branch, split PR, create PR | `workflow/general_workflow/pr.instructions.md` | `workflow/claudecode_token_effective_workflow/pr.instructions.md` |
+| **Initialize Repo** | initialize, init, setup repo, create overview, bootstrap, first-time setup | `workflow/general_workflow/initialize.instructions.md` | `workflow/claudecode_token_effective_workflow/initialize.instructions.md` |
 
 All instruction files are resolved via Pack Path Resolution.
 

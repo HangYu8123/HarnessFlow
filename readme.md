@@ -49,7 +49,7 @@ Every supported platform is a first-class citizen — pick the one you already u
 | **PR** | Break a large branch into reviewable, stacked PRs |
 | **Initialize** | Bootstrap repo memory for first-time setup |
 
-Each category is backed by per-platform workflow files under `workflow/`, in both `general` and `fast` modes, and a matching fill-in prompt in `request_template/`.
+Each category is backed by workflow files under `workflow/` — one shared `general` set (used by all platforms) plus per-tool `fast` sets — with a matching fill-in prompt in `request_template/`.
 
 ## Benchmarks: fast vs general
 
@@ -129,7 +129,7 @@ Initialize this repo.
 
 **VS Code + Copilot** — in the Copilot Chat panel:
 ```text
-Following the instructions in @/.github/HarnessFlow/workflow/vscode_workflow/initialize.instructions.md, initialize this repo.
+Following the instructions in @/.github/HarnessFlow/workflow/general_workflow/initialize.instructions.md, initialize this repo.
 ```
 
 ### Step 2 — Just ask
@@ -157,11 +157,11 @@ Or copy a ready-made prompt from `request_template/` (for example `code_request_
 
 | Environment | Entry point | Workflow directory |
 |---|---|---|
-| Claude Code CLI | root `CLAUDE.md` | `workflow/claudecode_workflow/` |
+| Claude Code CLI | root `CLAUDE.md` | `workflow/general_workflow/` |
 | Claude Code CLI (fast) | `CLAUDE.md` + `mode: fast` | `workflow/claudecode_token_effective_workflow/` |
-| Codex CLI / Codex in VS Code | root `AGENTS.md` | `workflow/codex_workflow/` |
+| Codex CLI / Codex in VS Code | root `AGENTS.md` | `workflow/general_workflow/` |
 | Codex CLI (fast) | `AGENTS.md` + `mode: fast` | `workflow/codex_token_effective_workflow/` |
-| VS Code + Copilot | `.github/copilot-instructions.md` | `workflow/vscode_workflow/` |
+| VS Code + Copilot | `.github/copilot-instructions.md` | `workflow/general_workflow/` |
 | VS Code + Copilot (fast) | request templates + `mode: fast` | `workflow/vscode_token_effective_workflow/` |
 | Aider / generic LLMs | manual file references | any workflow file |
 
@@ -227,18 +227,16 @@ query.instructions.md
 refactor.instructions.md
 ```
 
-The six workflow families are:
+The four workflow families are:
 
 | Directory | Intended use |
 |---|---|
-| `workflow/vscode_workflow/` | Full VS Code Copilot workflows. |
-| `workflow/vscode_token_effective_workflow/` | Streamlined VS Code workflows selected by request templates with `mode: fast`. |
-| `workflow/claudecode_workflow/` | Claude Code CLI workflows. |
+| `workflow/general_workflow/` | Shared general workflows — one platform-adaptive set used by Claude Code, Codex, and VS Code Copilot (`mode: general`). |
 | `workflow/claudecode_token_effective_workflow/` | Streamlined Claude Code CLI workflows selected with `mode: fast`. |
-| `workflow/codex_workflow/` | Codex CLI workflows. |
 | `workflow/codex_token_effective_workflow/` | Streamlined Codex workflows selected by `mode: fast` under Codex CLI or Codex in VS Code. |
+| `workflow/vscode_token_effective_workflow/` | Streamlined VS Code workflows selected by request templates with `mode: fast`. |
 
-The root routers classify all eight categories: code implementation, refactor, debug, query, correctness check, exec, PR creation, and initialize. Each maps to a `*.instructions.md` file present in every workflow family, with a matching fill-in prompt in `request_template/`.
+The root routers classify all eight categories: code implementation, refactor, debug, query, correctness check, exec, PR creation, and initialize. Each maps to a `*.instructions.md` file present in every workflow family, with a matching fill-in prompt in `request_template/`. The single `general_workflow` set adapts its behavior to the active agent (subagent mechanism, context passing, and native-skill steps) via `_lib/workflow_contract.md`.
 
 ## Setup Scripts
 
@@ -306,8 +304,8 @@ Switch to the full general pipeline with:
 mode: general
 ```
 
-For VS Code Copilot, `general` selects `workflow/vscode_workflow/` and `fast` selects `workflow/vscode_token_effective_workflow/`.
-For Codex CLI or Codex in VS Code, `general` selects `workflow/codex_workflow/` and `fast` selects `workflow/codex_token_effective_workflow/`. The templates use `@/.github/HarnessFlow/...` paths for VS Code Copilot and filesystem paths for Codex.
+For VS Code Copilot, `general` selects `workflow/general_workflow/` and `fast` selects `workflow/vscode_token_effective_workflow/`.
+For Codex CLI or Codex in VS Code, `general` selects `workflow/general_workflow/` and `fast` selects `workflow/codex_token_effective_workflow/`. The templates use `@/.github/HarnessFlow/...` paths for VS Code Copilot and filesystem paths for Codex.
 
 ## Agents And Skills
 
@@ -339,10 +337,10 @@ In this source repo, `repo_info/` is ignored by git. In a target repo, initializ
 
 ## Path Rules
 
-- In this source repo, paths are root-relative, for example `workflow/codex_workflow/code.instructions.md` or `workflow/codex_token_effective_workflow/code.instructions.md`.
+- In this source repo, paths are root-relative, for example `workflow/general_workflow/code.instructions.md` or `workflow/codex_token_effective_workflow/code.instructions.md`.
 - In an installed target repo, the pack lives under `.github/HarnessFlow/`.
 - VS Code workflow prompts may use `@/.github/HarnessFlow/...`.
-- CLI entry points use filesystem-relative paths such as `.github/HarnessFlow/workflow/codex_workflow/code.instructions.md` and `.github/HarnessFlow/workflow/codex_token_effective_workflow/code.instructions.md`.
+- CLI entry points use filesystem-relative paths such as `.github/HarnessFlow/workflow/general_workflow/code.instructions.md` and `.github/HarnessFlow/workflow/codex_token_effective_workflow/code.instructions.md`.
 - Do not add VS Code `@/` prefixes to CLI workflow files.
 
 ## Safety Rules

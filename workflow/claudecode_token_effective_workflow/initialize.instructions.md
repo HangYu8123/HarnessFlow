@@ -75,7 +75,7 @@ After completing all steps above, check whether path references need cleanup for
 
 1. Claude Code workflows use Pack Path Resolution (filesystem-relative paths resolved per CLAUDE.md rules), not VS Code `#file:` path prefixes or `@/` workspace-relative paths.
 2. The `@/.github/` path prefix and VS Code-only `#file:` references do not apply to Claude Code workflow files.
-3. If any `@/` or VS Code-only `#file:` references have leaked into files under `workflow/claudecode_workflow/` or `workflow/claudecode_token_effective_workflow/`, remove them and replace them with plain Pack Path Resolution-compatible paths.
+3. If any `@/` or VS Code-only `#file:` references have leaked into files under `workflow/general_workflow/` or `workflow/claudecode_token_effective_workflow/`, remove them and replace them with plain Pack Path Resolution-compatible paths.
 
 ### Step 9 - Refresh Cross-Tool Entry Points
 Copy the entry-point files from the pack to their standard discoverable locations so every supported tool can find its instructions after initialization.

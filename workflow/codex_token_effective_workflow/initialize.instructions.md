@@ -85,7 +85,7 @@ After completing all steps above, check whether CLI path references need cleanup
 
 1. Codex workflows use filesystem-relative or pack-relative paths, not VS Code `@/` path prefixes.
 2. The `@/.github/` to `@/[repo folder name]/.github/` rewrite is a VS Code Copilot-only concern and does not apply to Codex workflow files, including Codex running in VS Code.
-3. If any `@/` or VS Code-only `#file:` references have leaked into files under `workflow/codex_workflow/` or `workflow/codex_token_effective_workflow/`, remove them and replace them with relative paths.
+3. If any `@/` or VS Code-only `#file:` references have leaked into files under `workflow/general_workflow/` or `workflow/codex_token_effective_workflow/`, remove them and replace them with relative paths.
 
 ### Step 9 - Refresh Cross-Tool Entry Points
 Copy the entry-point files from the pack to their standard discoverable locations so every supported tool can find its instructions after initialization.

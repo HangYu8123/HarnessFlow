@@ -12,18 +12,18 @@ Read and follow `.github/HarnessFlow/philosophy/philosophy.instructions.md` for 
 
 Analyze the user's prompt and determine which **one** category best matches.
 Use the trigger phrases as soft signals, not strict rules. Classify based on primary intent.
-If the prompt explicitly includes `mode: fast`, use the matching file under `workflow/codex_token_effective_workflow/`. If the prompt includes `mode: general` or does not specify a mode, use `workflow/codex_workflow/`.
+If the prompt explicitly includes `mode: fast`, use the matching file under `workflow/codex_token_effective_workflow/`. If the prompt includes `mode: general` or does not specify a mode, use `workflow/general_workflow/`.
 
 | Category | Trigger Keywords / Intent | General Instruction File | Fast Instruction File |
 |---|---|---|---|
-| **Code Implementation** | implement, add, create, build, update, modify, write code, new feature | `.github/HarnessFlow/workflow/codex_workflow/code.instructions.md` | `.github/HarnessFlow/workflow/codex_token_effective_workflow/code.instructions.md` |
-| **Refactor** | refactor, restructure, reorganize, redesign, reduce redundancy, improve architecture | `.github/HarnessFlow/workflow/codex_workflow/refactor.instructions.md` | `.github/HarnessFlow/workflow/codex_token_effective_workflow/refactor.instructions.md` |
-| **Debug** | debug, fix, error, bug, crash, broken, failing, not working, traceback, exception | `.github/HarnessFlow/workflow/codex_workflow/debug.instructions.md` | `.github/HarnessFlow/workflow/codex_token_effective_workflow/debug.instructions.md` |
-| **Query / Q&A** | explain, what is, how does, where is, why, describe, summarize, document | `.github/HarnessFlow/workflow/codex_workflow/query.instructions.md` | `.github/HarnessFlow/workflow/codex_token_effective_workflow/query.instructions.md` |
-| **Correctness Check** | test, verify, check, validate, review, audit, examine, ensure correctness | `.github/HarnessFlow/workflow/codex_workflow/correctness_check.instructions.md` | `.github/HarnessFlow/workflow/codex_token_effective_workflow/correctness_check.instructions.md` |
-| **Exec (Cmd/Skill Execution)** | execute, run, exec, invoke, launch command, run skill, run script, trigger | `.github/HarnessFlow/workflow/codex_workflow/exec.instructions.md` | `.github/HarnessFlow/workflow/codex_token_effective_workflow/exec.instructions.md` |
-| **PR Creation** | pull request, PR, stacked PR, break down branch, split PR, create PR | `.github/HarnessFlow/workflow/codex_workflow/pr.instructions.md` | `.github/HarnessFlow/workflow/codex_token_effective_workflow/pr.instructions.md` |
-| **Initialize Repo** | initialize, init, setup repo, create overview, bootstrap, first-time setup | `.github/HarnessFlow/workflow/codex_workflow/initialize.instructions.md` | `.github/HarnessFlow/workflow/codex_token_effective_workflow/initialize.instructions.md` |
+| **Code Implementation** | implement, add, create, build, update, modify, write code, new feature | `.github/HarnessFlow/workflow/general_workflow/code.instructions.md` | `.github/HarnessFlow/workflow/codex_token_effective_workflow/code.instructions.md` |
+| **Refactor** | refactor, restructure, reorganize, redesign, reduce redundancy, improve architecture | `.github/HarnessFlow/workflow/general_workflow/refactor.instructions.md` | `.github/HarnessFlow/workflow/codex_token_effective_workflow/refactor.instructions.md` |
+| **Debug** | debug, fix, error, bug, crash, broken, failing, not working, traceback, exception | `.github/HarnessFlow/workflow/general_workflow/debug.instructions.md` | `.github/HarnessFlow/workflow/codex_token_effective_workflow/debug.instructions.md` |
+| **Query / Q&A** | explain, what is, how does, where is, why, describe, summarize, document | `.github/HarnessFlow/workflow/general_workflow/query.instructions.md` | `.github/HarnessFlow/workflow/codex_token_effective_workflow/query.instructions.md` |
+| **Correctness Check** | test, verify, check, validate, review, audit, examine, ensure correctness | `.github/HarnessFlow/workflow/general_workflow/correctness_check.instructions.md` | `.github/HarnessFlow/workflow/codex_token_effective_workflow/correctness_check.instructions.md` |
+| **Exec (Cmd/Skill Execution)** | execute, run, exec, invoke, launch command, run skill, run script, trigger | `.github/HarnessFlow/workflow/general_workflow/exec.instructions.md` | `.github/HarnessFlow/workflow/codex_token_effective_workflow/exec.instructions.md` |
+| **PR Creation** | pull request, PR, stacked PR, break down branch, split PR, create PR | `.github/HarnessFlow/workflow/general_workflow/pr.instructions.md` | `.github/HarnessFlow/workflow/codex_token_effective_workflow/pr.instructions.md` |
+| **Initialize Repo** | initialize, init, setup repo, create overview, bootstrap, first-time setup | `.github/HarnessFlow/workflow/general_workflow/initialize.instructions.md` | `.github/HarnessFlow/workflow/codex_token_effective_workflow/initialize.instructions.md` |
 
 All instruction files are under `.github/HarnessFlow/`.
 
