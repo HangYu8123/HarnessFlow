@@ -4,6 +4,8 @@ description: 'Fast correctness review for Claude Code: main-agent scope-driven i
 ---
 # Examine Existing Repo for Correctness
 
+**Safety: follow `_lib/safety_rules.md` (no commit without approval, no spam files, no sudo).**
+
 This workflow is read-only — it inspects and reports, and does not modify code, so there is no approval gate or implementation step.
 
 [inputs]:
@@ -40,7 +42,7 @@ Draft [draft correctness report], including all script failures from [run result
 
 | Subagent | Agent | When to spawn | Task |
 |----------|-------|---------------|------|
-| Challenge | **Devils Advocate** (`agents/devils-advocate.agent.md`) | Always | Read [repo context digest] + [draft correctness report] + [inputs]. Read additional files if needed. Assume the report is wrong and flawed; challenge false positives, overlooked issues, misattributed causes, and incorrect assumptions. Return [challenge report]. |
+| Challenge | **Devils Advocate** (`agents/devils-advocate.agent.md`) | Always | Read [repo context digest] + [draft correctness report] + [inputs]. Read additional files if needed. Assume every item in the report is wrong and flawed; challenge false positives, overlooked issues, misattributed causes, and incorrect assumptions. Then explain why the items are wrong and flawed. Return [challenge report]. |
 | Research | **Online Researcher** (`agents/online-researcher.agent.md`) | Always | Read [repo context digest] + [draft correctness report] + [inputs]. Search online for reliable references and known dependency bugs. Return [online resource]. |
 
 ### Step 4 - Final Correctness Report

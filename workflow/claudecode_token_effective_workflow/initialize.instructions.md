@@ -4,6 +4,8 @@ description: 'Fast repo initialization for Claude Code: single-pass overview gen
 ---
 # Create Necessary Files for Agentic Coding Workflow
 
+**Safety: follow `_lib/safety_rules.md` (no commit without approval, no spam files, no sudo).**
+
 This workflow generates documentation; it does not modify source code, so there is no approval gate.
 
 [inputs]:

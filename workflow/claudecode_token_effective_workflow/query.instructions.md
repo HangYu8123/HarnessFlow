@@ -4,6 +4,8 @@ description: 'Fast repo Q&A for Claude Code: main-agent answer drafting with par
 ---
 # Ask About an Existing Repo
 
+**Safety: follow `_lib/safety_rules.md` (no commit without approval, no spam files, no sudo).**
+
 This workflow is read-only — it answers questions and does not modify code, so there is no approval gate or implementation step.
 
 [inputs]:
@@ -33,7 +35,7 @@ Based on [repo context digest] + [important information] + [inputs], read the re
 
 | Subagent | Agent | When to spawn | Task |
 |----------|-------|---------------|------|
-| Challenge | **Devils Advocate** (`agents/devils-advocate.agent.md`) | Always | Read [repo context digest] + [important information] + [draft answers] + [inputs]. Read additional files if needed. Assume [draft answers] are wrong and flawed; challenge factual errors, unsupported claims, missing edge cases, and contradictions with the codebase. Return [challenge report]. |
+| Challenge | **Devils Advocate** (`agents/devils-advocate.agent.md`) | Always | Read [repo context digest] + [important information] + [draft answers] + [inputs]. Read additional files if needed. Assume every item in [draft answers] is wrong and flawed; challenge factual errors, unsupported claims, missing edge cases, and contradictions with the codebase. Then explain why the items are wrong and flawed. Return [challenge report]. |
 | Research | **Online Researcher** (`agents/online-researcher.agent.md`) | Always | Read [repo context digest] + [draft answers] + [inputs]. Search online to validate external facts (APIs, tools, versions) and find reliable references. Return [online resource]. |
 
 ### Step 4 - Final Answers

@@ -13,16 +13,18 @@ This repo has structured workflow instructions. **Before doing any work**, read 
 Analyze the user's prompt and determine which **one** category **best matches**.
 Use the trigger phrases as soft signals, not strict rules. Classify based on the user's primary intent, even if none of the exact keywords appear. If multiple categories seem possible, pick the one that best reflects the main action the user wants.
 
-| Category | Trigger Keywords / Intent | Instruction File |
-|---|---|---|
-| **Code Implementation** | implement, add, create, build, update, modify, write code, new feature, change behavior | #file:workflow/vscode_workflow/code.instructions.md |
-| **Refactor** | refactor, restructure, reorganize, redesign, reduce redundancy, improve architecture, reduce technical debt | #file:workflow/vscode_workflow/refactor.instructions.md |
-| **Debug** | debug, fix, error, bug, crash, broken, failing, not working, traceback, exception, investigate issue | #file:workflow/vscode_workflow/debug.instructions.md |
-| **Query / Q&A** | explain, what is, how does, where is, why, describe, summarize, document, question about code | #file:workflow/vscode_workflow/query.instructions.md |
-| **Correctness Check** | test, verify, check, validate, review, audit, examine, ensure correctness, consistency check | #file:workflow/vscode_workflow/correctness_check.instructions.md |
-| **Exec (Cmd/Skill Execution)** | execute, run, exec, invoke, launch command, run skill, run script, trigger, run cmd | #file:workflow/vscode_workflow/exec.instructions.md |
-| **PR Creation** | pull request, PR, stacked PR, break down branch, split PR, create PR | #file:workflow/vscode_workflow/pr.instructions.md |
-| **Initialize Repo** | initialize, init, setup repo, create overview, bootstrap, first-time setup | #file:workflow/vscode_workflow/initialize.instructions.md |
+If the prompt explicitly includes `mode: fast`, use the matching file under `workflow/vscode_token_effective_workflow/` (the Fast column). If the prompt includes `mode: general` or does not specify a mode, use `workflow/vscode_workflow/` (the General column).
+
+| Category | Trigger Keywords / Intent | General Instruction File | Fast Instruction File |
+|---|---|---|---|
+| **Code Implementation** | implement, add, create, build, update, modify, write code, new feature, change behavior | #file:workflow/vscode_workflow/code.instructions.md | #file:workflow/vscode_token_effective_workflow/code.instructions.md |
+| **Refactor** | refactor, restructure, reorganize, redesign, reduce redundancy, improve architecture, reduce technical debt | #file:workflow/vscode_workflow/refactor.instructions.md | #file:workflow/vscode_token_effective_workflow/refactor.instructions.md |
+| **Debug** | debug, fix, error, bug, crash, broken, failing, not working, traceback, exception, investigate issue | #file:workflow/vscode_workflow/debug.instructions.md | #file:workflow/vscode_token_effective_workflow/debug.instructions.md |
+| **Query / Q&A** | explain, what is, how does, where is, why, describe, summarize, document, question about code | #file:workflow/vscode_workflow/query.instructions.md | #file:workflow/vscode_token_effective_workflow/query.instructions.md |
+| **Correctness Check** | test, verify, check, validate, review, audit, examine, ensure correctness, consistency check | #file:workflow/vscode_workflow/correctness_check.instructions.md | #file:workflow/vscode_token_effective_workflow/correctness_check.instructions.md |
+| **Exec (Cmd/Skill Execution)** | execute, run, exec, invoke, launch command, run skill, run script, trigger, run cmd | #file:workflow/vscode_workflow/exec.instructions.md | #file:workflow/vscode_token_effective_workflow/exec.instructions.md |
+| **PR Creation** | pull request, PR, stacked PR, break down branch, split PR, create PR | #file:workflow/vscode_workflow/pr.instructions.md | #file:workflow/vscode_token_effective_workflow/pr.instructions.md |
+| **Initialize Repo** | initialize, init, setup repo, create overview, bootstrap, first-time setup | #file:workflow/vscode_workflow/initialize.instructions.md | #file:workflow/vscode_token_effective_workflow/initialize.instructions.md |
 
 All instruction files are under `.github/HarnessFlow/`.
 
@@ -30,10 +32,11 @@ All instruction files are under `.github/HarnessFlow/`.
 
 1. **Read** the user's prompt carefully.
 2. **Classify** it into exactly one category from the table above.
-3. **Read the matched instruction file** in its entirety.
-4. **Also read and follow** #file:philosophy/philosophy.instructions.md for general guidelines.
-5. **Require** the routed main agent and every subagent to read and follow #file:philosophy/philosophy.instructions.md before doing workflow-specific work.
-6. **Follow** the matched instruction file step-by-step to complete the request.
+3. **Select general or fast mode** per the `mode:` rule above (default general), then pick the matching cell from the General or Fast column.
+4. **Read the matched instruction file** in its entirety.
+5. **Also read and follow** #file:philosophy/philosophy.instructions.md for general guidelines.
+6. **Require** the routed main agent and every subagent to read and follow #file:philosophy/philosophy.instructions.md before doing workflow-specific work.
+7. **Follow** the matched instruction file step-by-step to complete the request.
 
 ## If multiple intents are present
 Handle sequentially — complete one workflow type before starting the next.

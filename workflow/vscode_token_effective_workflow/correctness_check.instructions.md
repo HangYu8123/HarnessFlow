@@ -55,7 +55,7 @@ Draft [draft correctness report], including all script failures from [run result
 
 | Subagent | Agent | When to spawn | Task |
 |----------|-------|---------------|------|
-| Challenge | **Devils Advocate** (`agents/devils-advocate.agent.md`) | Always | Read [key md files] + [draft correctness report] + [inputs], and all relevant scripts if needed. Assume the report is wrong and flawed; challenge false positives, overlooked issues, misattributed causes, and incorrect assumptions. Return [challenge report]. |
+| Challenge | **Devils Advocate** (`agents/devils-advocate.agent.md`) | Always | Read [key md files] + [draft correctness report] + [inputs], and all relevant scripts if needed. Assume every item in the report is wrong and flawed; challenge false positives, overlooked issues, misattributed causes, and incorrect assumptions. Then explain why the items are wrong and flawed. Return [challenge report]. |
 | Research | **Online Researcher** (`agents/online-researcher.agent.md`) | Always | Read [key md files] + [draft correctness report] + [inputs]. Search online for reliable references and known dependency bugs. Return [online resource]. |
 
 ### Step 4 - Final Correctness Report

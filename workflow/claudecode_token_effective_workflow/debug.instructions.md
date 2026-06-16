@@ -4,6 +4,8 @@ description: 'Fast debugging for Claude Code: optional reproduction, main-agent 
 ---
 # Debug Instructions
 
+**Safety: follow `_lib/safety_rules.md` (no commit without approval, no spam files, no sudo).**
+
 [inputs]:
 - input 1: target bug
 - input 2: suspected reasons (optional)
@@ -42,7 +44,7 @@ Based on [repo context digest] + [inputs] + [reproduction report] (if any), the 
 
 | Subagent | Agent | When to spawn | Task |
 |----------|-------|---------------|------|
-| Challenge | **Devils Advocate** (`agents/devils-advocate.agent.md`) | Always | Read [repo context digest] + [bug info] + [plan] + [inputs]. Read additional files if needed. Assume the diagnosis and [plan] are wrong and flawed; identify overlooked root causes, side effects, integration risks, and regressions. Return [challenge report]. |
+| Challenge | **Devils Advocate** (`agents/devils-advocate.agent.md`) | Always | Read [repo context digest] + [bug info] + [plan] + [inputs]. Read additional files if needed. Assume every step in the diagnosis and [plan] is wrong, flawed, and over-engineered; identify overlooked root causes, side effects, integration risks, over-engineering and regressions. Then explain why the items are wrong, flawed, and over-engineered. Distinguish genuine defects from out-of-scope or speculative additions, and report only evidence-backed criticisms (do not manufacture problems). Return [challenge report]. |
 | Research | **Online Researcher** (`agents/online-researcher.agent.md`) | Always | Read [repo context digest] + [bug info] + [plan] + [inputs]. Search online for error references, known solutions, and reliable resources. Return [online resource]. |
 
 ### Step 4 - Refine and Approval Gate
@@ -54,11 +56,11 @@ The main agent incorporates [challenge report] and [online resource] (when produ
 The main agent implements [final plan] directly and records [implementation report] containing changes only, with no explanations.
 
 ### Step 6 - Code Review and Validation
-1. Run the native review skills using the skill at `skills/claude-native-skills-subagents/SKILL.md`: `/simplify` first, then `/code-review` (review-only, medium effort) on the resulting diff. If the native skills are unavailable, skip this step. 
-2. The main agent should claim everything item in the [implementation report] is wrong, and start explaining why it is wrong. After done explaining all the items, the main agent should then draft a [challenge report]
-3. The main agent reviews the changes directly (correctness, integration, unintended edits). The main agent validates the final diff against [final plan], [implementation report], and [challenge report]. Checklist: root cause addressed and bug fixed, no regressions, existing tests/behavior intact. When a reproduction path exists (Step 0) or the user requested runs, re-run the failing path to confirm the bug no longer occurs.
+1. Run the native review skills using the skill at `skills/claude-native-skills-subagents/SKILL.md`: `/simplify` first on the resulting diff, record results as [simplify]. Then `/code-review` on the resulting diff, record as [code-review]. If the native skills are unavailable, skip this step. 
+2. The main agent should claim everything item in the [implementation report] is wrong, and start explaining why it is wrong. After done explaining all the items, the main agent should then draft a [post-impl challenge report]
+3. The main agent reviews the changes directly, save the conclusion as [direct review]. When a reproduction path exists (Step 0) or the user requested runs, re-run the failing path to confirm the bug no longer occurs.
 
-If any validation fails, perform **one** remediation pass (fix, then re-validate once); record any remaining gaps for Step 7.
+Based on [simplify] + [code-review] + [post-impl challenge report] + [direct review], perform **one** remediation pass (fix, then re-validate once); record any remaining gaps for Step 7.
 
 ### Step 7 - Documentation and Summary
 1. Update codebase_overview.md and scripts_overview.md based on actual changes.

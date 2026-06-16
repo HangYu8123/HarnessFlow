@@ -4,6 +4,8 @@ description: 'Fast command/skill execution for Claude Code: main-agent plan, par
 ---
 # Execute Cmds/Skills in a Repo
 
+**Safety: follow `_lib/safety_rules.md` (no commit without approval, no spam files, no sudo).**
+
 [inputs]:
 - input 1: target cmds/skills to execute
 - input 2: important files (optional)
@@ -34,7 +36,7 @@ Based on [repo context digest] + [inputs] + [local skills], read the relevant fi
 
 | Subagent | Agent | When to spawn | Task |
 |----------|-------|---------------|------|
-| Challenge | **Devils Advocate** (`agents/devils-advocate.agent.md`) | Always | Read [repo context digest] + [plan] + [inputs]. Read additional files if needed. Assume the [plan] is wrong and flawed; identify wrong flags, destructive or irreversible side effects, missing prerequisites, and environment assumptions. Return [challenge report]. |
+| Challenge | **Devils Advocate** (`agents/devils-advocate.agent.md`) | Always | Read [repo context digest] + [plan] + [inputs]. Read additional files if needed. Assume every step in the [plan] is wrong, flawed, and over-engineered; identify wrong flags, destructive or irreversible side effects, missing prerequisites, environment assumptions, over-engineering and regressions. Then explain why the items are wrong, flawed, and over-engineered. Distinguish genuine defects from out-of-scope or speculative additions, and report only evidence-backed criticisms (do not manufacture problems). Return [challenge report]. |
 | Research | **Online Researcher** (`agents/online-researcher.agent.md`) | Always | Read [repo context digest] + [plan] + [inputs]. Search online for reliable command/skill references, known issues, and version compatibility. Return [online resource]. |
 
 ### Step 4 - Refine and Approval Gate
@@ -46,10 +48,10 @@ The main agent incorporates [challenge report] and [online resource] (when produ
 The main agent validates preconditions, executes the commands or skills per [final plan] directly, and captures stdout, stderr, exit codes, and pass/fail state into [execution report] with no explanations.
 
 ### Step 6 - Review and Validation
-1. If the execution edited source files, run the native review skills using the skill at `skills/claude-native-skills-subagents/SKILL.md`: `/simplify` first, then `/code-review` (review-only, medium effort) on the resulting diff. Skip this item when the execution only ran commands without editing source, or when the native skills are unavailable.
-2. The main agent should claim everything item in the [execution report] is wrong, and start explaining why it is wrong. After done explaining all the items, the main agent should then draft a [challenge report]
-3. The main agent validates [execution report] against [final plan] and [challenge report]: outputs match expectations, side effects and state changes are intended, and modified files are inspected when applicable.
-4. If any validation fails, perform **one** remediation pass (revise [final plan] and re-execute once, only when another attempt is safe); record any remaining gaps for Step 7.
+1. If the execution edited source files, run the native review skills using the skill at `skills/claude-native-skills-subagents/SKILL.md`: `/simplify` first on the resulting diff, record results as [simplify]. Then `/code-review` on the resulting diff, record as [code-review]. Skip this item when the execution only ran commands without editing source, or when the native skills are unavailable.
+2. The main agent should claim everything item in the [execution report] is wrong, and start explaining why it is wrong. After done explaining all the items, the main agent should then draft a [post-impl challenge report]
+3. The main agent validates [execution report] against [final plan]: outputs match expectations, side effects and state changes are intended, and modified files are inspected when applicable. Save the conclusion as [direct review].
+4. Based on [simplify] + [code-review] + [post-impl challenge report] + [direct review], if any validation fails, perform **one** remediation pass (revise [final plan] and re-execute once, only when another attempt is safe); record any remaining gaps for Step 7.
 
 ### Step 7 - Documentation and Summary
 1. If execution changed repo state, update codebase_overview.md and scripts_overview.md based on actual changes.

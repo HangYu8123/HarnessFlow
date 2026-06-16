@@ -6,13 +6,13 @@ This file lists all custom agents defined in this pack. Workflow instruction fil
 
 Each platform uses its native mechanism to invoke agents by name:
 
-- **VS Code Copilot**: Agents discovered from `.github/HarnessFlow/agents/` (configured via `chat.agentFilesLocations` in `setup.sh`). Coordinator agents use `tools: ['agent']` with `agents: [...]` to invoke subagents by name.
+- **VS Code Copilot**: Agents discovered from `.github/HarnessFlow/agents/` (configured via `chat.agentFilesLocations` in `setup.sh`). The routed main agent (the Master Orchestrator in `copilot-instructions.md`, following the matched workflow instruction file) invokes these worker agents by name.
 - **Claude Code CLI**: Agent definitions in `agents/` directory referenced by role name. Sub-agents spawned via Claude Code's native `Task` tool with inline prompts. For parallel execution, Claude Code launches agent teams — multiple sub-agents working concurrently and coordinating through the main agent.
 - **Codex CLI / Codex-in-VS Code**: Agents referenced by name; Codex agent workers handle parallel execution (concurrency controlled by `agents.max_threads`). Applies to both Codex CLI and Codex running in VS Code. Sequential fallback if worker spawning or model parity is unavailable.
 
 ## Worker Subagents
 
-Worker agents are `user-invocable: false` — they are only accessible as subagents invoked by coordinator agents or the main agent.
+Worker agents are `user-invocable: false` — they are only accessible as subagents invoked by the routed main agent while it follows a workflow instruction file.
 
 | Agent Name | Cognitive Mode / Role | Tools | Used In Workflows | File |
 |---|---|---|---|---|
@@ -32,14 +32,6 @@ Worker agents are `user-invocable: false` — they are only accessible as subage
 | **Robustness Analyst** | Robustness improvement analysis | read, search, listDir | refactor | `robustness-analyst.agent.md` |
 | **Complexity Analyst** | Complexity reduction analysis | read, search, listDir | refactor | `complexity-analyst.agent.md` |
 
-## Coordinator Agents
+## Orchestration
 
-Coordinator agents are `user-invocable: true` and orchestrate workflows by delegating to worker subagents. They declare `tools: ['agent']` and list their available subagents in `agents: [...]`.
-
-| Agent Name | Orchestrates | Subagents | File |
-|---|---|---|---|
-| **Code Workflow** | Code Implementation workflow | Focus Analyst, Broad Analyst, Free Analyst, Senior Engineer, Devils Advocate, Online Researcher, Implementer, QA Engineer | `code-workflow.agent.md` |
-| **Debug Workflow** | Debug workflow | Focus Analyst, Broad Analyst, Free Analyst, Senior Engineer, Devils Advocate, Online Researcher, Implementer, QA Engineer | `debug-workflow.agent.md` |
-| **Refactor Workflow** | Refactor workflow | Focus Analyst, Broad Analyst, Free Analyst, Senior Engineer, Principal Engineer, Devils Advocate, Online Researcher, Implementer, QA Engineer, Architecture Analyst, Redundancy Analyst, Robustness Analyst, Complexity Analyst | `refactor-workflow.agent.md` |
-| **Query Workflow** | Query/Q&A workflow | Focus Analyst, Broad Analyst, Free Analyst, Devils Advocate, Online Researcher | `query-workflow.agent.md` |
-| **Correctness Workflow** | Correctness Check workflow | Focus Analyst, Broad Analyst, Free Analyst, QA Engineer, Devils Advocate, Online Researcher | `correctness-workflow.agent.md` |
+This pack has no separate coordinator agent files. The per-category workflow instruction files under `workflow/<family>/` act as the coordinators: the routed main agent reads the matched instruction file and spawns the worker agents above — in parallel where the workflow specifies — using its platform's native subagent mechanism. See `_lib/workflow_contract.md` §Subagent Invocation for the per-platform mechanics.

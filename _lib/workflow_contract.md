@@ -48,6 +48,7 @@ In installed repos, do not create `repo_info/` outside `.github/HarnessFlow/repo
 - Before creating any subagent, ask the main agent to answer what model it is using, refer the model as [main agent model]
 - when creating any subagent, explicitly instruct the main agent to: "**Create subagent with the exact [main agent model] — do not downgrade.**"
 - Subagents must use the [main agent model]
+- **Request `subagent_model` override:** If the user's request includes a `subagent_model` header, honor it for all subagents. Its default value `inherit` means subagents use [main agent model] (never downgrade); a specific model id overrides [main agent model] for subagents only. (Request templates ship with `subagent_model: inherit`.)
 - A subagent means a separate spawned agent invocation with its own context. Main-agent roleplay, self-simulation, or inline execution must not be labeled as subagent output.
 - Each subagent prompt must include: the role/mode, exact task, required inputs, context files to read, expected output label, this contract path, and `philosophy/philosophy.instructions.md`.
 - For a parallel group, launch all listed subagents as separate invocations before waiting for results. If parallel launch is unavailable, launch the same subagent prompts one at a time; preserve the same output labels.
@@ -83,12 +84,12 @@ When a workflow says to "launch" or "create" a subagent, use the platform's nati
 
 | Platform | Mechanism | How to invoke |
 |---|---|---|
-| **VS Code + Copilot** | `agent` tool (built-in tool set) | Invoke by agent name (matches `name:` in `.agent.md` frontmatter). Ensure the coordinator's `tools:` includes `agent` and `agents:` lists the target agent names. |
+| **VS Code + Copilot** | `agent` tool (built-in tool set) | Invoke by agent name (matches `name:` in `.agent.md` frontmatter). Ensure the orchestrating agent's `tools:` includes `agent` and `agents:` lists the target worker-agent names. |
 | **Claude Code CLI** | `Task` tool | Pass a complete prompt including role, task, required context files, output label, and references to `_lib/workflow_contract.md` and `philosophy/philosophy.instructions.md`. |
 | **Codex CLI** | Agent workers / sequential fallback | Pass same prompt structure. If parallel workers are unavailable, launch sequentially and preserve output labels. |
 
 Before invoking a subagent in VS Code, ensure:
-1. The coordinator agent's frontmatter declares `tools: ['agent', ...]` and lists the target agent in `agents: [...]`.
+1. The orchestrating agent's frontmatter declares `tools: ['agent', ...]` and lists the target worker agent in `agents: [...]`.
 2. The target agent exists as a `.agent.md` file in the configured `chat.agentFilesLocations` directory (default: `.github/HarnessFlow/agents/`).
 3. The target agent's `name:` field matches the name used in the `agents:` list exactly (case-sensitive).
 

@@ -75,7 +75,9 @@ The `fast` workflow is the efficiency–quality sweet spot. Across two independe
 | Code footprint (ShapeLab) | 1,225 lines, 96% docs | **860 lines (leanest), 100% docs** | 1,173 lines, 100% docs |
 | SWE-bench fix | non-canonical, unverified | **exact canonical fix, verified** | exact canonical fix, verified |
 
-The model is held constant (Claude Sonnet 4.6 subagents, Opus 4.8 orchestrator) so the comparison isolates the *harness*, not the model. Full methodology, per-role token breakdowns, and caveats: **[FAST_WORKFLOW_PERFORMANCE_REPORT.md](FAST_WORKFLOW_PERFORMANCE_REPORT.md)**.
+The model is held constant (Claude Sonnet 4.6 subagents, Opus 4.8 orchestrator) so the comparison isolates the *harness*, not the model. Full methodology, per-role token breakdowns, and caveats live in the benchmark run logs `experiment/results/COMPARISON_LOG.md` and `experiment_swe/results/SWE_COMPARISON_LOG.md`.
+
+> The raw benchmark runs under `experiment/` and `experiment_swe/` are git-ignored, so a fresh clone of this repo does not include them.
 
 ## Install
 
@@ -90,10 +92,12 @@ git clone https://github.com/HangYu8123/HarnessFlow.git
 # From your target repo, copy the pack into .github/HarnessFlow/
 cd /path/to/your-repo
 mkdir -p .github/HarnessFlow
-rsync -a --exclude .git /path/to/HarnessFlow/ .github/HarnessFlow/
+rsync -a --exclude .git --exclude .DS_Store --exclude .github \
+  --exclude repo_info --exclude experiment --exclude experiment_swe \
+  /path/to/HarnessFlow/ .github/HarnessFlow/
 ```
 
-Replace `/path/to/HarnessFlow/` with wherever you cloned it. No `rsync`? Use `cp -r /path/to/HarnessFlow/. .github/HarnessFlow/` and then delete the copied `.github/HarnessFlow/.git`. The pack must end up at **`.github/HarnessFlow/`** — both setup scripts validate this path.
+Replace `/path/to/HarnessFlow/` with wherever you cloned it. The excludes keep the source repo's own local-only files out of your repo — its `repo_info/` memory (which is *about HarnessFlow itself*), the `experiment*/` benchmark runs, `.DS_Store`, and `.git`; `cli_setup.sh` then recreates empty `repo_info/` files for *your* codebase. No `rsync`? Use `cp -r /path/to/HarnessFlow/. .github/HarnessFlow/`, then delete the copied `.github/HarnessFlow/.git`, `repo_info/`, `experiment/`, `experiment_swe/`, and any `.DS_Store` files. The pack must end up at **`.github/HarnessFlow/`** — both setup scripts validate this path.
 
 ### 2. Run the setup script for your platform
 
@@ -307,7 +311,7 @@ For Codex CLI or Codex in VS Code, `general` selects `workflow/codex_workflow/` 
 
 ## Agents And Skills
 
-`agents/` defines **5 coordinator agents** and **15 worker agents**. Coordinator agents include Code Workflow, Debug Workflow, Refactor Workflow, Query Workflow, and Correctness Workflow. Worker agents include Focus Analyst, Broad Analyst, Free Analyst, Senior Engineer, Principal Engineer, Devils Advocate, Online Researcher, Implementer, Executor, QA Engineer, Bug Reproducer, and the refactor specialists Architecture, Redundancy, Robustness, and Complexity Analyst.
+`agents/` defines **15 worker agents**, orchestrated by the per-category workflow instruction files under `workflow/<family>/` (which act as the coordinators). Worker agents include Focus Analyst, Broad Analyst, Free Analyst, Senior Engineer, Principal Engineer, Devils Advocate, Online Researcher, Implementer, Executor, QA Engineer, Bug Reproducer, and the refactor specialists Architecture, Redundancy, Robustness, and Complexity Analyst.
 
 See `agents/INDEX.md` for the complete registry.
 

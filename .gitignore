@@ -2,3 +2,5 @@ repo_info/
 .github/
 experiment/
 experiment_swe/
+.DS_Store
+**/.DS_Store

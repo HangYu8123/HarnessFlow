@@ -48,7 +48,7 @@ Based on [key md files] + [important information] + [inputs], the main agent rea
 
 | Subagent | Agent | When to spawn | Task |
 |----------|-------|---------------|------|
-| Challenge | **Devils Advocate** (`agents/devils-advocate.agent.md`) | Always | Read [key md files] + [important information] + [draft answers] + [inputs], and additional files if needed. Assume [draft answers] are wrong and flawed; challenge factual errors, unsupported claims, missing edge cases, and contradictions with the codebase. Return [challenge report]. |
+| Challenge | **Devils Advocate** (`agents/devils-advocate.agent.md`) | Always | Read [key md files] + [important information] + [draft answers] + [inputs], and additional files if needed. Assume every item in [draft answers] is wrong and flawed; challenge factual errors, unsupported claims, missing edge cases, and contradictions with the codebase. Then explain why the items are wrong and flawed. Return [challenge report]. |
 | Research | **Online Researcher** (`agents/online-researcher.agent.md`) | Always | Read [key md files] + [draft answers] + [inputs]. Search online to validate external facts (APIs, tools, versions) and find reliable references. Return [online resource]. |
 
 ### Step 4 - Final Answers

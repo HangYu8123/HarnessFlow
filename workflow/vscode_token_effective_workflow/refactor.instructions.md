@@ -49,7 +49,7 @@ Based on [key md files] + [inputs], the main agent reads the relevant files and 
 
 | Subagent | Agent | When to spawn | Task |
 |----------|-------|---------------|------|
-| Challenge | **Devils Advocate** (`agents/devils-advocate.agent.md`) | Always | Read [key md files] + [plan] + [comparison] + [inputs], and additional scripts if needed. Assume the [plan] is wrong and flawed; identify overlooked side effects, integration risks, incorrect assumptions, and regressions. Return [challenge report]. |
+| Challenge | **Devils Advocate** (`agents/devils-advocate.agent.md`) | Always | Read [key md files] + [plan] + [comparison] + [inputs], and additional scripts if needed. Assume every step in the [plan] is wrong, flawed, and over-engineered; identify overlooked side effects, integration risks, incorrect assumptions, over-engineering and regressions. Then explain why the items are wrong, flawed, and over-engineered. Distinguish genuine defects from out-of-scope or speculative additions, and report only evidence-backed criticisms (do not manufacture problems). Return [challenge report]. |
 | Research | **Online Researcher** (`agents/online-researcher.agent.md`) | Always | Read [key md files] + [plan] + [comparison] + [inputs]. Search online for reliable references, established solutions, and available resources. Return [online resource]. |
 
 ### Step 4 - Refine and Approval Gate
@@ -61,10 +61,10 @@ The main agent incorporates [challenge report] and [online resource] (when produ
 The main agent implements [final plan] directly and records [implementation report] containing changes only, with no explanations.
 
 ### Step 6 - Code Review and Validation
-1. The main agent should claim every item in the [implementation report] is wrong, and start explaining why it is wrong. After explaining all the items, the main agent should then draft a [challenge report].
-2. The main agent reviews the changes directly (correctness, integration, unintended edits). The main agent validates the final diff against [final plan], [implementation report], and [challenge report]. Checklist: refactor targets achieved, behavior preserved, no regressions, existing tests/behavior intact.
+1. The main agent should claim every item in the [implementation report] is wrong, and start explaining why it is wrong. After explaining all the items, the main agent should then draft a [post-impl challenge report].
+2. The main agent reviews the changes directly, save the conclusion as [direct review].
 
-If any validation fails, perform **one** remediation pass (fix, then re-validate once); record any remaining gaps for Step 7.
+Based on [post-impl challenge report] + [direct review], perform **one** remediation pass (fix, then re-validate once); record any remaining gaps for Step 7.
 
 ### Step 7 - Documentation and Summary
 1. Update codebase_overview.md and scripts_overview.md based on actual changes.

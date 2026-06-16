@@ -50,7 +50,7 @@ Based on [key md files] + [inputs] + [local skills], the main agent reads the re
 
 | Subagent | Agent | When to spawn | Task |
 |----------|-------|---------------|------|
-| Challenge | **Devils Advocate** (`agents/devils-advocate.agent.md`) | Always | Read [key md files] + [plan] + [inputs], and all relevant scripts if needed. Assume the [plan] is wrong and flawed; identify wrong flags, destructive or irreversible side effects, missing prerequisites, and environment assumptions. Return [challenge report]. |
+| Challenge | **Devils Advocate** (`agents/devils-advocate.agent.md`) | Always | Read [key md files] + [plan] + [inputs], and all relevant scripts if needed. Assume every step in the [plan] is wrong, flawed, and over-engineered; identify wrong flags, destructive or irreversible side effects, missing prerequisites, environment assumptions, over-engineering and regressions. Then explain why the items are wrong, flawed, and over-engineered. Distinguish genuine defects from out-of-scope or speculative additions, and report only evidence-backed criticisms (do not manufacture problems). Return [challenge report]. |
 | Research | **Online Researcher** (`agents/online-researcher.agent.md`) | Always | Read [key md files] + [plan] + [inputs]. Search online for reliable command/skill references, known issues, and version compatibility. Return [online resource]. |
 
 ### Step 4 - Refine and Approval Gate
@@ -62,9 +62,9 @@ The main agent incorporates [challenge report] and [online resource] (when produ
 The main agent validates preconditions, executes the commands or skills per [final plan] directly, and captures stdout, stderr, exit codes, and pass/fail state into [execution report] with no explanations.
 
 ### Step 6 - Review and Validation
-1. The main agent should claim every item in the [execution report] is wrong, and start explaining why it is wrong. After explaining all the items, the main agent should then draft a [challenge report].
-2. The main agent validates [execution report] against [final plan] and [challenge report]: outputs match expectations, side effects and state changes are intended, and modified files are inspected when applicable. If the execution edited source files, the main agent reviews the edits directly for correctness and unintended changes.
-3. If any validation fails, perform **one** remediation pass (revise [final plan] and re-execute once, only when another attempt is safe); record any remaining gaps for Step 7.
+1. The main agent should claim every item in the [execution report] is wrong, and start explaining why it is wrong. After explaining all the items, the main agent should then draft a [post-impl challenge report].
+2. The main agent validates [execution report] against [final plan]: outputs match expectations, side effects and state changes are intended, and modified files are inspected when applicable. If the execution edited source files, the main agent reviews the edits directly for correctness and unintended changes. Save the conclusion as [direct review].
+3. Based on [post-impl challenge report] + [direct review], if any validation fails, perform **one** remediation pass (revise [final plan] and re-execute once, only when another attempt is safe); record any remaining gaps for Step 7.
 
 ### Step 7 - Documentation and Summary
 1. If execution changed repo state, update codebase_overview.md and scripts_overview.md based on actual changes.

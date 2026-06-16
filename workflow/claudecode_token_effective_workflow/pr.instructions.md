@@ -46,7 +46,7 @@ File completeness verification: after drafting [plan], rerun `git diff --name-on
 
 | Subagent | Agent | When to spawn | Task |
 |----------|-------|---------------|------|
-| Challenge | **Devils Advocate** (`agents/devils-advocate.agent.md`) | Always | Read [breakdown-pr skill] + [plan] + [dependency graph] + [inputs]. Read additional files if needed. Assume the [plan] is wrong and flawed; identify PRs that would break the build, incorrect dependency ordering, mixed concerns, missing changes, and stacking risks. Return [challenge report]. |
+| Challenge | **Devils Advocate** (`agents/devils-advocate.agent.md`) | Always | Read [breakdown-pr skill] + [plan] + [dependency graph] + [inputs]. Read additional files if needed. Assume every step in the [plan] is wrong, flawed, and over-engineered; identify PRs that would break the build, incorrect dependency ordering, mixed concerns, missing changes, stacking risks, over-engineering and regressions. Then explain why the items are wrong, flawed, and over-engineered. Distinguish genuine defects from out-of-scope or speculative additions, and report only evidence-backed criticisms (do not manufacture problems). Return [challenge report]. |
 | Research | **Online Researcher** (`agents/online-researcher.agent.md`) | Always | Read [breakdown-pr skill] + [plan] + [inputs]. Search online for reliable stacking strategies, tool references, and conventions. Return [online resource]. |
 
 ### Step 4 - Refine and Approval Gate
@@ -66,10 +66,10 @@ The main agent executes the PR stack creation directly, following [breakdown-pr 
 Record [execution report] containing branches created, commits made, PRs submitted, and failures, with no explanations.
 
 ### Step 6 - Stack Review and Verification
-1. PR re-organization authors no new logic, so run the native review skills (`skills/claude-native-skills-subagents/SKILL.md`) only if source files were actually edited (e.g., conflict resolution); skip when no source was edited or the native skills are unavailable.
-2. The main agent should claim everything item in the [execution report] is wrong, and start explaining why it is wrong. After done explaining all the items, the main agent should then draft a [challenge report]
-3. The main agent verifies the stack directly against [final plan], [execution report], and [challenge report]: branch/commit structure, dependency order, no unrelated or auto-generated files included, all necessary files present, and the final stack top matches the original branch diff. Run [breakdown-pr skill] step 7 verification, including `git diff --exit-code` and `git range-diff` where appropriate.
-4. If any verification fails, perform **one** remediation pass (repair the affected branches, then re-verify once); record any remaining gaps for Step 7.
+1. PR re-organization authors no new logic, so run the native review skills (`skills/claude-native-skills-subagents/SKILL.md`) only if source files were actually edited (e.g., conflict resolution): `/simplify` first on the resulting diff, record results as [simplify], then `/code-review` on the resulting diff, record as [code-review]; skip when no source was edited or the native skills are unavailable.
+2. The main agent should claim everything item in the [execution report] is wrong, and start explaining why it is wrong. After done explaining all the items, the main agent should then draft a [post-impl challenge report]
+3. The main agent verifies the stack directly against [final plan] and [execution report]: branch/commit structure, dependency order, no unrelated or auto-generated files included, all necessary files present, and the final stack top matches the original branch diff. Run [breakdown-pr skill] step 7 verification, including `git diff --exit-code` and `git range-diff` where appropriate. Save the conclusion as [direct review].
+4. Based on [simplify] + [code-review] + [post-impl challenge report] + [direct review], if any verification fails, perform **one** remediation pass (repair the affected branches, then re-verify once); record any remaining gaps for Step 7.
 
 ### Step 7 - Documentation and Summary
 1. Write to update_logs.md:
