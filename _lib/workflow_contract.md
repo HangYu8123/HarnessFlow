@@ -127,7 +127,7 @@ When any workflow instruction tells you to read context files (`[key md files]`)
 
 ## Context Passing for Subagents
 
-The unified general workflow (`workflow/general_workflow/`) is platform-adaptive; how repo context reaches subagents depends on the **active agent**, not the directory:
+The unified workflows (`workflow/general_workflow/` and `workflow/token_effective_workflow/`) are platform-adaptive; how repo context reaches subagents depends on the **active agent**, not the directory:
 
 **Claude Code** — to reduce redundant file reads across subagents, follow this pattern:
 

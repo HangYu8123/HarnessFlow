@@ -2,6 +2,12 @@
 
 Search this index before using repository skills. Each skill is an official skill folder with a `SKILL.md` entrypoint.
 
+> **External skills for the skill-based workflow family:** The
+> `workflow/skill_workflow/` family replaces selected step instructions
+> with popular community skills (verified ≥1000 GitHub stars). Those external skills
+> are not vendored here — they are catalogued, with sources, verified star counts,
+> exact paths, and per-step fallbacks, in `skills/skill_workflow_skills.md`.
+
 ## breakdown-pr
 
 - Path: `skills/breakdown-pr/SKILL.md`

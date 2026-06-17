@@ -1,0 +1,122 @@
+---
+name: 'Skill-Based Initialize Repo'
+description: 'Unified skill-backed (skill mode) repo-initialization workflow for Claude Code, Codex, and VS Code Copilot: identical to the fast workflow — no step had a confirmed ≥1000-star skill that fits the pack''s bespoke repo_info generation, so every step is left unchanged.'
+---
+# Create Necessary Files for Agentic Coding Workflow
+
+<!-- Required Context Files (CLI-resolvable paths):
+  - philosophy/philosophy.instructions.md
+  - _lib/safety_rules.md
+  - _lib/workflow_contract.md
+  - skills/skill_workflow_skills.md
+  - repo_info/ (created by this workflow)
+  - agents/free-analyst.agent.md
+  - agents/focus-analyst.agent.md
+-->
+
+**Safety: follow `_lib/safety_rules.md`.**
+
+> **Unified workflow (platform-adaptive).** This single file serves Claude Code, Codex, and VS Code Copilot. Resolve all paths via Pack Path Resolution (`.github/HarnessFlow/<path>` when installed, or `<path>` from the repo root). Launch subagents using your platform's mechanism per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Invocation. Handle repo-context handoff per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents: on **Claude Code** the main agent builds a condensed **[repo context digest]** and passes it inline to subagents; on **Codex** and **VS Code Copilot**, subagents read **[key md files]** directly. This workflow creates the `repo_info/` overviews, so they do not exist yet — subagents read the live repo files instead.
+
+> **Skill-backed variant (skill mode).** No step in this workflow had a confirmed ≥1000-star community skill that genuinely fits — its overviews (codebase_overview.md with a pipeline diagram, scripts_overview.md folder-by-folder) are bespoke `repo_info` artifacts produced by the pack's own Free Analyst and Focus Analyst agents, which no general documentation skill reproduces. Per the selection rule in [`skills/skill_workflow_skills.md`](../../skills/skill_workflow_skills.md), every step is therefore **unchanged** from the fast workflow.
+
+This workflow generates documentation; it does not modify source code, so there is no approval gate.
+
+[inputs]:
+- input 1: target repo (optional, default to current repo)
+- input 2: important files or docs to preserve (optional)
+
+**read through this entire file and follow the instructions carefully**.
+Before doing any workflow-specific work, the main agent must read and follow [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) and [`philosophy/philosophy.instructions.md`](../../philosophy/philosophy.instructions.md) before proceeding.
+Every subagent created by this workflow must also read and follow those two files before performing task-specific work. The main agent passes repo context to subagents per §Context Passing; subagents do not re-read files already summarized by the main agent (the `repo_info/` overviews do not exist yet — this workflow creates them).
+
+Subagent launch rule: Follow the Subagent Launch Contract in [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md). After each subagent returns, the main agent must check that the result is complete, task-specific, grounded in the requested files, and uses the expected output label.
+
+> **Subagent invocation:** See `_lib/workflow_contract.md` §Subagent Invocation.
+
+---
+
+## CREATE ONE TODO PER STEP
+
+### Step 1 - Scan and Setup
+First, verify that the repo has been set up for your tool, then scan the repo.
+- **If the main agent is Claude Code:** check that `CLAUDE.md` exists at the repo root; if it is missing, recommend running `bash .github/HarnessFlow/cli_setup.sh` from the repo root to generate CLI entry-point files.
+- **If the main agent is Codex:** check that `AGENTS.md` exists at the repo root; if it is missing, recommend running `bash .github/HarnessFlow/cli_setup.sh` from the repo root to generate CLI entry-point files. If using Codex in VS Code, use the same root `AGENTS.md` and installed pack files — do not require VS Code Copilot `chat.agentFilesLocations` settings for Codex workflows.
+- **If the main agent is VS Code Copilot:** if `.vscode/settings.json` does not already contain `chat.agentFilesLocations` with `.github/HarnessFlow/agents` set to `true`, run `setup.sh` from the target repo root to configure VS Code workspace settings.
+
+Then:
+1. Scan the entire repo and keep the file listing in memory.
+2. Ensure the repo_info folder exists.
+3. Ensure these canonical [repo_info files] exist under repo_info, creating empty files when missing:
+   - codebase_overview.md
+   - scripts_overview.md
+   - update_logs_auto_generated.md
+   - known_issues_auto_generated.md
+   - update_logs.md
+   - known_issues.md
+   - past_Q&A.md
+   - past_Correctness_Check.md
+4. Use `past_Q&A.md` for query history and `past_Correctness_Check.md` for correctness-check history; do not create alternate history filenames.
+
+### Step 2 - File Structure
+From the Step 1 scan, the main agent produces [file structure] (the directory/file tree) and validates it for completeness. No subagent is needed — the main agent already holds the listing.
+
+### Step 3 - Documentation Generation
+Generate each overview **once**. **[PARALLEL EXECUTION — launch the listed subagents in parallel using your platform's subagent mechanism (see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Invocation); if parallel launch is unavailable, run them sequentially — sequential execution produces equivalent results]** This is the only step that spawns subagents.
+
+| Subagent | Agent | Role | Task |
+|----------|-------|------|------|
+| Codebase | **Free Analyst** (`agents/free-analyst.agent.md`) | Free mode | Read [inputs] + [file structure]. Decide the reading order (entry points → imports → pipeline position), read the files, and construct [codebase_overview draft]. |
+| Scripts | **Focus Analyst** (`agents/focus-analyst.agent.md`) | Folder mode | Read [inputs] + [file structure]. Go folder-by-folder and summarize each function/class in code files with their dependencies. Return [scripts overview draft]. |
+
+### Step 4 - Synthesize and Write Codebase Overview
+1. The main agent validates [codebase_overview draft] against the actual files, fixing inaccuracies.
+2. Draft the [pipeline] diagram with associated scripts in each block and validate it against the code.
+3. Write codebase_overview.md with the diagram and repo description.
+
+### Step 5 - Synthesize and Write Scripts Overview
+1. The main agent spot-checks [scripts overview draft] against actual files and fixes inconsistencies.
+2. Write the final scripts_overview.md.
+
+### Step 6 - Issue Scan and History
+1. The main agent scans for issues directly: using scripts_overview.md and the pipeline, read the key scripts and identify architectural weaknesses, potential bugs, error-prone code, and anything preventing correct execution. Record [issues report].
+2. The main agent gets the git commit history and writes update_logs_auto_generated.md (faithful to the original commit logs, no interpretation).
+
+### Step 7 - Finalize Issues
+Write [issues report] to known_issues_auto_generated.md:
+```md
+{Problem Title}
+{Problem description}
+{Root causes}
+{Consequences}
+```
+
+### Step 8 - Path Reference Cleanup
+After completing all steps above, check whether path references need cleanup. Handle per platform:
+- **If the main agent is Claude Code:** Claude Code workflows use Pack Path Resolution (filesystem-relative paths), not VS Code `@/` workspace-relative paths or `#file:` prefixes. If any `@/` or VS Code-only `#file:` references have leaked into files under `workflow/general_workflow/`, `workflow/token_effective_workflow/`, or `workflow/skill_workflow/`, remove them and replace them with plain Pack Path Resolution-compatible paths; otherwise this is a no-op.
+- **If the main agent is Codex:** Codex workflows use filesystem-relative or pack-relative paths, not VS Code `@/` prefixes. The `@/.github/` → `@/[repo folder name]/.github/` rewrite is a VS Code Copilot-only concern and does not apply to Codex workflow files, including Codex running in VS Code. If any `@/` or VS Code-only `#file:` references have leaked into files under `workflow/general_workflow/`, `workflow/token_effective_workflow/`, or `workflow/skill_workflow/`, remove them and replace them with relative paths; otherwise this is a no-op.
+- **If the main agent is VS Code Copilot:** perform the full idempotent multi-root rewrite:
+  1. Determine [repo folder name] — the name of the repo's root folder as it appears in the VS Code workspace.
+  2. **Idempotency guard:** before any replacements, check if any `.md` file under `.github/HarnessFlow/` already contains a path with `[repo folder name]/.github/`. If so, this step already ran — skip all replacements and continue to Step 9.
+  3. **Rename detection:** if the idempotency guard did not trigger, scan `.md` files under `.github/HarnessFlow/` for any path matching `[some_prefix]/.github/HarnessFlow/` where `[some_prefix]` is not [repo folder name]. If found, replace `[old_prefix]/.github/HarnessFlow/` with `[repo folder name]/.github/HarnessFlow/`, then skip to verification.
+  4. Go through all `.md` files under `.github/HarnessFlow/` and replace every occurrence of `.github/HarnessFlow/` with `[repo folder name]/.github/HarnessFlow/` only in path references used by agents.
+  5. Verify that updated paths resolve by spot-checking key paths such as `[repo folder name]/.github/HarnessFlow/repo_info/codebase_overview.md`.
+
+### Step 9 - Refresh Cross-Tool Entry Points
+Copy the entry-point files from the pack to their standard discoverable locations so every supported tool can auto-discover its instructions after initialization. Handle per platform:
+
+- **If the main agent is Claude Code or Codex:** copy all three entry points.
+  1. Copy `.github/HarnessFlow/copilot-instructions.md` to `.github/copilot-instructions.md`.
+     - In the destination copy, rewrite all `#file:` references by prepending `HarnessFlow/` to their paths. For example, `#file:_lib/workflow_contract.md` becomes `#file:HarnessFlow/_lib/workflow_contract.md`. This is necessary because `#file:` paths resolve relative to `.github/copilot-instructions.md`.
+  2. Copy `.github/HarnessFlow/CLAUDE.md` to repo root `CLAUDE.md`.
+  3. Copy `.github/HarnessFlow/AGENTS.md` to repo root `AGENTS.md`.
+
+  For each destination file:
+  - Create it if absent.
+  - Overwrite it only if it appears to be a previously generated copy from this pack.
+  - If custom content is detected, warn and skip.
+
+- **If the main agent is VS Code Copilot:** copy only the Copilot entry point.
+  1. Copy `.github/HarnessFlow/copilot-instructions.md` to `.github/copilot-instructions.md`.
+     - In the destination copy, rewrite all `#file:` references by prepending `HarnessFlow/` to their paths. For example, `#file:_lib/workflow_contract.md` becomes `#file:HarnessFlow/_lib/workflow_contract.md`. This is necessary because `#file:` paths resolve relative to `.github/copilot-instructions.md`.
+  - Create `.github/copilot-instructions.md` if absent. Overwrite it only if it contains the standard marker text `"Master Orchestrator"`. If custom content is detected, warn and skip.
