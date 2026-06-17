@@ -49,12 +49,12 @@ Subagent launch rule: Follow the Subagent Launch Contract in [`_lib/workflow_con
 Read [key md files]. If important files or target functionalities are specified in [inputs], read them. Per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents, condense the understanding into a **[repo context digest]** (Claude Code passes it inline to subagents; Codex and VS Code Copilot keep [key md files] for subagents to read directly) and identify [important information] — the most relevant code, scripts, and functionalities. Decide the **scope**: whole-repo (include the full pipeline diagram) or target functionality (include upstream/downstream context).
 
 ### Step 2 - Correctness Analysis
-**Skill (replaces this step's instructions):** Examine correctness by following **`code-reviewer`** (`Jeffallan/claude-skills:skills/code-reviewer/SKILL.md`, 9,938★ verified 2026-06-16) — which analyzes files/diffs for bugs, edge cases, N+1 queries, naming, and architectural concerns with severity-rated findings. Apply it over the in-scope files:
+**Skill (replaces this step's instructions):** Examine correctness by following **`code-reviewer`** (`Jeffallan/claude-skills:skills/code-reviewer/SKILL.md`, 9,938★ verified 2026-06-16) — which analyzes files/diffs for bugs, edge cases, N+1 queries, naming, and architectural concerns with severity-rated findings. Apply it over the in-scope files identified from [important information] (Step 1):
 - **Target scope:** focus on the named functionality and its upstream/downstream.
 - **Whole-repo scope:** list the relevant files, order them by pipeline flow upstream→downstream, and review them in order.
 
 If the user requested script runs, run the runnable scripts directly in pipeline order and record any errors or unexpected outputs as [run results]. Draft [draft correctness report] from the skill's findings, including all script failures from [run results].
-**Fallback if the skill is unavailable:** the main agent lists the relevant files, orders them by pipeline flow, reads them, and examines correctness directly (target or whole-repo scope as above), then drafts [draft correctness report].
+**Fallback if the skill is unavailable:** the main agent uses [important information] (Step 1) to list the relevant files, orders them by pipeline flow, reads them, and examines correctness directly (target or whole-repo scope as above), then drafts [draft correctness report].
 
 ### Step 3 - Report Challenge and Research
 **[PARALLEL EXECUTION — launch the listed subagents in parallel using your platform's subagent mechanism (see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Invocation); if parallel launch is unavailable, run them sequentially — sequential execution produces equivalent results]** This is the only step that spawns subagents.

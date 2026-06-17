@@ -16,7 +16,7 @@ These rules apply to **every** workflow, agent, and subagent — no exceptions.
 
 ## Approval Gate (Code / Debug / Refactor / Exec / PR Workflows)
 
-**Rule:** No approval is needed unless the user explicitly requests it. After printing the plan, the workflow **proceeds directly to implementation by default**; it stops and waits for explicit approval only when the user's prompt activates the gate (e.g., `plan:`, `plan only`, `review first`, `no filechanges`, `no changes`). See `_lib/approval_gate.md` for the operative rule.
+**Rule:** No approval is needed unless the user explicitly requests it. After printing the plan, the workflow **proceeds directly to implementation by default**; it stops and waits for explicit approval only when the user's prompt activates the gate (e.g., `plan:`, `plan only`, `review first`, `no file changes`, `no changes`). See `_lib/approval_gate.md` for the operative rule.
 
 This gate applies regardless of which CLI tool or IDE is being used.
 
@@ -48,7 +48,7 @@ In installed repos, do not create `repo_info/` outside `.github/HarnessFlow/repo
 - Before creating any subagent, ask the main agent to answer what model it is using, refer the model as [main agent model]
 - when creating any subagent, explicitly instruct the main agent to: "**Create subagent with the exact [main agent model] — do not downgrade.**"
 - Subagents must use the [main agent model]
-- **Request `subagent_model` override:** If the user's request includes a `subagent_model` header, honor it for all subagents. Its default value `inherit` means subagents use [main agent model] (never downgrade); a specific model id overrides [main agent model] for subagents only. (Request templates ship with `subagent_model: inherit`.)
+- **Subagent model (default = main agent model):** By default every subagent uses the same model as the main agent ([main agent model]) — never downgrade. The default [main agent model] depends on mode: in **fast mode** (`mode: fast`) the default main model is **Sonnet 4.6**, so subagents default to Sonnet 4.6; in **general** and **skill** modes subagents inherit whatever model the main agent is running. The optional `subagent_model` header overrides this default: its default value `inherit` keeps subagents on [main agent model], while a specific model id is used for all subagents instead. (Request templates ship with `subagent_model: inherit`.)
 - A subagent means a separate spawned agent invocation with its own context. Main-agent roleplay, self-simulation, or inline execution must not be labeled as subagent output.
 - Each subagent prompt must include: the role/mode, exact task, required inputs, context files to read, expected output label, this contract path, and `philosophy/philosophy.instructions.md`.
 - For a parallel group, launch all listed subagents as separate invocations before waiting for results. If parallel launch is unavailable, launch the same subagent prompts one at a time; preserve the same output labels.

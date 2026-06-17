@@ -62,7 +62,7 @@ Based on [important information] and the repo structure from the repo context (p
 
 If no scripts failed, skip step 7.5 and continue to step 8.
 
-8. the main agent must read through all four answers ([answers 1], [answers 2], [answers 3], and [answers 4]), understand each of them, examine all the pointed out correctness issues, combine the insights of each report, reject the redundant or incorrect parts of each report, and draft a precise and verified correct report to report any incorrectness of the repo in bullet points.
+8. the main agent must read through all four answers ([answers 1], [answers 2], [answers 3], and [answers 4]) and, when step 7.5 produced one, [debug diagnosis report], understand each of them, examine all the pointed out correctness issues, combine the insights of each report, reject the redundant or incorrect parts of each report, and draft a precise and verified correct report to report any incorrectness of the repo in bullet points.
 
 8.5. the main agent creates two subagents: **Devils Advocate** (`agents/devils-advocate.agent.md`) and **Online Researcher** (`agents/online-researcher.agent.md`) **[PARALLEL EXECUTION — launch the listed subagents in parallel using your platform's subagent mechanism (see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Invocation); if parallel launch is unavailable, run them sequentially — sequential execution produces equivalent results]**, pass the draft correctness report, [important information], and the repo context (per §Context Passing) to the subagents.
 

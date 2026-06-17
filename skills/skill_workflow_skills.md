@@ -42,7 +42,15 @@ inline fallback.
 - **Trigger:** "Use when you have a spec or requirements for a multi-step task, before touching code."
 - **What it does:** Turns a spec/requirements into bite-sized (2–5 min), dependency-ordered tasks with the exact files to touch and a verification step per task.
 - **Backs:** Implementation/Refactor planning step.
-- **Optional companion:** `skills/brainstorming/SKILL.md` (same repo) for clarifying intent and weighing 2–3 approaches when requirements are ambiguous. Note: `brainstorming` enforces its own user-approval hard-gate; defer that decision to HarnessFlow's opt-in approval gate (`_lib/approval_gate.md`) — do not block on it by default.
+- **Optional companion:** `brainstorming` (same repo) — clarifies intent and weighs 2–3 approaches when requirements are ambiguous; see its own entry below.
+
+### `brainstorming` — requirement/approach clarification (optional companion)
+- **Source:** `obra/superpowers` (229,665★) · `skills/brainstorming/SKILL.md`
+- **Trigger:** "Use when intent or requirements are ambiguous, before planning — to clarify the goal and weigh 2–3 approaches."
+- **What it does:** Structured questioning that pins down intent and surfaces 2–3 candidate approaches before a plan is written.
+- **Backs:** Implementation/Refactor planning step, as a companion to `writing-plans`; invoked only when intent is ambiguous.
+- **Note:** `brainstorming` enforces its own user-approval hard-gate; defer that decision to HarnessFlow's opt-in approval gate (`_lib/approval_gate.md`) — do not block on it by default.
+- **Fallback:** if unavailable, take the planning step's inline fallback — clarify ambiguous requirements inline before drafting the plan.
 
 ### `executing-plans` + `test-driven-development` — implementation
 - **Source:** `obra/superpowers` (229,665★) · `skills/executing-plans/SKILL.md`, `skills/test-driven-development/SKILL.md`
