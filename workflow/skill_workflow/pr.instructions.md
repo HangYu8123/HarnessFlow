@@ -80,10 +80,10 @@ File completeness verification: after drafting [plan], rerun `git diff --name-on
 ### Step 4 — Refine and Approval Gate
 The main agent incorporates [challenge report] and [online resource] (when produced) into a [final plan], then reruns the file completeness verification. Print [final plan] using the [breakdown-pr skill] output format.
 
-**Approval gate (opt-in):** see `_lib/approval_gate.md` — proceed directly to Step 5 unless the user asked for plan-only mode or a review first.
+**Approval gate (opt-in):** see `_lib/approval_gate.md` — proceed directly to Step 5 unless the user asked for no code/file changes or a plan-only review.
 
 ### Step 5 — PR Stack Execution
-The main agent executes the PR stack creation directly, following [breakdown-pr skill] step 6 (Execute Only After Approval):
+The main agent executes the PR stack creation directly, following [breakdown-pr skill] step 6 (Execute Only After Approval). **Nested-skill note:** the skill's "Execute Only After Approval" / "ask before execution" wording maps to the single two-mode gate at Step 4 (`_lib/approval_gate.md` §Nested-skill approval language), not a second stop — in autonomous mode, create local branches/commits without re-asking and resolve ambiguous base/branch/stack-tool/uncommitted-change choices yourself as recorded assumptions; only the submit/push still needs explicit user approval.
 - Confirm the working tree policy for uncommitted changes.
 - Record the original source branch and intended final stack top.
 - Create each branch from the base or previous stack branch.

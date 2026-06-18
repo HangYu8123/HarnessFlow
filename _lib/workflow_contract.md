@@ -16,7 +16,10 @@ These rules apply to **every** workflow, agent, and subagent — no exceptions.
 
 ## Approval Gate (Code / Debug / Refactor / Exec / PR Workflows)
 
-**Rule:** No approval is needed unless the user explicitly requests it. After printing the plan, the workflow **proceeds directly to implementation by default**; it stops and waits for explicit approval only when the user's prompt activates the gate (e.g., `plan:`, `plan only`, `review first`, `no file changes`, `no changes`). See `_lib/approval_gate.md` for the operative rule.
+**Rule:** The gate has **two modes**, selected once at workflow start from the user's prompt (see `_lib/approval_gate.md` for the operative rule):
+
+- **Mode 1 — Plan-Only / No-Changes (opt-in):** activated when the prompt explicitly asks for plan-only or no file changes (e.g., `plan:`, `plan only`, `no file changes`, `no changes`, `review first`, `dry run`). Run the read-only planning pipeline, print the plan, and **stop before any file change** — wait for explicit approval before implementing.
+- **Mode 2 — Autonomous (default):** every other prompt. Proceed end-to-end without stopping. Make the best reasonable assumptions, state them in one line each in the plan, and **do not ask clarification questions** — the model decides ambiguous scope/design choices itself. Pause only for irreversible/destructive or outward-facing actions not already covered by the request and `_lib/safety_rules.md`.
 
 This gate applies regardless of which CLI tool or IDE is being used.
 

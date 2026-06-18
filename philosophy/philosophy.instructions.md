@@ -29,7 +29,10 @@ This protocol applies to every `[PARALLEL EXECUTION]` directive in all workflow 
 
 ## Approval Gate Principle
 
-All code-modifying workflows (code, debug, refactor) must print the finalized plan, then proceed directly to implementation unless the user activated the approval gate (see `_lib/approval_gate.md`). If the user requests no code changes, the workflow stops after printing the plan.
+All code-modifying workflows (code, debug, refactor, exec, pr) run the gate in one of two modes (see `_lib/approval_gate.md`):
+
+- **Plan-only / no-changes mode** (opt-in via `plan:`, `plan only`, `no file changes`, `no changes`, `review first`, `dry run`): print the finalized plan and **stop before any file change**, waiting for explicit approval before implementing.
+- **Autonomous mode** (default): print the plan and proceed straight through implementation. Make best-effort assumptions, state them with the plan, and **do not ask clarification questions** — decide ambiguous choices yourself; pause only for irreversible/destructive or outward-facing actions.
 
 
 KEY PHILOSOPHIES:
@@ -49,11 +52,11 @@ Behavioral guidelines to reduce common LLM coding mistakes, derived from [Andrej
 
 **Don't assume. Don't hide confusion. Surface tradeoffs.**
 
-Before implementing:
-- State your assumptions explicitly. If uncertain, ask.
-- If multiple interpretations exist, present them - don't pick silently.
+Before implementing (reconciled with the Approval Gate Principle above — "ask" applies in plan-only mode; in autonomous mode, decide and record instead of asking):
+- State your assumptions explicitly. If uncertain: in plan-only mode, surface the question with the plan; in autonomous mode (default), make the best reasonable assumption, state it, and proceed.
+- If multiple interpretations exist, name them — in plan-only mode present them for the user to choose; in autonomous mode pick the most reasonable one explicitly rather than silently.
 - If a simpler approach exists, say so. Push back when warranted.
-- If something is unclear, stop. Name what's confusing. Ask.
+- If something is unclear, name what's confusing. In plan-only mode, stop and ask; in autonomous mode, resolve it with the most reasonable assumption and note it.
 
 ## 2. Simplicity First
 
