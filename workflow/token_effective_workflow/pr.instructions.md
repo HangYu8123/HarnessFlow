@@ -15,7 +15,6 @@ description: 'Unified token-effective (fast) PR-stack workflow for Claude Code, 
   - _lib/safety_rules.md
   - _lib/workflow_contract.md
   - _lib/approval_gate.md
-  - _lib/local_skill_discovery.md
   - repo_info/codebase_overview.md
   - repo_info/scripts_overview.md
   - repo_info/update_logs.md
@@ -59,8 +58,6 @@ Read [key md files] and [breakdown-pr skill], and condense [key md files] (plus 
 - Produce [filtered diff manifest] = [diff file manifest] minus [auto-generated files]. Log excluded auto-generated files explicitly so the user can override if needed.
 
 ### Step 2 — PR Planning
-**Local Skill Discovery (before drafting [plan]):** [breakdown-pr skill] is already loaded and integrated as the primary skill. Additionally perform Local Skill Discovery per `_lib/local_skill_discovery.md` for any *other* local skill relevant to this task (skip breakdown-pr during matching); record the result as [local skills] (or "none relevant") and integrate it into [plan].
-
 Based on the Step 1 manifests + [breakdown-pr skill] + [inputs], the main agent analyzes the diff, identifies change types and logical groupings, and proposes a [plan] + [dependency graph] following the [breakdown-pr skill] output format. Use [filtered diff manifest] as the authoritative file list; **every file in [filtered diff manifest] must be assigned to exactly one PR**, and each PR must be buildable.
 
 File completeness verification: after drafting [plan], rerun `git diff --name-only <base>...<branch>` and cross-reference the output against [plan]. Add missing files to the most appropriate PR; remove files matching [gitignore patterns] or [auto-generated files] unless the user explicitly requested their inclusion. Log discrepancies found and resolved.

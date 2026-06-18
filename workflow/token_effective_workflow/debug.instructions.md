@@ -9,7 +9,6 @@ description: 'Unified token-effective (fast) debug workflow for Claude Code, Cod
   - _lib/safety_rules.md
   - _lib/workflow_contract.md
   - _lib/approval_gate.md
-  - _lib/local_skill_discovery.md
   - repo_info/codebase_overview.md
   - repo_info/scripts_overview.md
   - repo_info/update_logs.md
@@ -52,8 +51,6 @@ The main agent identifies the target scripts and entry points, runs the relevant
 Read [key md files]. If suspected scripts are specified in [inputs], read them. Condense them into a **[repo context digest]** — a concise bullet-point summary covering codebase structure/pipeline, key scripts and their roles, recent changes, and active known issues — for use in later steps and for handoff to subagents per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents.
 
 ### Step 2 - Diagnosis and Fix Plan
-**Local Skill Discovery (before drafting [plan]):** Perform Local Skill Discovery per `_lib/local_skill_discovery.md` — scan `skills/index.md` for any local skill whose trigger fits this bug/task; on a confirmed match, read its `SKILL.md` and integrate it into the fix [plan]. Record the result as [local skills] (or "none relevant").
-
 Based on [repo context digest] + [inputs] + [reproduction report] (if any), the main agent:
 1. Checks update_logs.md and known_issues.md for whether this bug was previously addressed and, if so, why the prior fix failed.
 2. Reads the associated scripts and identifies the most likely root cause(s) with evidence and affected scripts, recorded as [bug info].

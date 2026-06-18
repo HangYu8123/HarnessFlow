@@ -15,7 +15,6 @@ description: 'Unified skill-backed (skill mode) refactor workflow for Claude Cod
   - _lib/safety_rules.md
   - _lib/workflow_contract.md
   - _lib/approval_gate.md
-  - _lib/local_skill_discovery.md
   - skills/skill_workflow_skills.md
   - repo_info/codebase_overview.md
   - repo_info/scripts_overview.md
@@ -47,11 +46,11 @@ Subagent launch rule: Follow the Subagent Launch Contract in [`_lib/workflow_con
 ## CREATE ONE TODO PER STEP
 
 ### Step 1 - Context Gathering
-Read [key md files]. If target files are specified in [inputs], read them. Condense [key md files] (plus any target files read) into a [repo context digest] per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents: on **Claude Code**, build the condensed [repo context digest] and pass it inline to every subagent; on **Codex** and **VS Code Copilot**, keep [key md files] for subagents to read directly.
+Read [key md files]. If target files are specified in [inputs], read them. Condense [key md files] (plus any target files read) into a [repo context digest] per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents: pass [inputs], [key md files], and [repo context digest].
 
 ### Step 2 - Refactor Analysis
 **Skill (replaces this step's instructions):** Produce the refactor [plan] by following **`writing-plans`** (`obra/superpowers:skills/writing-plans/SKILL.md`, 229,665★ verified 2026-06-16) — feed it the repo context (per §Context Passing) + [inputs]; it returns dependency-ordered, bite-sized tasks naming the exact files to touch and a verification step per task. Alongside [plan], record a [comparison] (before/after) and behavior-preservation notes.
-**Fallback if the skill is unavailable:** perform Local Skill Discovery per `_lib/local_skill_discovery.md` (record [local skills]); then read the relevant files and propose a [plan] for the target refactors + a [comparison] (before/after) + behavior-preservation notes, as in the fast workflow.
+**Fallback if the skill is unavailable:** read the relevant files and propose a [plan] for the target refactors + a [comparison] (before/after) + behavior-preservation notes, as in the fast workflow.
 
 ### Step 3 - Plan Challenge and Research
 **[PARALLEL EXECUTION — launch the listed subagents in parallel using your platform's subagent mechanism (see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Invocation); if parallel launch is unavailable, run them sequentially — sequential execution produces equivalent results]** This is the only step that spawns subagents.
@@ -68,14 +67,14 @@ The main agent incorporates [challenge report] and [online resource] (when produ
 
 ### Step 5 - Implementation
 **Skill (replaces this step's instructions):** Implement [final plan] by following **`executing-plans`** (`obra/superpowers:skills/executing-plans/SKILL.md`, 229,665★) — reinforced by **`test-driven-development`** (`obra/superpowers:skills/test-driven-development/SKILL.md`) to keep behavior green across the refactor (tests pass before and after). Record an [implementation report] containing changes only, with no explanations.
-**Fallback if the skills are unavailable:** the main agent implements [final plan] directly and records an [implementation report] (changes only, no explanations).
+**Fallback if the skills are unavailable:** the main agent implements [final plan] and records an [implementation report] (changes only, no explanations).
 
 ### Step 6 - Code Review and Validation
-1. **Native review skills (platform-conditional):**
+1. The main agent first reviews the changes, save the conclusion as [direct review].
+2. **Native review skills (platform-conditional):**
    - **If the main agent is Claude Code (or another Claude agent with Claude Code skills available):** run the native review skills via [`skills/claude-native-skills-subagents/SKILL.md`](../../skills/claude-native-skills-subagents/SKILL.md) — `/simplify` first on the resulting diff, record as [simplify]; then `/code-review` on the resulting diff, record as [code-review]. If the native skills are unavailable, skip this sub-step.
    - **Otherwise (Codex, or VS Code Copilot without Claude Code skills):** skip the native skills.
-2. **Skill-backed self-challenge:** run **`the-fool`** (`Jeffallan/claude-skills:skills/the-fool/SKILL.md`) over the [implementation report] — claim every item is wrong, explain why, then draft a [post-impl challenge report]. **Fallback if unavailable:** the main agent performs this self-challenge inline.
-3. The main agent reviews the changes directly, save the conclusion as [direct review].
+3. **Skill-backed self-challenge:** run **`the-fool`** (`Jeffallan/claude-skills:skills/the-fool/SKILL.md`) over the [implementation report] — claim every item is wrong, explain why, then draft a [post-impl challenge report]. **Fallback if unavailable:** the main agent performs this self-challenge inline.
 
 Based on whichever of [simplify] + [code-review] + [post-impl challenge report] + [direct review] were produced, perform **one** remediation pass (fix, then re-validate once); record any remaining gaps for Step 7.
 
