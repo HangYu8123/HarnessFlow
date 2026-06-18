@@ -207,7 +207,7 @@ The source repo stores the pack at the repo root. The installed layout expected 
 | `workflow/` | Tool-specific workflow instruction families. |
 | `agents/` | Custom agent definitions plus `agents/INDEX.md`. |
 | `request_template/` | Fill-in request templates, including `mode: general` and `mode: fast` selection. |
-| `skills/` | Skill definitions, including PR breakdown and Claude-native post-implementation skill orchestration. |
+| `skills/` | Vendored skill definitions (PR breakdown, Claude-native post-implementation orchestration) plus `skill_workflow_skills.md`, the community-skill registry that powers `mode: skill`. |
 | `.claude/rules/` | Claude Code path-scoped rules copied to target repos by `cli_setup.sh`. |
 | `setup.sh` | Configures VS Code workspace settings and generated Copilot instructions in a target repo. |
 | `cli_setup.sh` | Generates CLI entry points and ensures target `repo_info/` files exist. |
@@ -313,16 +313,50 @@ mode: skill
 For VS Code Copilot, `general` selects `workflow/general_workflow/`, `fast` selects `workflow/token_effective_workflow/`, and `skill` selects `workflow/skill_workflow/`.
 For Codex CLI or Codex in VS Code, `general` selects `workflow/general_workflow/`, `fast` selects `workflow/token_effective_workflow/`, and `skill` selects `workflow/skill_workflow/`. The templates use `@/.github/HarnessFlow/...` paths for VS Code Copilot and filesystem paths for Codex.
 
+### Template builder (GUI)
+
+If editing the templates by hand is fiddly, use the **Request Builder** — a single self-contained page (no install, no build, no dependencies).
+
+**Open it with one command** — starts a tiny local server and pops the page open in your browser automatically:
+
+```bash
+python3 harness_gui.py
+```
+
+Or just double-click **`harness_gui.html`** to open it directly. Either way you can:
+
+- pick any of the 8 templates and copy the finished prompt in one click (or download it as `.md`);
+- flip parameters with buttons — `mode` (fast/general/skill), `agent type` (claude/codex/copilot), `subagent_model`, and `reproduce` (debug) — which rewrite only the copied text, never the source files;
+- fill the template's input fields inline, and see the exact `workflow/...` instructions file the selection resolves to.
+
+The launcher serves over http so the templates stay live-synced from `request_template/`; double-clicking the HTML works fully offline from the bundled snapshots.
+
 ## Agents And Skills
 
 `agents/` defines **15 worker agents**, orchestrated by the per-category workflow instruction files under `workflow/<family>/` (which act as the coordinators). Worker agents include Focus Analyst, Broad Analyst, Free Analyst, Senior Engineer, Principal Engineer, Devils Advocate, Online Researcher, Implementer, Executor, QA Engineer, Bug Reproducer, and the refactor specialists Architecture, Redundancy, Robustness, and Complexity Analyst.
 
 See `agents/INDEX.md` for the complete registry.
 
-`skills/` currently contains:
+`skills/` contains two **vendored** skills plus a registry of **external community skills**:
 
 - `breakdown-pr`: analyzes a large branch or PR and proposes a stacked PR breakdown.
 - `claude-native-skills-subagents`: Claude Code-only post-implementation orchestration for native skills such as `/simplify`, `/code-review`, `/batch`, and `/claude-api`.
+- `skill_workflow_skills.md`: the registry that powers `mode: skill` — it catalogs the popular community skills (each verified at ≥1000 GitHub stars) that replace selected step instructions in `workflow/skill_workflow/`, with sources, verified star counts, exact paths, and a per-step inline fallback.
+
+### Community skills behind `mode: skill`
+
+The skill-backed workflow swaps selected step instructions for confirmed community skills. Each is referenced by `owner/repo:path` (not vendored into HarnessFlow), and every replaced step keeps an inline fallback so the workflow never blocks if a skill is missing:
+
+| Step it backs | Community skill | Source (stars verified 2026-06-16) |
+|---|---|---|
+| Planning | `writing-plans` (+ optional `brainstorming`) | `obra/superpowers` (229,665★) |
+| Implementation | `executing-plans` + `test-driven-development` | `obra/superpowers` (229,665★) |
+| Debug reproduction & diagnosis | `systematic-debugging` | `obra/superpowers` (229,665★) |
+| Challenge / devil's advocate | `the-fool` | `Jeffallan/claude-skills` (9,938★) |
+| Online research report | `deep-research` | `davila7/claude-code-templates` (28,103★) |
+| Correctness analysis | `code-reviewer` | `Jeffallan/claude-skills` (9,938★) |
+
+A step is replaced **only** when a skill was found with ≥1000 verified stars *and* genuinely fits that step; otherwise the original token-efficient instructions are kept verbatim. See `skills/skill_workflow_skills.md` for the full registry, the alternatives considered, and install/vendor steps.
 
 ## Repo Memory
 

@@ -625,9 +625,9 @@
             </div>
           </div>
           <div class="stat-grid" aria-label="Repository counts">
-            <div class="stat"><strong>6</strong><span>workflow families</span></div>
-            <div class="stat"><strong>48</strong><span>workflow files</span></div>
-            <div class="stat"><strong>20</strong><span>agent files</span></div>
+            <div class="stat"><strong>3</strong><span>workflow families</span></div>
+            <div class="stat"><strong>24</strong><span>workflow files</span></div>
+            <div class="stat"><strong>15</strong><span>agent files</span></div>
             <div class="stat"><strong>8</strong><span>request templates</span></div>
             <div class="stat"><strong>2</strong><span>setup scripts</span></div>
           </div>
@@ -739,24 +739,21 @@
         <section class="section" id="workflows">
           <h2>Workflow Families</h2>
           <p>
-            Every family contains eight workflow files: code, correctness check, debug, exec, initialize, PR, query, and refactor.
+            Three platform-adaptive families &mdash; <code>general</code>, <code>fast</code>, and <code>skill</code> &mdash; each
+            contain eight workflow files: code, correctness check, debug, exec, initialize, PR, query, and refactor.
           </p>
           <div class="grid">
             <div class="tile accent-teal">
               <h3>General (shared)</h3>
-              <p><code>workflow/general_workflow/</code> is one platform-adaptive set used by Claude Code, Codex, and VS Code Copilot (<code>mode: general</code>).</p>
+              <p><code>workflow/general_workflow/</code> is one platform-adaptive set used by Claude Code, Codex, and VS Code Copilot (<code>mode: general</code>) — the thorough multi-agent pipeline.</p>
             </div>
             <div class="tile accent-green">
-              <h3>Claude Code fast</h3>
-              <p><code>workflow/token_effective_workflow/</code> is selected with <code>mode: fast</code> under Claude Code.</p>
+              <h3>Fast (shared)</h3>
+              <p><code>workflow/token_effective_workflow/</code> is the token-efficient set selected by all three tools with <code>mode: fast</code>.</p>
             </div>
             <div class="tile accent-amber">
-              <h3>Codex fast</h3>
-              <p><code>workflow/token_effective_workflow/</code> is selected by Codex prompts with <code>mode: fast</code>.</p>
-            </div>
-            <div class="tile accent-blue">
-              <h3>VS Code fast</h3>
-              <p><code>workflow/token_effective_workflow/</code> is selected by templates with <code>mode: fast</code>.</p>
+              <h3>Skill (shared)</h3>
+              <p><code>workflow/skill_workflow/</code> is selected with <code>mode: skill</code> — a clone of the fast family where selected steps are backed by popular community skills (each verified at ≥1000 GitHub stars), each with an inline fallback.</p>
             </div>
           </div>
 
@@ -765,8 +762,9 @@
               <thead>
                 <tr>
                   <th>Task</th>
-                  <th>General (shared)</th>
-                  <th>Codex fast</th>
+                  <th>General (<code>mode: general</code>)</th>
+                  <th>Fast (<code>mode: fast</code>)</th>
+                  <th>Skill (<code>mode: skill</code>)</th>
                 </tr>
               </thead>
               <tbody>
@@ -774,41 +772,49 @@
                   <td>Initialize</td>
                   <td><code>workflow/general_workflow/initialize.instructions.md</code></td>
                   <td><code>workflow/token_effective_workflow/initialize.instructions.md</code></td>
+                  <td><code>workflow/skill_workflow/initialize.instructions.md</code></td>
                 </tr>
                 <tr>
                   <td>Implement</td>
                   <td><code>workflow/general_workflow/code.instructions.md</code></td>
                   <td><code>workflow/token_effective_workflow/code.instructions.md</code></td>
+                  <td><code>workflow/skill_workflow/code.instructions.md</code></td>
                 </tr>
                 <tr>
                   <td>Debug</td>
                   <td><code>workflow/general_workflow/debug.instructions.md</code></td>
                   <td><code>workflow/token_effective_workflow/debug.instructions.md</code></td>
+                  <td><code>workflow/skill_workflow/debug.instructions.md</code></td>
                 </tr>
                 <tr>
                   <td>Question</td>
                   <td><code>workflow/general_workflow/query.instructions.md</code></td>
                   <td><code>workflow/token_effective_workflow/query.instructions.md</code></td>
+                  <td><code>workflow/skill_workflow/query.instructions.md</code></td>
                 </tr>
                 <tr>
                   <td>Correctness</td>
                   <td><code>workflow/general_workflow/correctness_check.instructions.md</code></td>
                   <td><code>workflow/token_effective_workflow/correctness_check.instructions.md</code></td>
+                  <td><code>workflow/skill_workflow/correctness_check.instructions.md</code></td>
                 </tr>
                 <tr>
                   <td>Refactor</td>
                   <td><code>workflow/general_workflow/refactor.instructions.md</code></td>
                   <td><code>workflow/token_effective_workflow/refactor.instructions.md</code></td>
+                  <td><code>workflow/skill_workflow/refactor.instructions.md</code></td>
                 </tr>
                 <tr>
                   <td>Exec</td>
                   <td><code>workflow/general_workflow/exec.instructions.md</code></td>
                   <td><code>workflow/token_effective_workflow/exec.instructions.md</code></td>
+                  <td><code>workflow/skill_workflow/exec.instructions.md</code></td>
                 </tr>
                 <tr>
                   <td>PR breakdown</td>
                   <td><code>workflow/general_workflow/pr.instructions.md</code></td>
                   <td><code>workflow/token_effective_workflow/pr.instructions.md</code></td>
+                  <td><code>workflow/skill_workflow/pr.instructions.md</code></td>
                 </tr>
               </tbody>
             </table>
@@ -827,12 +833,12 @@
               <li><code>AGENTS.md</code><span>Codex router template for CLI and VS Code.</span></li>
               <li><code>_lib/</code><span>Workflow contract, safety rules, and approval gate.</span></li>
               <li><code>philosophy/</code><span>Shared execution guidance for main agents and subagents.</span></li>
-              <li><code>workflow/</code><span>Workflow instruction families: one shared <code>general</code> set plus per-tool <code>fast</code> sets.</span></li>
+              <li><code>workflow/</code><span>Workflow instruction families: shared <code>general</code>, <code>fast</code> (token-efficient), and <code>skill</code> (community-skill-backed) sets.</span></li>
             </ul>
             <ul class="module-list">
               <li><code>agents/</code><span>Custom coordinator and worker agent definitions.</span></li>
-              <li><code>request_template/</code><span>Structured prompts for general and fast VS Code or Codex workflows.</span></li>
-              <li><code>skills/</code><span>PR breakdown and Claude-native post-implementation skill definitions.</span></li>
+              <li><code>request_template/</code><span>Structured prompts that select <code>general</code>, <code>fast</code>, or <code>skill</code> mode for VS Code or Codex workflows.</span></li>
+              <li><code>skills/</code><span>Vendored skills (PR breakdown, Claude-native post-implementation) plus <code>skill_workflow_skills.md</code>, the community-skill registry for <code>mode: skill</code>.</span></li>
               <li><code>.claude/rules/</code><span>Claude Code path-scoped rule files.</span></li>
               <li><code>setup.sh</code><span>VS Code settings and Copilot instructions setup.</span></li>
               <li><code>cli_setup.sh</code><span>CLI entry-point setup and repo memory bootstrap.</span></li>
@@ -875,31 +881,25 @@ bash .github/HarnessFlow/cli_setup.sh</code></pre>
         <section class="section" id="agents">
           <h2>Agents And Skills</h2>
           <p>
-            Agent definitions separate workflow coordination from focused analysis, implementation, validation, and review.
-            Skills provide reusable specialized procedures.
+            <code>agents/</code> defines <strong>15 worker agents</strong>, orchestrated by the per-category workflow
+            instruction files under <code>workflow/&lt;family&gt;/</code>, which act as the coordinators. Skills provide
+            reusable specialized procedures. See <code>agents/INDEX.md</code> for the complete registry.
           </p>
           <div class="split">
-            <div class="tile accent-blue">
-              <h3>Coordinator agents</h3>
-              <p>Code Workflow, Debug Workflow, Refactor Workflow, Query Workflow, and Correctness Workflow.</p>
-              <div class="badge-row">
-                <span class="badge">Code</span>
-                <span class="badge">Debug</span>
-                <span class="badge">Refactor</span>
-                <span class="badge">Query</span>
-                <span class="badge">Correctness</span>
-              </div>
-            </div>
             <div class="tile accent-green">
               <h3>Worker agents</h3>
-              <p>Focus, Broad, Free, Senior Engineer, QA, Implementer, Online Researcher, and specialized refactor analysts.</p>
+              <p>Focus, Broad, and Free Analyst, Senior and Principal Engineer, Devils Advocate, Online Researcher, Implementer, Executor, QA Engineer, Bug Reproducer, and the refactor specialists (Architecture, Redundancy, Robustness, Complexity).</p>
               <div class="badge-row">
-                <span class="badge">Focus</span>
-                <span class="badge">Broad</span>
-                <span class="badge">Free</span>
-                <span class="badge">QA</span>
+                <span class="badge">Analysts</span>
+                <span class="badge">Senior / Principal</span>
+                <span class="badge">Devils Advocate</span>
                 <span class="badge">Implementer</span>
+                <span class="badge">QA</span>
               </div>
+            </div>
+            <div class="tile accent-blue">
+              <h3>Orchestration</h3>
+              <p>There are no separate coordinator agents &mdash; each <code>*.instructions.md</code> workflow file fans out the analysts, synthesizes one plan, runs the challenge pass, then validates with QA.</p>
             </div>
           </div>
           <div class="grid" style="margin-top: 18px;">
@@ -910,6 +910,10 @@ bash .github/HarnessFlow/cli_setup.sh</code></pre>
             <div class="tile accent-amber">
               <h3>claude-native-skills-subagents</h3>
               <p><code>skills/claude-native-skills-subagents/SKILL.md</code> runs Claude Code-only post-implementation checks.</p>
+            </div>
+            <div class="tile accent-blue">
+              <h3>Community-skill registry</h3>
+              <p><code>skills/skill_workflow_skills.md</code> powers <code>mode: skill</code> &mdash; it catalogs the popular community skills (each verified at &ge;1000 GitHub stars), such as <code>writing-plans</code>, <code>systematic-debugging</code>, <code>the-fool</code>, <code>deep-research</code>, and <code>code-reviewer</code>, that replace selected step instructions in <code>workflow/skill_workflow/</code>, each with an inline fallback.</p>
             </div>
           </div>
         </section>
@@ -946,8 +950,9 @@ bash .github/HarnessFlow/cli_setup.sh</code></pre>
             <div>
               <p>
                 VS Code prompts may use <code>@/.github/HarnessFlow/...</code>. CLI entry points use
-                filesystem-relative paths such as <code>.github/HarnessFlow/workflow/general_workflow/code.instructions.md</code>
-                or <code>.github/HarnessFlow/workflow/token_effective_workflow/code.instructions.md</code>.
+                filesystem-relative paths such as <code>.github/HarnessFlow/workflow/general_workflow/code.instructions.md</code>,
+                <code>.github/HarnessFlow/workflow/token_effective_workflow/code.instructions.md</code>,
+                or <code>.github/HarnessFlow/workflow/skill_workflow/code.instructions.md</code>.
               </p>
               <div class="note">
                 Root <code>AGENTS.md</code> and <code>CLAUDE.md</code> in this source repo are templates for installed target repos.
