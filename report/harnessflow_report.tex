@@ -10,18 +10,16 @@
 \usepackage{pifont}
 \usepackage{xcolor}
 \usepackage{tikz}
-\usetikzlibrary{positioning,arrows.meta,fit,backgrounds}
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.16}
 
 \newcommand{\theHalgorithm}{\arabic{algorithm}}
 
-% Camera-ready style so author block renders (this is a tech report, not a blind submission).
+% Camera-ready style so the author block renders (this is a tech report).
 \usepackage[accepted]{icml2024}
 
 \icmltitlerunning{HarnessFlow and MiHaCoBench}
 
-% palette
 \definecolor{hfblue}{HTML}{1F4E79}
 \definecolor{hfteal}{HTML}{2A7D7B}
 \definecolor{hfamber}{HTML}{B5651D}
@@ -33,8 +31,6 @@
 \icmltitle{HarnessFlow and MiHaCoBench: A Portable Multi-Agent Workflow Pack\\
            for AI Coding Assistants and a Harness-Level Benchmark}
 
-\icmlsetsymbol{equal}{*}
-
 \begin{icmlauthorlist}
 \icmlauthor{Hang Yu}{hf}
 \end{icmlauthorlist}
@@ -44,30 +40,39 @@
 
 \icmlkeywords{LLM agents, coding agents, agentic workflows, benchmarking, software engineering}
 
-\vskip 0.3in
+\vskip 0.22in
+\centerline{\includegraphics[width=\textwidth]{teaser.pdf}}
+\vskip 0.05in
+\refstepcounter{figure}\label{fig:teaser}
+{\small \textbf{Figure \thefigure.} \textit{HarnessFlow at a glance.} \textbf{(a)}~A plain-language request, with an optional \texttt{mode} marker, is classified into one of eight task types and routed to the matching workflow. \textbf{(b)}~That workflow runs as a multi-agent pipeline---parallel analysts, a synthesized plan, a Devil's Advocate and an Online Researcher, an opt-in human gate, implementation, a Senior\,+\,QA verification pass, and a write-back to persistent repository memory. \textbf{(c)}~The intuition: for a \emph{fixed} model, structure rather than scale yields a checked result, and the three modes trade thoroughness against token cost. Token figures are from two case studies (\S\ref{sec:benefits}), a single run per arm---preliminary, not a powered benchmark.}
+\vskip 0.20in
 ]
 
 \printAffiliationsAndNotice{}
 
 \begin{abstract}
-Modern AI coding assistants are powerful but \emph{one-shot}: given a request they
-edit code immediately, with no structured analysis, no self-criticism, no
-validation, and no memory across requests. We present \textbf{HarnessFlow}, a
-portable Markdown instruction pack---no runtime, no build step---that turns any
-compatible assistant (Claude Code, Codex, VS Code + Copilot) into a disciplined
-multi-agent system: it classifies each request into one of eight categories,
-fans out parallel analysis agents, challenges its own plan, validates with a QA
-pass, and records what it learned to persistent repository memory. HarnessFlow
-ships every workflow in three modes---\textsc{general} (thorough),
-\textsc{fast} (token-efficient), and \textsc{skill} (community-skill-backed)---so
-users trade thoroughness against cost explicitly. On two independent benchmarks
-the \textsc{fast} mode reaches the same successful outcome as \textsc{general}
-while spending only $39$--$50\%$ of the tokens and shipping the leanest
-fully-documented code. To measure these effects rigorously we also built
+Modern AI coding assistants are powerful but typically \emph{one-shot}: given a
+request they edit code immediately, with no structured analysis, no
+self-criticism, no validation, and no memory across requests. We present
+\textbf{HarnessFlow}, a portable Markdown instruction pack---no runtime, no build
+step---that turns a compatible assistant (Claude Code, Codex, VS~Code~+~Copilot)
+into a disciplined multi-agent system (evaluated here on Claude Code only): by
+design it classifies each request into one of eight categories, fans out parallel
+analysis agents, challenges its own plan, validates with a QA pass, and records
+what it learned to persistent repository memory. The structure is motivated by evidence that how an LLM's work
+is organized---chain-of-thought, self-critique, multi-agent debate, and role
+specialization---changes its outputs for a fixed model
+\citep{wei2022chain,madaan2023selfrefine,du2023debate,hong2024metagpt}.
+HarnessFlow ships every workflow in three modes---\textsc{general} (thorough),
+\textsc{fast} (token-efficient), and \textsc{skill} (community-skill-backed). In
+two case studies, with the model held fixed, the \textsc{fast} mode reached the
+same successful outcome as \textsc{general} while spending only $39$--$50\%$ of
+the tokens; we report these as preliminary, single-instance demonstrations, not
+statistically validated results. To make such effects measurable we also built
 \textbf{MiHaCoBench}, a Python benchmark that scores the \emph{harness} rather
 than the model: it holds the model fixed across arms, enforces grader integrity
-as its own correctness test, isolates each task to its specification, and targets
-the failure frontier where pipelines actually diverge.
+as its own correctness test, isolates each task to its specification, and---by
+design---targets a failure frontier where pipelines may diverge.
 \end{abstract}
 
 \section{Why a Harness?}
@@ -77,28 +82,48 @@ The capability of large language models on code has advanced faster than the
 \emph{process} wrapped around them. Left to their defaults, today's coding
 assistants behave like an over-eager junior engineer: they read the prompt and
 start editing, skipping the steps a careful practitioner takes---surveying the
-codebase, weighing alternatives, stress-testing assumptions, verifying the result,
-and remembering context for next time. The model may be excellent; the
-\emph{harness} around it is thin. This gap is increasingly the bottleneck: the
-same model produces markedly different outcomes depending on how its work is
-structured \citep{yang2024sweagent,jimenez2024swebench}.
+codebase, weighing alternatives, stress-testing assumptions, verifying the
+result, and remembering context for next time. A growing body of work indicates
+the model is often not the binding constraint: structured reasoning
+\citep{wei2022chain,wang2023selfconsistency}, reasoning interleaved with actions
+\citep{yao2023react}, iterative self-critique \citep{madaan2023selfrefine,
+shinn2023reflexion}, and role-specialized multi-agent collaboration
+\citep{hong2024metagpt,qian2024chatdev,wu2023autogen} all change outcomes for a
+\emph{fixed} model, and on real software tasks the surrounding agent scaffold can
+substantially affect outcomes \citep{yang2024sweagent}.
 
-\textbf{HarnessFlow} closes this gap as a \emph{drop-in instruction pack}: no
-runtime, no \texttt{npm install}, no build step---only Markdown. Copied into a
-repository, it gives any compatible assistant a structured workflow for
-\emph{every} request: \emph{classify} the prompt, \emph{route} it to a real
-multi-step workflow, \emph{analyze} the code from several angles in parallel,
-\emph{challenge} the plan, \emph{validate} the implementation, and \emph{record}
-the outcome to repository memory so later requests start with real context. The
-same pack runs unmodified on three host tools, so a team standardizes its review
-discipline once regardless of which assistant each developer prefers.
+\textbf{HarnessFlow} packages this discipline as a \emph{drop-in instruction
+pack}: no runtime, no \texttt{npm install}, no build step---only Markdown. Copied
+into a repository, it gives a compatible assistant a structured workflow for
+\emph{every} request (Figure~\ref{fig:teaser}): \emph{classify} the prompt,
+\emph{route} it to a real multi-step workflow, \emph{analyze} the code from
+several angles in parallel, \emph{challenge} the plan, \emph{validate} the
+implementation, and \emph{record} the outcome to repository memory so later
+requests start with real context. The pack is designed to run unmodified on three
+host tools (Claude Code, Codex, and Copilot); the evaluation in this report was
+conducted on Claude Code only.
 
-This report contributes HarnessFlow's architecture and multi-agent pipeline
-(\S\ref{sec:arch}); its three workflow modes and the thoroughness--cost trade-off
-they expose, including a benchmark where \textsc{fast} matches \textsc{general} at
-half the token budget (\S\ref{sec:modes}--\S\ref{sec:benefits}); and MiHaCoBench,
-the instrument we built to evaluate harnesses rather than models
-(\S\ref{sec:bench}).
+\noindent\textbf{Contributions.}
+\begin{itemize}\setlength{\itemsep}{1.5pt}\setlength{\parskip}{0pt}\itemsep1.5pt
+\item \textbf{A portable, runtime-free coding harness.} Unlike standalone
+multi-agent frameworks (MetaGPT, ChatDev, AutoGen) and bespoke agent scaffolds
+(SWE-agent), HarnessFlow ships \emph{no runtime}---an open Markdown pack that
+routes any request into a multi-agent workflow (classify $\to$ analyze $\to$
+challenge $\to$ gate $\to$ implement $\to$ verify $\to$ remember), interpreted
+unmodified by three host tools (\S\ref{sec:arch}).
+\item \textbf{Three cost--thoroughness modes.} \textsc{general}, \textsc{fast},
+and \textsc{skill} variants of every workflow, exposing an explicit dial instead
+of one fixed pipeline (\S\ref{sec:modes}).
+\item \textbf{A harness-level benchmark.} MiHaCoBench scores the \emph{pipeline},
+not the model, with grader-integrity self-checks, spec-only isolation, and
+failure-frontier tasks (\S\ref{sec:bench}).
+\item \textbf{Preliminary evidence.} Two case studies in which \textsc{fast}
+matched \textsc{general}'s outcome at ${\sim}2\times$ lower token cost, reported
+with their $n{=}1$--$2$ limitations (\S\ref{sec:benefits}).
+\item \textbf{A testable hypothesis.} From exploratory runs we hypothesize that
+\emph{well-specified} tasks under-discriminate harnesses, so separating them
+requires failure-frontier tasks (\S\ref{sec:bench}).
+\end{itemize}
 
 \section{HarnessFlow Architecture}
 \label{sec:arch}
@@ -108,10 +133,9 @@ HarnessFlow is five cooperating pieces of Markdown. (1)~A per-platform
 \texttt{copilot-instructions.md}) classifies each prompt. (2)~Three
 \emph{workflow families} under \texttt{workflow/} hold eight category instruction
 files each. (3)~Fifteen \emph{worker subagents} under \texttt{agents/} provide the
-roles the workflows orchestrate. (4)~A shared \emph{workflow contract}
-(\texttt{\_lib/workflow\_contract.md}) fixes cross-cutting rules. (5)~A
-\emph{philosophy} document encodes the behavioral core. Persistent
-\emph{repository memory} lives under \texttt{repo\_info/}.
+roles the workflows orchestrate. (4)~A shared \emph{workflow contract} fixes
+cross-cutting rules. (5)~A \emph{philosophy} document encodes the behavioral core.
+Persistent \emph{repository memory} lives under \texttt{repo\_info/}.
 
 \textbf{Routing.} The router reads the prompt and selects exactly one of eight
 categories---\emph{Code}, \emph{Refactor}, \emph{Debug}, \emph{Query},
@@ -121,56 +145,36 @@ explicit \texttt{mode:} marker (or its absence) selects one of three families.
 The router then reads the matching \texttt{<category>.instructions.md} file in
 full and follows it step-by-step; multiple intents are handled sequentially.
 
-\textbf{The pipeline.} Figure~\ref{fig:pipeline} shows the \textsc{general}
+\textbf{The pipeline.} Figure~\ref{fig:teaser}(b) shows the \textsc{general}
 \emph{Code} workflow, representative of the mutating workflows. The main agent
 condenses repository memory into a context digest, then launches three analysts
-in parallel---\emph{Focus} (only the most relevant files), \emph{Broad} (the whole
-pipeline upstream to downstream), and \emph{Free} (its own judgment). A Senior
-Engineer reconciles their plans; the main agent synthesizes a final plan; a
-\emph{Devil's Advocate} attacks it for regressions while an \emph{Online
+in parallel---\emph{Focus} (only the most relevant files), \emph{Broad} (the
+whole pipeline upstream to downstream), and \emph{Free} (its own judgment). A
+Senior Engineer reconciles their plans; the main agent synthesizes a final plan;
+a \emph{Devil's Advocate} attacks it for regressions while an \emph{Online
 Researcher} checks live sources. After an opt-in approval gate, an Implementer
-writes the code, and a parallel Senior + QA pass verifies it before the outcome is
-written back to memory. The \emph{Refactor} workflow widens the fan-out to six
+writes the code, and a parallel Senior\,+\,QA pass verifies it before the outcome
+is written back to memory. The \emph{Refactor} workflow widens the fan-out to six
 specialist analysts reviewed by a Principal Engineer.
 
+\textbf{Why these roles.} The separate \emph{Devil's Advocate} and \emph{QA}
+stages are deliberate: iterative self-critique and multi-agent debate can improve
+an LLM's outputs \citep{madaan2023selfrefine,shinn2023reflexion,du2023debate},
+but intrinsic self-correction \emph{without} an external signal is unreliable and
+can even degrade quality \citep{huang2024selfcorrect,olausson2024selfrepair}.
+HarnessFlow therefore pairs critique with executable checks---a QA pass that can
+run the code---following the execution-grounded self-debugging recipe
+\citep{chen2023selfdebug}.
+
 \textbf{Cross-cutting guarantees.} The contract enforces \emph{model parity}
-(subagents must never downgrade from the orchestrator's model, so quality is not
-silently lost in a sub-call), a \emph{two-mode approval gate} (autonomous by
+(subagents must not downgrade from the orchestrator's model, to avoid silently
+losing quality in a sub-call), a \emph{two-mode approval gate} (autonomous by
 default; opt-in plan-only review triggered by phrases like ``plan only'' or ``no
 file changes''), and universal safety rules (never commit to GitHub, never write
 spam files, never use \texttt{sudo}). The philosophy document embeds four
 guidelines---\emph{Think Before Coding}, \emph{Simplicity First}, \emph{Surgical
-Changes}, and \emph{Goal-Driven Execution}---so that, by construction, every
-changed line traces to the request.
-
-\begin{figure}[t]
-\centering
-\begin{tikzpicture}[
-  node distance=1.25mm and 0mm,
-  box/.style={draw=hfblue, fill=hfgray, rounded corners=2pt, align=center,
-              text width=0.80\columnwidth, inner sep=2.4pt, font=\scriptsize},
-  hot/.style={box, draw=hfamber, fill=hfamber!12},
-  gate/.style={box, draw=hfteal, fill=hfteal!12, font=\scriptsize\bfseries},
-  arr/.style={-{Latex[length=1.6mm]}, hfblue, thick}
-]
-\node[box] (route) {\textbf{1. Classify \& Route} \,/\, load \texttt{repo\_info/} memory};
-\node[hot, below=of route] (analyst) {\textbf{2. Parallel analysts}\\ Focus \;\textbar\; Broad \;\textbar\; Free};
-\node[box, below=of analyst] (senior) {\textbf{3. Senior Engineer} synthesis $\rightarrow$ final plan};
-\node[hot, below=of senior] (challenge) {\textbf{4. Devil's Advocate} + \textbf{Online Researcher}};
-\node[gate, below=of challenge] (gate) {5. Approval gate (opt-in)};
-\node[box, below=of gate] (impl) {\textbf{6. Implementer} writes code};
-\node[hot, below=of impl] (qa) {\textbf{7. Senior + QA} verify \;/\; \texttt{/simplify}};
-\node[box, below=of qa] (mem) {\textbf{8. Update memory} + structured log};
-\foreach \a/\b in {route/analyst, analyst/senior, senior/challenge,
-                   challenge/gate, gate/impl, impl/qa, qa/mem}
-  \draw[arr] (\a) -- (\b);
-\end{tikzpicture}
-\caption{The \textsc{general} \emph{Code} pipeline. Amber stages spawn parallel
-subagents. \textsc{fast} executes stages 2--3 inline in the main agent and keeps
-a single subagent step at stage~4; \textsc{skill} additionally swaps community
-skills into planning, implementation, challenge, and review.}
-\label{fig:pipeline}
-\end{figure}
+Changes}, and \emph{Goal-Driven Execution}---so the workflow encourages every
+changed line to trace back to the request.
 
 \section{Three Workflows, One Pack}
 \label{sec:modes}
@@ -182,7 +186,7 @@ but differ in how much machinery they spend (Table~\ref{tab:modes}).
 \textbf{\textsc{general} (\texttt{mode: general}, the default).} The thorough
 variant with the widest fan-out: three to six dedicated planning analysts, a
 Senior or Principal Engineer plan review, a Devil's Advocate / Online Researcher
-critique pair, and a \emph{separate} Senior + QA verification stage that can run
+critique pair, and a \emph{separate} Senior\,+\,QA verification stage that can run
 the full pipeline end-to-end. Use it when correctness and breadth dominate cost.
 
 \textbf{\textsc{fast} (\texttt{mode: fast}).} The token-efficient twin. It folds
@@ -192,17 +196,18 @@ subagents in exactly one step---the Devil's Advocate + Online Researcher
 challenge. Verification becomes a structured self-review (``assume every change
 is wrong and explain why'') plus native review skills and a single remediation
 pass. The instruction files are roughly half the size of their \textsc{general}
-counterparts, and---crucially---the empirical outcome is unchanged
+counterparts, and in our two case studies the resulting outcome was unchanged
 (\S\ref{sec:benefits}).
 
 \textbf{\textsc{skill} (\texttt{mode: skill}).} The \textsc{fast} pipeline with
 eligible steps---planning, implementation, debugging, challenge, research,
 correctness---delegated to confirmed community skills, each verified at
-$\geq\!1000$ GitHub stars (e.g.\ \texttt{writing-plans} and
-\texttt{systematic-debugging} from a $229{,}665$-star collection) and kept behind
-an \emph{inline fallback} so the workflow never blocks if a skill is absent. A
-team rides battle-tested external tooling for generic steps while keeping
-HarnessFlow's structure, gates, and memory intact.
+$\geq\!1000$ GitHub stars (checked 2026-06-16; e.g.\ \texttt{writing-plans} and
+\texttt{systematic-debugging} from the \texttt{obra/superpowers} collection,
+${\sim}230\mathrm{k}$ stars) and kept behind an \emph{inline fallback} so the
+workflow never blocks
+if a skill is absent. A team rides battle-tested external tooling for generic
+steps while keeping HarnessFlow's structure, gates, and memory intact.
 
 \begin{table}[t]
 \caption{The three workflow modes. ``Subagent spawns'' counts the dedicated
@@ -221,28 +226,37 @@ Subagent spawns (Code) & $\sim$8     & 2           & 2$^{\dagger}$\\
 Review stage           & Senior+QA   & self/native & skill/native\\
 Approval gate          & opt-in      & opt-in      & opt-in\\
 Repo memory            & yes         & yes         & yes\\
-Relative token cost    & $1.0\times$ & $0.4$--$0.5\times$ & $\approx$\,fast\\
+Relative token cost$^{\ddagger}$ & $1.0\times$ & $0.4$--$0.5\times$ & $\approx$\,fast$^{\S}$\\
 \bottomrule
 \end{tabular}
 \end{small}
 \end{center}
-$^{\dagger}$\,\textsc{skill} mirrors \textsc{fast}'s structure but routes
-eligible steps to community skills with inline fallbacks.
+{\footnotesize $^{\dagger}$\,\textsc{skill} mirrors \textsc{fast}'s structure,
+routing eligible steps to community skills with inline fallbacks.
+$^{\ddagger}$\,Observed in two case studies (\S\ref{sec:benefits}); illustrative,
+not a calibrated average. $^{\S}$\,Expected by design; not measured.}
 \vskip -0.15in
 \end{table}
 
 \section{What Users Get}
 \label{sec:benefits}
 
-The headline benefit is that \emph{thoroughness becomes a dial, not a gamble}.
-We measured the trade-off on two independent benchmarks with the \emph{model held
+\emph{Scope of evidence.} All quantitative comparisons below come from one
+greenfield build (``ShapeLab'') and one SWE-bench task
+(\texttt{sympy\_\_sympy-24213}), at a fixed model, with a single run per arm. They
+are preliminary demonstrations meant to illustrate the cost--thoroughness
+trade-off, not statistically validated results.
+
+The intended benefit is that \emph{thoroughness becomes a dial, not a gamble}. We
+examined the trade-off in these two case studies with the \emph{model held
 constant} (Sonnet-class subagents, Opus-class orchestrator) so the comparison
-isolates the harness, not the model: a $1{,}000$-line greenfield OpenCV +
-scikit-learn build (``ShapeLab''), and a real SWE-bench bug fix
-(\texttt{sympy\_\_sympy-24213}). Across both, \textsc{fast} reached the
-\emph{same successful outcome} as \textsc{general} while spending only
-$39$--$50\%$ of the tokens (Figure~\ref{fig:tokens}) and, on ShapeLab, shipped the
-leanest fully-documented code of any arm (Table~\ref{tab:quality}).
+isolates the harness, not the model: a single ${\sim}1{,}000$-line greenfield
+OpenCV~+~scikit-learn build, and a single real SWE-bench bug fix. In both cases,
+\textsc{fast} reached the same successful outcome as \textsc{general} while
+spending only $39$--$50\%$ of the tokens (Figure~\ref{fig:tokens}), and in the
+single ShapeLab build it produced the leanest fully-documented code among the
+three arms tested (Table~\ref{tab:quality}). With only two tasks, these are
+illustrative rather than conclusive.
 
 \begin{figure}[t]
 \centering
@@ -265,26 +279,30 @@ leanest fully-documented code of any arm (Table~\ref{tab:quality}).
 \legend{\textsc{fast}, \textsc{general}}
 \end{axis}
 \end{tikzpicture}
-\caption{Token cost at \emph{identical} outcomes. \textsc{fast} reaches the same
-resolved/verified result as \textsc{general} at $2.0$--$2.6\times$ lower cost.}
+\caption{Token cost in two case studies where \textsc{fast} reached the same
+resolved/verified result as \textsc{general}, at $2.0$--$2.6\times$ lower cost.
+Single run per arm; no variance is reported. The no-harness baseline is
+omitted---it is cheaper still but does not reach the verified outcome
+(Table~\ref{tab:quality}).}
 \label{fig:tokens}
 \end{figure}
 
 \begin{table}[t]
-\caption{Quality at equal outcome (ShapeLab build; SWE-bench fix verified). The
-baseline is the same model with no harness.}
+\caption{Quality metrics from the single ShapeLab build (the last row is the
+single SWE-bench fix). The baseline is the same model with no harness; one run
+per arm, no variance.}
 \label{tab:quality}
 \vskip 0.05in
 \begin{center}
 \begin{small}
 \begin{tabular}{lccc}
 \toprule
-Metric & baseline & \textsc{fast} & \textsc{general}\\
+Metric ($n{=}1$) & baseline & \textsc{fast} & \textsc{general}\\
 \midrule
-Code lines (AST)        & 1{,}225 & \textbf{860} & 1{,}173\\
-Docstring coverage      & 96.3\%  & \textbf{100\%} & 100\%\\
-Contract tests passed   & 7/10    & \textbf{10/10} & 10/10\\
-Self-verified pre-ship  & none    & \textbf{32 green} & yes\\
+Code lines (AST)        & 1{,}225 & 860 & 1{,}173\\
+Docstring coverage      & 96.3\%  & 100\% & 100\%\\
+Contract tests passed   & 7/10    & 10/10 & 10/10\\
+Self-verified pre-ship  & none    & 32 green & yes\\
 SWE canonical fix       & \ding{55} & \checkmark & \checkmark\\
 \bottomrule
 \end{tabular}
@@ -293,14 +311,17 @@ SWE canonical fix       & \ding{55} & \checkmark & \checkmark\\
 \vskip -0.15in
 \end{table}
 
-Beyond cost, the pack pays off in three ways. \emph{Portability:} one
-instruction pack standardizes review discipline across Claude Code, Codex, and
-Copilot. \emph{Quality under self-criticism:} the no-harness baseline produced a
-non-canonical, unverified SWE-bench patch and passed only $7/10$ contract tests,
-whereas both harnessed modes produced the exact canonical fix, verified, at
-$10/10$. \emph{Memory and safety:} outcomes persist to \texttt{repo\_info/} so the
-next request starts informed, while opt-in plan review and hard prohibitions on
-commits, spam files, and \texttt{sudo} keep autonomy bounded.
+Beyond cost, the pack is intended to pay off in three ways. \emph{Portability:}
+one instruction pack is designed to standardize review discipline across Claude
+Code, Codex, and Copilot (evaluated here on Claude Code only).
+\emph{Quality under self-criticism:} in the single SWE-bench task the no-harness
+baseline produced a non-canonical, unverified patch while both harnessed modes
+produced the canonical fix; in the single ShapeLab build the baseline passed
+$7/10$ contract tests versus $10/10$ for the harnessed modes---consistent with,
+though far smaller than, the literature on execution-grounded checking
+\citep{chen2023selfdebug}. \emph{Memory and safety:} outcomes persist to
+\texttt{repo\_info/} so the next request starts informed, while opt-in plan
+review and bans on commits and \texttt{sudo} keep autonomy bounded.
 
 \section{MiHaCoBench: Scoring the Harness}
 \label{sec:bench}
@@ -310,23 +331,25 @@ Building HarnessFlow surfaced a measurement problem: standard code benchmarks
 in isolation, but a harness contributes prompt handling, multi-step planning,
 tool use, and long-horizon consistency that those benchmarks never exercise. We
 therefore built \textbf{MiHaCoBench}, both the development test bench for
-HarnessFlow and a standalone instrument for evaluating \emph{any} coding pipeline.
-Its design draws on SWE-bench, BigCodeBench, and LiveCodeBench
-\citep{jimenez2024swebench,zhuo2024bigcodebench,jain2024livecodebench}. Four
-properties distinguish it.
+HarnessFlow and a standalone instrument intended for evaluating other coding
+pipelines (so far exercised only on HarnessFlow's own arms). Its design draws on
+SWE-bench, BigCodeBench, LiveCodeBench, ClassEval, and DS-1000
+\citep{jimenez2024swebench,zhuo2024bigcodebench,jain2024livecodebench,du2023classeval,lai2023ds1000}.
+Four properties distinguish it.
 
-\textbf{1. It scores the harness, not the model.} Every arm---no-harness
-baseline, \textsc{fast}, \textsc{skill}, \textsc{general}---runs the same tasks at
-the \emph{same} model with verified parity, so a score delta is attributable to
-\emph{process}, not capability.
+\textbf{1. It scores the harness, not the model.} Any arm---no-harness baseline,
+\textsc{fast}, \textsc{skill}, or \textsc{general}---can be run over the same
+tasks at the \emph{same} model with verified parity, so that score deltas are
+\emph{intended} to be attributable to process rather than capability; with single
+runs, observed deltas may also reflect run-to-run variance.
 
 \textbf{2. Grader integrity is its own test.} Borrowing SWE-bench's
-\textsc{fail\_to\_pass} / \textsc{pass\_to\_pass} discipline, each task ships a
-hidden \emph{gold} reference the grader must accept and a deliberately
-\emph{broken} reference it must reject. The default \texttt{--self-check} mode
-proves all $69$ graders valid (gold passes, broken fails) \emph{before} any
-candidate is scored; graders test only the public contract, so a harness cannot
-be rewarded for matching an internal layout.
+\textsc{fail\_to\_pass} / \textsc{pass\_to\_pass} discipline
+\citep{jimenez2024swebench}, each task ships a hidden \emph{gold} reference the
+grader must accept and a deliberately \emph{broken} reference it must reject. The
+default \texttt{--self-check} mode verifies all $69$ graders valid (gold passes,
+broken fails) \emph{before} any candidate is scored; graders test only the public
+contract, so a harness cannot be rewarded for matching an internal layout.
 
 \textbf{3. Spec-only isolation and contamination control.} The scaffolder copies
 \emph{only} each task's \texttt{TASK.md} (plus committed inputs) into an external
@@ -334,37 +357,112 @@ workspace and refuses any target inside the repository, so an agent never sees
 graders, references, or sibling tasks. Reproducibility is pinned: Python 3.11.5,
 committed datasets, fixed seeds, \texttt{PYTHONHASHSEED=0}. Contamination is
 resisted with domain-specific entry-point names, twisted classics, and a dated
-\texttt{TASK.md} per task for temporal filtering.
+\texttt{TASK.md} per task for temporal filtering, in the spirit of
+contamination-free evaluation \citep{jain2024livecodebench}.
 
-\textbf{4. A failure-frontier task design.} The suite is $69$ tasks across ten
-\emph{weighted} categories (easy$=1$ up to competitive$=8$), so a harness cannot
-inflate its score by acing only the easy ones. Crucially, MiHaCoBench
-\emph{discovered} that well-specified tasks under-discriminate: a careful frontier
-model reads the spec and one-shots them, and the arms tie. The suite therefore
-targets the regime where single shots fail---hard complexity gates that physically
-time out wrong-complexity solutions, multi-file fault localization, statistical
-surface-form twists where the memorized answer is wrong, and long state cascades.
-This finding is itself the contribution: \emph{separating harnesses requires
-failure-frontier tasks, not merely well-specified ones.}
+\textbf{4. A failure-frontier task design.} The curated suite is $69$ weighted
+tasks at the time of these runs (the live suite has since grown) across ten
+populated categories (an eleventh is reserved), weighted from easy$=1$ to
+competitive$=8$ so a harness cannot inflate its score by acing only the easy
+ones. In exploratory
+single-run comparisons we observed that well-specified tasks under-discriminate:
+a careful frontier model reads the spec and one-shots them, and the arms tie. The
+suite therefore targets the regime where single shots fail---hard complexity
+gates that physically time out wrong-complexity solutions (a regime where models
+are known to struggle \citep{chambon2025bigobench}), multi-file fault
+localization, statistical surface-form twists where the memorized answer is
+wrong, and long state cascades. Based on these preliminary observations we
+\emph{hypothesize} that separating harnesses requires failure-frontier tasks, not
+merely well-specified ones.
 
 \textbf{What we observe.} Exploratory single-run ($n{=}1$) comparisons on a
-$79$-task superset bear this out: the arms tie on the large majority of tasks
-($72/79$), and the few that discriminate---e.g.\ a boundary-ambiguity pagination
-task that splits the no-harness baseline from the harnessed arms---are exactly the
-failure-frontier items the design targets. We report these as directional, not
-statistically significant; their value is in showing that the \emph{instrument}
-localizes where harnesses diverge---precisely what a development test bench must
-do.
+$79$-task superset, with three arms (no-harness, \textsc{fast}, \textsc{skill};
+\textsc{general} was not run here), partially bear this out: the arms tie on the
+large majority of tasks ($72/79$), and the few that discriminate are exactly the
+failure-frontier items the design targets. Tellingly, the discrimination cuts
+\emph{against} a naive ``more process is better'' prior. On
+\texttt{cb08\_cursor\_paginate}---a boundary/tie-break trap---the lighter
+\textsc{fast} pipeline shipped a wrong variant ($0.44$) while \emph{both} the
+no-harness baseline and the heavier \textsc{skill} arm solved it ($1.00$); and
+overall on this single run the no-harness baseline ($76/79$) edged out
+\textsc{fast} ($75/79$), with only \textsc{skill} ($78/79$) clearly ahead. We
+report these as directional, not statistically significant; their value is in
+showing that the \emph{instrument} can localize where harnesses diverge---and even
+flag harness \emph{regressions}, not only gains.
+
+\section{Related Work}
+
+\textbf{Multi-agent coding systems.} MetaGPT \citep{hong2024metagpt}, ChatDev
+\citep{qian2024chatdev}, and AutoGen \citep{wu2023autogen} are standalone Python
+frameworks: each ships its own runtime, agent classes, and orchestration loop,
+and an adopter installs and runs that system; SWE-agent \citep{yang2024sweagent}
+pairs a model with a bespoke agent--computer interface. HarnessFlow occupies a
+different point in the design space---it carries \emph{no runtime and no code}. It
+is a portable Markdown instruction pack copied into a repository and interpreted
+by whichever assistant the team already uses, turning that host into a
+router-driven, multi-mode, repository-memory-equipped pipeline. The contribution
+is thus not a new agent runtime but a host-agnostic, version-controllable
+\emph{specification} of disciplined process. \textbf{Reasoning and self-critique.}
+HarnessFlow composes established techniques into roles---chain-of-thought
+\citep{wei2022chain,wang2023selfconsistency}, reason--act \citep{yao2023react},
+self-refinement \citep{madaan2023selfrefine,shinn2023reflexion}, and debate
+\citep{du2023debate}---and, because intrinsic self-correction is unreliable
+without an external signal \citep{huang2024selfcorrect,olausson2024selfrepair},
+grounds them in executable QA \citep{chen2023selfdebug}. \textbf{Benchmarks.}
+Standard suites score a model \citep{chen2021codex,austin2021mbpp,jain2024livecodebench};
+MiHaCoBench instead scores the harness (\S\ref{sec:bench}).
+
+\section{Limitations}
+
+Our evidence is preliminary. \emph{(i)~Sample size:} all quantitative comparisons
+rest on two case studies (one greenfield build, one SWE-bench fix) with a single
+run per arm; we report no variance and run no significance tests, so the token and
+quality gaps are directional. \emph{(ii)~Single host:} although HarnessFlow is
+designed for Claude Code, Codex, and Copilot, every result here is from Claude
+Code only---cross-host portability is asserted by design, not demonstrated.
+\emph{(iii)~Benchmark coverage:} MiHaCoBench has so far been exercised only on
+HarnessFlow's own arms with $n{=}1$ runs, and (\S\ref{sec:bench}) one of those
+runs surfaced a \emph{regression}---\textsc{fast} underperforming the no-harness
+baseline---so its discriminative power is shown anecdotally, not established
+statistically. Tables~\ref{tab:modes} and~\ref{tab:quality} are illustrative
+single instances.
 
 \section{Conclusion}
 
-Much of the value left on the table by AI coding assistants is recoverable with
-\emph{process}, not a bigger model. HarnessFlow turns a one-shot tool into a
-disciplined collaborator---classify, analyze in parallel, self-challenge,
-validate, remember---with three modes that price thoroughness explicitly
-(\textsc{fast} matching \textsc{general} at half the cost). MiHaCoBench makes the
-claim testable by scoring the pipeline, not the model, on the failure frontier
-where pipelines diverge. Build the harness; measure the harness.
+Our case studies suggest that some of the value left on the table by AI coding
+assistants may be recoverable with \emph{process} rather than a bigger model.
+HarnessFlow turns a one-shot tool into a more disciplined collaborator---classify,
+analyze in parallel, self-challenge, validate, remember---with three modes that
+price thoroughness explicitly (\textsc{fast} matched \textsc{general} at roughly
+half the cost in two case studies). MiHaCoBench is designed to make such claims
+testable by scoring the pipeline, not the model; in preliminary runs it localized
+failure-frontier tasks where the arms diverged---in one case flagging a
+\emph{regression} (\textsc{fast} below the no-harness baseline), exactly the
+signal such an instrument should expose. Together they form a development
+loop---build the harness, measure the harness---that we believe is the right
+granularity for the agentic-coding era. The open questions are scale and rigor:
+powering the comparisons beyond $n{=}1$--$2$, testing portability on Codex and
+Copilot, and growing the failure-frontier suite.
+
+\section*{Impact Statement}
+
+HarnessFlow structures how AI coding assistants operate, and MiHaCoBench evaluates
+such harnesses. The intended impact is more reliable, reviewable, and reproducible
+AI-assisted software development---adding analysis, self-criticism, and
+verification to otherwise one-shot tools, and enabling measurement of process
+rather than model capability. As with any system that raises the autonomy of
+code-writing agents, there is a risk that added fluency leads practitioners to
+over-trust generated code; HarnessFlow mitigates this with executable QA checks, an
+opt-in human approval gate, and safety rules that forbid committing to remotes and
+using elevated privileges. We do not anticipate societal consequences beyond those
+generally associated with AI-assisted programming.
+
+\section*{Software and Data}
+
+HarnessFlow (the instruction pack) and MiHaCoBench (the benchmark, its
+grader-integrity self-check, and the scaffolder) are released as open artifacts.
+The benchmark pins Python~3.11.5, committed datasets, fixed seeds, and
+\texttt{PYTHONHASHSEED=0} for reproducibility.
 
 \bibliography{references}
 \bibliographystyle{icml2024}

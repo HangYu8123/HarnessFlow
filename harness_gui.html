@@ -198,41 +198,35 @@
 "use strict";
 
 // --- Per-category metadata: display label, instructions stem, routing keywords,
-//     explicit input-field labels (NOT heuristic colon-parsing), debug reproduce flag.
+//     debug reproduce flag. Input-field boxes are NOT listed here — they are
+//     derived from each template's "<label>:" slots (see deriveFields), so the
+//     number of boxes always tracks the template (two slots -> two boxes, etc.).
 // id doubles as the instructions-file stem and the embedded-template key.
 var CATEGORIES = [
   {id:"code", label:"Code",
    desc:"Implement / add / build a new feature.",
-   kw:"implement, add, create, build, update, modify, write code, new feature",
-   fields:["New functionalities descriptions"]},
+   kw:"implement, add, create, build, update, modify, write code, new feature"},
   {id:"debug", label:"Debug", hasReproduce:true,
    desc:"Fix a bug, error, crash, or failing behavior.",
-   kw:"debug, fix, error, bug, crash, broken, failing, traceback, exception",
-   fields:["bug","descriptions","important files"]},
+   kw:"debug, fix, error, bug, crash, broken, failing, traceback, exception"},
   {id:"query", label:"Query",
    desc:"Explain or answer a question about the codebase (read-only).",
-   kw:"explain, what is, how does, where is, why, describe, summarize, document",
-   fields:["query","descriptions","important files"]},
+   kw:"explain, what is, how does, where is, why, describe, summarize, document"},
   {id:"correctness_check", label:"Correctness",
    desc:"Test, verify, validate, or audit correctness (read-only).",
-   kw:"test, verify, check, validate, review, audit, examine",
-   fields:["descriptions","important files"]},
+   kw:"test, verify, check, validate, review, audit, examine"},
   {id:"refactor", label:"Refactor",
    desc:"Restructure, reduce redundancy, or improve architecture.",
-   kw:"refactor, restructure, reorganize, redesign, reduce redundancy",
-   fields:["refactor descriptions"]},
+   kw:"refactor, restructure, reorganize, redesign, reduce redundancy"},
   {id:"exec", label:"Exec",
    desc:"Execute a command or skill and report results.",
-   kw:"execute, run, exec, invoke, launch command, run skill, run script",
-   fields:["Target cmds/skills"]},
+   kw:"execute, run, exec, invoke, launch command, run skill, run script"},
   {id:"pr", label:"PR",
    desc:"Break a branch into dependency-ordered stacked PRs.",
-   kw:"pull request, PR, stacked PR, break down branch, split PR",
-   fields:["target branch","base branch","mode (plan/execute)","max lines per PR","stack tool preference","additional notes"]},
+   kw:"pull request, PR, stacked PR, break down branch, split PR"},
   {id:"initialize", label:"Initialize",
    desc:"Bootstrap repo overview / first-time setup.",
-   kw:"initialize, init, setup repo, create overview, bootstrap",
-   fields:["repo name"]}
+   kw:"initialize, init, setup repo, create overview, bootstrap"}
 ];
 var CAT_BY_ID = {};
 CATEGORIES.forEach(function(c){ CAT_BY_ID[c.id] = c; });
@@ -269,11 +263,28 @@ function applyParams(text, params){
   return lines.join("\n") + rest;
 }
 
-// Fill explicit field labels: a line that trims to exactly "<label>:" gets the
-// user's value appended. Unknown colon-lines (e.g. the recap sentence) are ignored.
-function applyFields(text, cat, values){
+// Derive the fillable input slots straight from the template body, so the number
+// of input boxes always equals the count of "<label>:" places the template leaves
+// blank — no hand-maintained list to drift out of sync. A slot is a body line that
+// trims to "<label>:" with nothing after the colon and a short field-name label
+// (<= 6 words); the long recap sentence ("Follow the instructions ... :") is skipped.
+function deriveFields(text){
+  var sep = text.indexOf("\n\n");
+  var body = sep === -1 ? text : text.slice(sep);   // drop the header (param) block
+  var out = [];
+  body.split("\n").forEach(function(line){
+    var m = line.trim().match(/^(.+?):$/);
+    if(m && m[1].split(/\s+/).length <= 6) out.push(m[1]);
+  });
+  return out;
+}
+
+// Fill the derived input slots: a line that trims to exactly "<label>:" gets the
+// user's value appended. Any colon-line not in `fields` (e.g. the recap sentence)
+// is left untouched.
+function applyFields(text, fields, values){
   var want = {};
-  cat.fields.forEach(function(f){ want[f + ":"] = f; });
+  fields.forEach(function(f){ want[f + ":"] = f; });
   return text.split("\n").map(function(line){
     var t = line.trim();
     if(Object.prototype.hasOwnProperty.call(want, t)){
@@ -299,8 +310,9 @@ function resolvePath(cat, mode, agent){
 function buildPrompt(){
   var cat = CAT_BY_ID[state.cat];
   var params = effectiveParams(cat);
-  var withParams = applyParams(TEMPLATES[state.cat], params);
-  return applyFields(withParams, cat, state.fieldValues[state.cat]);
+  var tpl = TEMPLATES[state.cat];
+  var withParams = applyParams(tpl, params);
+  return applyFields(withParams, deriveFields(tpl), state.fieldValues[state.cat]);
 }
 
 // Only pass params whose header line exists for this category (reproduce = debug only).
@@ -364,7 +376,7 @@ function renderFields(){
   var box = document.getElementById("fields");
   box.innerHTML = "";
   if(!state.fieldValues[cat.id]) state.fieldValues[cat.id] = {};
-  cat.fields.forEach(function(label){
+  deriveFields(TEMPLATES[cat.id]).forEach(function(label){
     var wrap = document.createElement("div");
     wrap.className = "field";
     var id = "f_" + cat.id + "_" + label.replace(/[^a-z0-9]+/gi,"_");

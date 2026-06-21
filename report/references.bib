@@ -1,3 +1,4 @@
+% ---- Code-generation benchmarks (MiHaCoBench methodological lineage) ----
 @article{chen2021codex,
   title={Evaluating Large Language Models Trained on Code},
   author={Chen, Mark and Tworek, Jerry and Jun, Heewoo and Yuan, Qiming and others},
@@ -16,13 +17,6 @@
   title={{SWE}-bench: Can Language Models Resolve Real-World {GitHub} Issues?},
   author={Jimenez, Carlos E. and Yang, John and Wettig, Alexander and Yao, Shunyu and Pei, Kexin and Press, Ofir and Narasimhan, Karthik},
   booktitle={International Conference on Learning Representations (ICLR)},
-  year={2024}
-}
-
-@inproceedings{yang2024sweagent,
-  title={{SWE}-agent: Agent-Computer Interfaces Enable Automated Software Engineering},
-  author={Yang, John and Jimenez, Carlos E. and Wettig, Alexander and Lieret, Kilian and Yao, Shunyu and Narasimhan, Karthik and Press, Ofir},
-  booktitle={Advances in Neural Information Processing Systems (NeurIPS)},
   year={2024}
 }
 
@@ -54,23 +48,105 @@
   year={2023}
 }
 
-@article{wang2024theagentcompany,
-  title={{TheAgentCompany}: Benchmarking {LLM} Agents on Consequential Real World Tasks},
-  author={Xu, Frank F. and Song, Yufan and Li, Boxuan and Tang, Yuxuan and others},
-  journal={arXiv preprint arXiv:2412.14161},
+@article{chambon2025bigobench,
+  title={{BigO(Bench)} -- Can {LLMs} Generate Code with Controlled Time and Space Complexity?},
+  author={Chambon, Pierre and Roziere, Baptiste and Sagot, Benoit and Synnaeve, Gabriel},
+  journal={arXiv preprint arXiv:2503.15242},
+  year={2025}
+}
+
+% ---- Agents / scaffolding / harness matters ----
+@inproceedings{yang2024sweagent,
+  title={{SWE}-agent: Agent-Computer Interfaces Enable Automated Software Engineering},
+  author={Yang, John and Jimenez, Carlos E. and Wettig, Alexander and Lieret, Kilian and Yao, Shunyu and Narasimhan, Karthik and Press, Ofir},
+  booktitle={Advances in Neural Information Processing Systems (NeurIPS)},
   year={2024}
 }
 
-@misc{karpathy2025,
-  title={Software Is Changing (Again): Vibe Coding and the Practice of Working with {LLMs}},
-  author={Karpathy, Andrej},
-  year={2025},
-  howpublished={Talk and public writing}
+@inproceedings{yao2023react,
+  title={{ReAct}: Synergizing Reasoning and Acting in Language Models},
+  author={Yao, Shunyu and Zhao, Jeffrey and Yu, Dian and Du, Nan and Shafran, Izhak and Narasimhan, Karthik and Cao, Yuan},
+  booktitle={International Conference on Learning Representations (ICLR)},
+  year={2023}
 }
 
-@misc{harnessflow2026,
-  title={{HarnessFlow}: A Portable AI-Coding Workflow Pack for {Claude Code}, {Codex}, and {Copilot}},
-  author={Yu, Hang},
-  year={2026},
-  howpublished={\url{https://github.com/HangYu8123/HarnessFlow}}
+% ---- Structured reasoning beats one-shot ----
+@inproceedings{wei2022chain,
+  title={Chain-of-Thought Prompting Elicits Reasoning in Large Language Models},
+  author={Wei, Jason and Wang, Xuezhi and Schuurmans, Dale and Bosma, Maarten and Ichter, Brian and Xia, Fei and Chi, Ed and Le, Quoc and Zhou, Denny},
+  booktitle={Advances in Neural Information Processing Systems (NeurIPS)},
+  year={2022}
+}
+
+@inproceedings{wang2023selfconsistency,
+  title={Self-Consistency Improves Chain of Thought Reasoning in Language Models},
+  author={Wang, Xuezhi and Wei, Jason and Schuurmans, Dale and Le, Quoc and Chi, Ed and Narang, Sharan and Chowdhery, Aakanksha and Zhou, Denny},
+  booktitle={International Conference on Learning Representations (ICLR)},
+  year={2023}
+}
+
+% ---- Iterative self-critique / refinement ----
+@inproceedings{shinn2023reflexion,
+  title={Reflexion: Language Agents with Verbal Reinforcement Learning},
+  author={Shinn, Noah and Cassano, Federico and Berman, Edward and Gopinath, Ashwin and Narasimhan, Karthik and Yao, Shunyu},
+  booktitle={Advances in Neural Information Processing Systems (NeurIPS)},
+  year={2023}
+}
+
+@inproceedings{madaan2023selfrefine,
+  title={Self-Refine: Iterative Refinement with Self-Feedback},
+  author={Madaan, Aman and Tandon, Niket and Gupta, Prakhar and Hallinan, Skyler and Gao, Luyu and Wiegreffe, Sarah and Alon, Uri and Dziri, Nouha and others},
+  booktitle={Advances in Neural Information Processing Systems (NeurIPS)},
+  year={2023}
+}
+
+@inproceedings{du2023debate,
+  title={Improving Factuality and Reasoning in Language Models through Multiagent Debate},
+  author={Du, Yilun and Li, Shuang and Torralba, Antonio and Tenenbaum, Joshua B. and Mordatch, Igor},
+  booktitle={International Conference on Machine Learning (ICML)},
+  year={2024}
+}
+
+% ---- Cautions: self-correction / self-repair are not silver bullets ----
+@inproceedings{huang2024selfcorrect,
+  title={Large Language Models Cannot Self-Correct Reasoning Yet},
+  author={Huang, Jie and Chen, Xinyun and Mishra, Swaroop and Zheng, Huaixiu Steven and Yu, Adams Wei and Song, Xinying and Zhou, Denny},
+  booktitle={International Conference on Learning Representations (ICLR)},
+  year={2024}
+}
+
+@inproceedings{olausson2024selfrepair,
+  title={Is Self-Repair a Silver Bullet for Code Generation?},
+  author={Olausson, Theo X. and Inala, Jeevana Priya and Wang, Chenglong and Gao, Jianfeng and Solar-Lezama, Armando},
+  booktitle={International Conference on Learning Representations (ICLR)},
+  year={2024}
+}
+
+@article{chen2023selfdebug,
+  title={Teaching Large Language Models to Self-Debug},
+  author={Chen, Xinyun and Lin, Maxwell and Sch{\"a}rli, Nathanael and Zhou, Denny},
+  journal={arXiv preprint arXiv:2304.05128},
+  year={2023}
+}
+
+% ---- Role-specialized multi-agent software development ----
+@inproceedings{hong2024metagpt,
+  title={{MetaGPT}: Meta Programming for a Multi-Agent Collaborative Framework},
+  author={Hong, Sirui and Zheng, Xiawu and Chen, Jonathan and Cheng, Yuheng and Wang, Jinlin and Zhang, Ceyao and Wang, Zili and others},
+  booktitle={International Conference on Learning Representations (ICLR)},
+  year={2024}
+}
+
+@inproceedings{qian2024chatdev,
+  title={{ChatDev}: Communicative Agents for Software Development},
+  author={Qian, Chen and Liu, Wei and Liu, Hongzhang and Chen, Nuo and Dang, Yufan and Li, Jiahao and Yang, Cheng and Chen, Weize and others},
+  booktitle={Annual Meeting of the Association for Computational Linguistics (ACL)},
+  year={2024}
+}
+
+@article{wu2023autogen,
+  title={{AutoGen}: Enabling Next-Gen {LLM} Applications via Multi-Agent Conversation},
+  author={Wu, Qingyun and Bansal, Gagan and Zhang, Jieyu and Wu, Yiran and Li, Beibin and Zhu, Erkang and Jiang, Li and Zhang, Xiaoyun and others},
+  journal={arXiv preprint arXiv:2308.08155},
+  year={2023}
 }
