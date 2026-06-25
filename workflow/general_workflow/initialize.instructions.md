@@ -137,7 +137,28 @@ After completing all file creation in Procedure 4, check whether internal path r
 5. Verify that all updated paths now correctly resolve to the right files in the workspace by spot-checking a few key paths (e.g., `[repo folder name]/.github/HarnessFlow/repo_info/codebase_overview.md`).
 
 
-## Procedure 6: Copy Entry-Point Files for Cross-Tool Compatibility
+## Procedure 6: Update Request Template Instruction Paths (Idempotent)
+
+After completing Procedure 5, update the Claude Code instruction-file paths inside every request template to the correct absolute path from the repo root. This prevents agents from failing to read instruction files when the pack is installed under `.github/HarnessFlow/` and the bare `workflow/…` paths no longer resolve from the repo root.
+
+1. **Detect pack root prefix:** Check whether `.github/HarnessFlow/workflow/` exists from the repo root.
+   - If yes: the pack is installed under `.github/HarnessFlow/`; set `[pack prefix]` = `".github/HarnessFlow/"`.
+   - If no: the pack root IS the repo root (source layout); set `[pack prefix]` = `""` (empty — paths are already correct).
+
+2. **Idempotency guard:**
+   - If `[pack prefix]` is empty (source layout): paths are already correct — skip to Procedure 7.
+   - If `[pack prefix]` is `.github/HarnessFlow/`: scan all `.md` files under `request_template/` (resolved via Pack Path Resolution). If any file's Claude Code section already contains `` `.github/HarnessFlow/workflow/ ``, this procedure has already run — skip to Procedure 7.
+
+3. **Rewrite Claude Code paths in each template:** For every `.md` file under `request_template/`, locate the Claude Code section (the segment after "If the active agent is Claude Code, use") and replace:
+   - `` `workflow/token_effective_workflow/{name}.instructions.md` `` → `` `.github/HarnessFlow/workflow/token_effective_workflow/{name}.instructions.md` ``
+   - `` `workflow/general_workflow/{name}.instructions.md` `` → `` `.github/HarnessFlow/workflow/general_workflow/{name}.instructions.md` ``
+   - `` `workflow/skill_workflow/{name}.instructions.md` `` → `` `.github/HarnessFlow/workflow/skill_workflow/{name}.instructions.md` `` (if present)
+   - Leave Codex paths (`.github/HarnessFlow/workflow/...`) and VS Code Copilot paths (`@/.github/HarnessFlow/workflow/...`) unchanged — they already carry the full prefix.
+
+4. **Verify:** Confirm that the updated paths in at least one template resolve to an existing file on disk.
+
+
+## Procedure 7: Copy Entry-Point Files for Cross-Tool Compatibility
 Copy the entry-point files from the pack to their standard discoverable locations. This ensures each tool can auto-discover its instructions without additional configuration, regardless of which tool was used to initialize.
 
 1. Copy `.github/HarnessFlow/copilot-instructions.md` → `.github/copilot-instructions.md` (standard GitHub Copilot discovery path).

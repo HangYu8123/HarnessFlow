@@ -97,12 +97,32 @@ After completing all steps above, check whether path references need cleanup. Ha
 - **If the main agent is Codex:** Codex workflows use filesystem-relative or pack-relative paths, not VS Code `@/` prefixes. The `@/.github/` → `@/[repo folder name]/.github/` rewrite is a VS Code Copilot-only concern and does not apply to Codex workflow files, including Codex running in VS Code. If any `@/` or VS Code-only `#file:` references have leaked into files under `workflow/general_workflow/`, `workflow/token_effective_workflow/`, or `workflow/skill_workflow/`, remove them and replace them with relative paths; otherwise this is a no-op.
 - **If the main agent is VS Code Copilot:** perform the full idempotent multi-root rewrite:
   1. Determine [repo folder name] — the name of the repo's root folder as it appears in the VS Code workspace.
-  2. **Idempotency guard:** before any replacements, check if any `.md` file under `.github/HarnessFlow/` already contains a path with `[repo folder name]/.github/`. If so, this step already ran — skip all replacements and continue to Step 9.
+  2. **Idempotency guard:** before any replacements, check if any `.md` file under `.github/HarnessFlow/` already contains a path with `[repo folder name]/.github/`. If so, this step already ran — skip all replacements and continue to Step 9 (Update Request Template Instruction Paths).
   3. **Rename detection:** if the idempotency guard did not trigger, scan `.md` files under `.github/HarnessFlow/` for any path matching `[some_prefix]/.github/HarnessFlow/` where `[some_prefix]` is not [repo folder name]. If found, replace `[old_prefix]/.github/HarnessFlow/` with `[repo folder name]/.github/HarnessFlow/`, then skip to verification.
   4. Go through all `.md` files under `.github/HarnessFlow/` and replace every occurrence of `.github/HarnessFlow/` with `[repo folder name]/.github/HarnessFlow/` only in path references used by agents.
   5. Verify that updated paths resolve by spot-checking key paths such as `[repo folder name]/.github/HarnessFlow/repo_info/codebase_overview.md`.
 
-### Step 9 - Refresh Cross-Tool Entry Points
+### Step 9 - Update Request Template Instruction Paths
+
+After path cleanup, update the Claude Code instruction-file paths inside every request template to the correct absolute path from the repo root. This prevents read failures when the pack is installed under `.github/HarnessFlow/` and the bare `workflow/…` paths no longer resolve from the repo root.
+
+1. **Detect pack root prefix:** Check whether `.github/HarnessFlow/workflow/` exists from the repo root.
+   - If yes: the pack is installed under `.github/HarnessFlow/`; set `[pack prefix]` = `".github/HarnessFlow/"`.
+   - If no: the pack root IS the repo root (source layout); set `[pack prefix]` = `""` (empty — paths are already correct).
+
+2. **Idempotency guard:**
+   - If `[pack prefix]` is empty (source layout): paths are already correct — skip to Step 10.
+   - If `[pack prefix]` is `.github/HarnessFlow/`: scan all `.md` files under `request_template/` (resolved via Pack Path Resolution). If any file's Claude Code section already contains `` `.github/HarnessFlow/workflow/ ``, this step has already run — skip to Step 10.
+
+3. **Rewrite Claude Code paths in each template:** For every `.md` file under `request_template/`, find the Claude Code section (the segment after "If the active agent is Claude Code, use") and replace:
+   - `` `workflow/token_effective_workflow/{name}.instructions.md` `` → `` `.github/HarnessFlow/workflow/token_effective_workflow/{name}.instructions.md` ``
+   - `` `workflow/general_workflow/{name}.instructions.md` `` → `` `.github/HarnessFlow/workflow/general_workflow/{name}.instructions.md` ``
+   - `` `workflow/skill_workflow/{name}.instructions.md` `` → `` `.github/HarnessFlow/workflow/skill_workflow/{name}.instructions.md` `` (if present)
+   - Leave Codex paths (`.github/HarnessFlow/workflow/...`) and VS Code Copilot paths (`@/.github/HarnessFlow/workflow/...`) unchanged — they already carry the full prefix.
+
+4. **Verify:** Confirm that the updated paths in at least one template resolve to an existing file on disk.
+
+### Step 10 - Refresh Cross-Tool Entry Points
 Copy the entry-point files from the pack to their standard discoverable locations so every supported tool can auto-discover its instructions after initialization. Handle per platform:
 
 - **If the main agent is Claude Code or Codex:** copy all three entry points.
