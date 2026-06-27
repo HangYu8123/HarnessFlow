@@ -25,6 +25,25 @@ HarnessFlow is a **Markdown instruction pack** — there is no runtime, no `npm 
 - **Remembers** — results are written to `repo_info/` so later requests start with real context instead of re-deriving it.
 - **Three modes** — every workflow ships in a `general` (thorough), a `fast` (token-efficient), and a `skill` (community-skill-backed) variant.
 
+
+## How it performs
+
+On [ponytail](https://github.com/DietrichGebert/ponytail)'s own 5-task code-generation benchmark — scored with ponytail's own `loc.js` + `correctness.js` — we ran **HarnessFlow-Fast (ours)** against the bare model (`native`), the `ponytail` minimal-code skill, and the `fastworkflow` framework, across three models (180 independent single-shot generations, n=3 median).
+
+<div align="center">
+<img src="ponytail_benchmark.svg" alt="Grouped bars of 5-task total median lines of code for four arms across Haiku 4.5, Sonnet 4.6, and Opus 4.8. HarnessFlow-Fast (ours, highlighted) and ponytail are far shorter than native; fastworkflow is far taller. Lower is less code." width="100%">
+</div>
+
+| arm | Haiku | Sonnet | Opus | always-correct? |
+|---|--:|--:|--:|:--:|
+| native (no harness) | 152 | 91 | 192 | 45/45 ✅ |
+| ponytail | **37** | **50** | 55 | 40/45 |
+| HarnessFlow-Fast (ours) | 58 | 60 | **46** | 45/45 ✅ |
+| fastworkflow | 288 | 305 | 313 | 31/45 |
+
+*5-task total median lines of code (lower = less code; **bold** = fewest LOC for that model).* **HarnessFlow-Fast (ours) is the only harness arm that is both lean — 34–76% less code than the bare model, and leanest of all arms on Opus — while staying 100% correct on every run.** ponytail is a touch leaner on Haiku and Sonnet but slips to 40/45 (occasionally shipping broken code) and is larger on Opus, while `fastworkflow`'s validation-first style writes 1.6–3.4× *more* code than the baseline and is the least correct (31/45). The model is held constant per arm so the comparison isolates the *harness*. Full methodology and honest caveats live in `experiment_ponytail/REPORT.md`.
+
+
 ### Works with your AI assistant
 
 Every supported platform is a first-class citizen — pick the one you already use:
@@ -51,22 +70,7 @@ Every supported platform is a first-class citizen — pick the one you already u
 
 Each category is backed by workflow files under `workflow/` — one shared `general` set (used by all platforms) plus per-tool `fast` sets — with a matching fill-in prompt in `request_template/`.
 
-## How it compares: HarnessFlow-Fast vs ponytail & fastworkflow
 
-On [ponytail](https://github.com/DietrichGebert/ponytail)'s own 5-task code-generation benchmark — scored with ponytail's own `loc.js` + `correctness.js` — we ran **HarnessFlow-Fast (ours)** against the bare model (`native`), the `ponytail` minimal-code skill, and the `fastworkflow` framework, across three models (180 independent single-shot generations, n=3 median).
-
-<div align="center">
-<img src="ponytail_benchmark.svg" alt="Grouped bars of 5-task total median lines of code for four arms across Haiku 4.5, Sonnet 4.6, and Opus 4.8. HarnessFlow-Fast (ours, highlighted) and ponytail are far shorter than native; fastworkflow is far taller. Lower is less code." width="100%">
-</div>
-
-| arm | Haiku | Sonnet | Opus | always-correct? |
-|---|--:|--:|--:|:--:|
-| native (no harness) | 152 | 91 | 192 | 45/45 ✅ |
-| ponytail | **37** | **50** | 55 | 40/45 |
-| HarnessFlow-Fast (ours) | 58 | 60 | **46** | 45/45 ✅ |
-| fastworkflow | 288 | 305 | 313 | 31/45 |
-
-*5-task total median lines of code (lower = less code; **bold** = fewest LOC for that model).* **HarnessFlow-Fast (ours) is the only harness arm that is both lean — 34–76% less code than the bare model, and leanest of all arms on Opus — while staying 100% correct on every run.** ponytail is a touch leaner on Haiku and Sonnet but slips to 40/45 (occasionally shipping broken code) and is larger on Opus, while `fastworkflow`'s validation-first style writes 1.6–3.4× *more* code than the baseline and is the least correct (31/45). The model is held constant per arm so the comparison isolates the *harness*. Full methodology and honest caveats live in `experiment_ponytail/REPORT.md`.
 
 ## Benchmarks: fast vs general
 
