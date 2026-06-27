@@ -1,0 +1,48 @@
+<svg viewBox="0 0 780 470" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,Segoe UI,Roboto,sans-serif">
+<rect width="780" height="470" fill="#ffffff"/>
+<text x="390" y="26" font-size="16" text-anchor="middle" fill="#0f172a" font-weight="700">5-task total median LOC by harness arm and model</text>
+<text x="390" y="44" font-size="12" text-anchor="middle" fill="#64748b">ponytail's loc.js on 180 single-shot generations (n=3 median) — lower = less code; correctness = reps passing the gate</text>
+<line x1="56" y1="370.0" x2="760" y2="370.0" stroke="#e2e8f0"/>
+<text x="48" y="374.0" font-size="11" text-anchor="end" fill="#64748b">0</text>
+<line x1="56" y1="297.1" x2="760" y2="297.1" stroke="#e2e8f0"/>
+<text x="48" y="301.1" font-size="11" text-anchor="end" fill="#64748b">80</text>
+<line x1="56" y1="224.1" x2="760" y2="224.1" stroke="#e2e8f0"/>
+<text x="48" y="228.1" font-size="11" text-anchor="end" fill="#64748b">160</text>
+<line x1="56" y1="151.2" x2="760" y2="151.2" stroke="#e2e8f0"/>
+<text x="48" y="155.2" font-size="11" text-anchor="end" fill="#64748b">240</text>
+<line x1="56" y1="78.2" x2="760" y2="78.2" stroke="#e2e8f0"/>
+<text x="48" y="82.2" font-size="11" text-anchor="end" fill="#64748b">320</text>
+<rect x="78.0" y="231.4" width="44.0" height="138.6" fill="#f59e0b" rx="2"/>
+<rect x="122.0" y="287.0" width="44.0" height="83.0" fill="#3b82f6" rx="2"/>
+<rect x="166.0" y="194.9" width="44.0" height="175.1" fill="#8b5cf6" rx="2"/>
+<rect x="254.0" y="317.1" width="44.0" height="52.9" fill="#f59e0b" rx="2"/>
+<rect x="298.0" y="315.3" width="44.0" height="54.7" fill="#3b82f6" rx="2"/>
+<rect x="342.0" y="328.1" width="44.0" height="41.9" fill="#8b5cf6" rx="2"/>
+<rect x="430.0" y="336.3" width="44.0" height="33.7" fill="#f59e0b" rx="2"/>
+<rect x="474.0" y="324.4" width="44.0" height="45.6" fill="#3b82f6" rx="2"/>
+<rect x="518.0" y="319.9" width="44.0" height="50.1" fill="#8b5cf6" rx="2"/>
+<rect x="606.0" y="107.4" width="44.0" height="262.6" fill="#f59e0b" rx="2"/>
+<rect x="650.0" y="91.9" width="44.0" height="278.1" fill="#3b82f6" rx="2"/>
+<rect x="694.0" y="84.6" width="44.0" height="285.4" fill="#8b5cf6" rx="2"/>
+<text x="100.0" y="226.4" font-size="11" text-anchor="middle" fill="#334155">152</text>
+<text x="144.0" y="282.0" font-size="11" text-anchor="middle" fill="#334155">91</text>
+<text x="188.0" y="189.9" font-size="11" text-anchor="middle" fill="#334155">192</text>
+<text x="276.0" y="312.1" font-size="11" text-anchor="middle" fill="#334155">58</text>
+<text x="320.0" y="310.3" font-size="11" text-anchor="middle" fill="#334155">60</text>
+<text x="364.0" y="323.1" font-size="11" text-anchor="middle" fill="#334155">46</text>
+<text x="452.0" y="331.3" font-size="11" text-anchor="middle" fill="#334155">37</text>
+<text x="496.0" y="319.4" font-size="11" text-anchor="middle" fill="#334155">50</text>
+<text x="540.0" y="314.9" font-size="11" text-anchor="middle" fill="#334155">55</text>
+<text x="628.0" y="102.4" font-size="11" text-anchor="middle" fill="#334155">288</text>
+<text x="672.0" y="86.9" font-size="11" text-anchor="middle" fill="#334155">305</text>
+<text x="716.0" y="79.6" font-size="11" text-anchor="middle" fill="#334155">313</text>
+<text x="144.0" y="394" font-size="12" text-anchor="middle" fill="#0f172a" font-weight="600">native</text>
+<text x="144.0" y="412" font-size="11" text-anchor="middle" fill="#0f6e56">✓ 45/45 correct</text>
+<text x="320.0" y="394" font-size="12" text-anchor="middle" fill="#0f172a" font-weight="600">HarnessFlow-Fast (Ours)</text>
+<text x="320.0" y="412" font-size="11" text-anchor="middle" fill="#0f6e56">✓ 45/45 correct</text>
+<text x="496.0" y="394" font-size="12" text-anchor="middle" fill="#0f172a" font-weight="600">ponytail</text>
+<text x="496.0" y="412" font-size="11" text-anchor="middle" fill="#92400e">40/45 correct</text>
+<text x="672.0" y="394" font-size="12" text-anchor="middle" fill="#0f172a" font-weight="600">fastworkflow</text>
+<text x="672.0" y="412" font-size="11" text-anchor="middle" fill="#92400e">31/45 correct</text>
+<rect x="56" y="450" width="12" height="12" fill="#f59e0b" rx="2"/><text x="74" y="460" font-size="12" fill="#334155">haiku</text><rect x="166" y="450" width="12" height="12" fill="#3b82f6" rx="2"/><text x="184" y="460" font-size="12" fill="#334155">sonnet</text><rect x="276" y="450" width="12" height="12" fill="#8b5cf6" rx="2"/><text x="294" y="460" font-size="12" fill="#334155">opus</text>
+</svg>
