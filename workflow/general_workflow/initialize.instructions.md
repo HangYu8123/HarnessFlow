@@ -137,25 +137,38 @@ After completing all file creation in Procedure 4, check whether internal path r
 5. Verify that all updated paths now correctly resolve to the right files in the workspace by spot-checking a few key paths (e.g., `[repo folder name]/.github/HarnessFlow/repo_info/codebase_overview.md`).
 
 
-## Procedure 6: Update Request Template Instruction Paths (Idempotent)
+## Procedure 6: Absolutize Claude Code & Codex Pack Paths (Idempotent)
 
-After completing Procedure 5, update the Claude Code instruction-file paths inside every request template to the correct absolute path from the repo root. This prevents agents from failing to read instruction files when the pack is installed under `.github/HarnessFlow/` and the bare `workflow/…` paths no longer resolve from the repo root.
+After completing Procedure 5, rewrite the **Claude Code** and **Codex** pack-relative path references to **absolute filesystem paths**, anchored to **this pack's own root**. This is what makes nested or multiple packs work: one repo may contain more than one pack — e.g., a parent pack at the repo root and a child pack in a subfolder, each with its own `request_template/`, `workflow/`, `repo_info/`, `_lib/`, and `philosophy/`. Paths that resolve against the working directory — pasted-in request templates, and Pack Path Resolution references such as `repo_info/…` — are ambiguous across packs; an absolute path anchored to the pack that owns the file is not.
 
-1. **Detect pack root prefix:** Check whether `.github/HarnessFlow/workflow/` exists from the repo root.
-   - If yes: the pack is installed under `.github/HarnessFlow/`; set `[pack prefix]` = `".github/HarnessFlow/"`.
-   - If no: the pack root IS the repo root (source layout); set `[pack prefix]` = `""` (empty — paths are already correct).
+**Scope of this rewrite:** request templates, `repo_info/` references, and the always-read shared files `_lib/workflow_contract.md` and `philosophy/philosophy.instructions.md`. (Do not absolutize `agents/`, `skills/`, or narrative prose.)
 
-2. **Idempotency guard:**
-   - If `[pack prefix]` is empty (source layout): paths are already correct — skip to Procedure 7.
-   - If `[pack prefix]` is `.github/HarnessFlow/`: scan all `.md` files under `request_template/` (resolved via Pack Path Resolution). If any file's Claude Code section already contains `` `.github/HarnessFlow/workflow/ ``, this procedure has already run — skip to Procedure 7.
+**Platform rule — rewrite Claude Code and Codex forms only; leave VS Code Copilot untouched:**
+- **Claude Code** forms are bare Pack-Path-Resolution paths: `workflow/…`, `repo_info/…`, `_lib/…`, `philosophy/…`.
+- **Codex** forms are `.github/HarnessFlow/`-prefixed paths: `.github/HarnessFlow/workflow/…`, `.github/HarnessFlow/repo_info/…`, etc.
+- Both forms → `[PACK_ROOT_ABS]/<tail>`.
+- **Leave unchanged:** every VS Code Copilot `@/…` path, every `#file:…` reference, and every relative-to-file markdown-link href written as `(../…)` / `(../../…)`. Copilot keeps its native `@/[repo folder name]/` multi-root scheme from Procedure 5; absolute paths are not part of Copilot's `@/`/`#file:` syntax, and relative-to-file hrefs are already pack-local. When a reference is a markdown link `` [`code`](href) ``, rewrite **only the backticked code-span** (which Claude Code/Codex follow) and leave the `(href)` intact.
 
-3. **Rewrite Claude Code paths in each template:** For every `.md` file under `request_template/`, locate the Claude Code section (the segment after "If the active agent is Claude Code, use") and replace:
-   - `` `workflow/token_effective_workflow/{name}.instructions.md` `` → `` `.github/HarnessFlow/workflow/token_effective_workflow/{name}.instructions.md` ``
-   - `` `workflow/general_workflow/{name}.instructions.md` `` → `` `.github/HarnessFlow/workflow/general_workflow/{name}.instructions.md` ``
-   - `` `workflow/skill_workflow/{name}.instructions.md` `` → `` `.github/HarnessFlow/workflow/skill_workflow/{name}.instructions.md` `` (if present)
-   - Leave Codex paths (`.github/HarnessFlow/workflow/...`) and VS Code Copilot paths (`@/.github/HarnessFlow/workflow/...`) unchanged — they already carry the full prefix.
+1. **Determine `[PACK_ROOT_ABS]` — the absolute path of THIS pack's root.** It is the directory containing the `request_template/`, `workflow/`, `repo_info/`, `_lib/`, and `philosophy/` siblings being initialized — the parent of the `request_template/` directory you are editing. Resolve it from the files' own location, **not** from `git rev-parse --show-toplevel` (the git toplevel returns the outermost repo, which is wrong for a nested child pack). You already address these files by absolute path when editing them. Examples: `/Users/me/project/.github/HarnessFlow` (installed), `/Users/me/project` (source layout), `/Users/me/project/child/.github/HarnessFlow` (nested child pack).
 
-4. **Verify:** Confirm that the updated paths in at least one template resolve to an existing file on disk.
+2. **Idempotency guard:** Inspect the in-scope Claude Code/Codex references in the files listed in step 4. If they already begin with `[PACK_ROOT_ABS]/`, this procedure has already run for this pack — skip to Procedure 7.
+
+3. **Stale-root repair (moved / renamed / cloned tree):** If an in-scope Claude Code/Codex reference is already absolute (begins with `/`) but under a different root — `[old_root]/{workflow|repo_info|_lib|philosophy}/…` — replace `[old_root]` with `[PACK_ROOT_ABS]`, then skip to step 5 (verify).
+
+4. **Apply the rewrite** (substitute the real absolute path for `[PACK_ROOT_ABS]`; never leave the literal token in any file):
+
+   **4a. Request templates** — for every `.md` under `request_template/`:
+   - Claude Code section (after "If the active agent is Claude Code, use"): `` `workflow/{family}/{name}.instructions.md` `` → `` `[PACK_ROOT_ABS]/workflow/{family}/{name}.instructions.md` `` for families `token_effective_workflow`, `general_workflow`, and `skill_workflow` (if present). A prior install may show `` `.github/HarnessFlow/workflow/{family}/{name}.instructions.md` `` instead — map it to the same absolute target.
+   - Codex section (after "If the active agent is Codex"): `` `.github/HarnessFlow/workflow/{family}/{name}.instructions.md` `` → `` `[PACK_ROOT_ABS]/workflow/{family}/{name}.instructions.md` ``.
+   - Leave the VS Code Copilot section (`@/…`) unchanged.
+
+   **4b. Root entry points** — in `CLAUDE.md` (Claude Code) rewrite the code-span references `` `_lib/workflow_contract.md` ``, `` `philosophy/philosophy.instructions.md` ``, and `` `repo_info/…` `` to absolute. In `AGENTS.md` (Codex) rewrite `` `.github/HarnessFlow/_lib/workflow_contract.md` ``, `` `.github/HarnessFlow/philosophy/philosophy.instructions.md` ``, and `` `.github/HarnessFlow/repo_info/…` `` to absolute. Leave `copilot-instructions.md` unchanged. (Procedure 6 runs before Procedure 7, so the absolutized copies are what Procedure 7 propagates to the repo root.)
+
+   **4c. Shared workflow + contract files** — in every `.md` under `workflow/general_workflow/`, `workflow/token_effective_workflow/`, and `workflow/skill_workflow/`, and in `_lib/workflow_contract.md`, rewrite the **backticked code-span** references to `_lib/workflow_contract.md`, `philosophy/philosophy.instructions.md`, and `repo_info/…` (the bare Pack-Path-Resolution forms Claude Code/Codex follow) to absolute under `[PACK_ROOT_ABS]`. Leave every `(../…)` / `(../../…)` markdown-link href, `@/…`, and `#file:…` untouched.
+
+5. **Verify:** Confirm that a rewritten absolute path resolves to a real file on disk in at least one request template, one entry point, and one shared workflow file.
+
+> **Note:** Absolute paths are machine-specific. If the pack is later moved or cloned, re-run initialization — step 3's stale-root repair refreshes them. Avoid committing these machine-local paths into shared source control (keep the rewritten files out of version control, or restore the relative form before committing).
 
 
 ## Procedure 7: Copy Entry-Point Files for Cross-Tool Compatibility
