@@ -24,3 +24,13 @@ Search this index before using repository skills. Each skill is an official skil
 - Trigger: Use only after an implementation report exists, such as [implementation report], [bug fix implementation report], or a workflow-specific equivalent.
 - Condition: Use only when the main agent is Claude Code or another Claude agent with Claude Code skills available.
 - Keywords: Claude Code, Claude agent, native skills, bundled skills, simplify, batch, claude-api, debug, implementation review.
+
+## weekly-update-report
+
+- Path: `skills/weekly-update-report/SKILL.md`
+- Slash name: `/weekly-update-report`
+- Purpose: Summarize the last 7 days of git commit history into a short, user-facing "what I shipped last week" update report.
+- Trigger: Use ONLY when the user explicitly asks to generate their last week / weekly update report (e.g. "generate my last week update report", "make my weekly update", "what did I ship last week").
+- Condition: Do NOT trigger for general changelogs, release notes, version notes, app-store notes, or any unscoped "create a changelog" request. If intent is ambiguous, ask once or default to not triggering.
+- Source: Adapted (trigger scoped down) from `ComposioHQ/awesome-claude-skills` · `changelog-generator/SKILL.md`.
+- Keywords: weekly update, last week report, what I shipped, weekly digest, git log summary, standup, work summary.

@@ -1,9 +1,50 @@
+# ── Experiment / benchmark / report artifacts (local-only) ──
 repo_info/
 .github/
 experiment/
 experiment_swe/
+experiment_ponytail/
+report/
+
+# ── Verify / temp working dirs ──
+.verifyout.txt
+.tmpverify/
+.verify_tmp/
+tmp/
+*.tmp
+
+# ── Python caches & build artifacts ──
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+*.egg-info/
+.ipynb_checkpoints/
+
+# ── Virtual environments ──
+.venv/
+venv/
+env/
+
+# ── Node ──
+node_modules/
+
+# ── Claude Code local state (keep .claude/rules tracked) ──
+.claude/settings.local.json
+.claude/scheduled_tasks.lock
+
+# ── Logs ──
+*.log
+
+# ── OS files ──
 .DS_Store
 **/.DS_Store
-report/
-experiment_ponytail/
-.verifyout.txt
+Thumbs.db
+
+# ── Editor / IDE ──
+.idea/
+.vscode/
+*.swp
+*.swo

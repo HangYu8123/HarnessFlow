@@ -4,9 +4,9 @@
 
 # HarnessFlow
 
-**A portable AI-coding workflow pack for Claude Code CLI, Codex CLI, and VS Code + Copilot.**
+**Portable AI-coding workflow pack for Claude Code, Codex CLI, and VS Code + Copilot.**
 
-Drop it into any repository and your AI coding assistant stops one-shotting changes. Instead it classifies your request, routes it to a real workflow, fans out parallel analysis agents, challenges its own plan, validates the result with QA, and records what it learned to persistent repo memory.
+HarnessFlow is a drop-in set of workflow and agent-instruction files: copy it into any repository and your AI coding assistant stops one-shotting changes. It is designed for Claude Code, Codex CLI, and VS Code with GitHub Copilot — tools that can read instructions straight from the repository they're working in. Instead of taking your prompt straight to a diff, this pack gives your assistant a real pipeline: a classifier that reads the request, a router that sends it to the matching workflow, parallel analysis agents that investigate before any code is touched, and a self-challenge pass that pressure-tests the plan before a single line changes. Once the work is done, a QA pass validates the result and what your assistant learned gets written to persistent repo memory. Every change gets the right process, a second opinion before it ships, and a paper trail once it lands and the next request starts a little smarter than the last.
 
 [What it does](#what-it-does) · [Benchmarks](#benchmarks-fast-vs-general) · [Install](#install) · [Get started](#get-started) · [Platforms](#platforms) · [Architecture](#architecture)
 
@@ -16,7 +16,7 @@ Drop it into any repository and your AI coding assistant stops one-shotting chan
 
 ## What It Does
 
-HarnessFlow is a **Markdown instruction pack** — there is no runtime, no `npm install`, and no build step. You copy the files into a repository and any compatible AI coding assistant gains a structured, multi-agent workflow for every request:
+HarnessFlow is a portable **Markdown instruction pack** — there is no runtime, no `npm install`, and no build step. It is designed for Claude Code CLI, Codex CLI, GitHub Copilot in VS Code, Aider, and other AI coding assistants that benefit from structured operating instructions. Instead of letting your assistant one-shot changes from a single prompt, this pack gives every request a disciplined, multi-agent workflow with real planning, self-review, QA, and persistent memory:
 
 - **Classifies** your prompt into one of 8 request types and loads the matching workflow file.
 - **Analyzes in parallel** — Focus, Broad, and Free analyst subagents read the codebase from different angles, then a Senior Engineer synthesizes one plan.
@@ -24,6 +24,8 @@ HarnessFlow is a **Markdown instruction pack** — there is no runtime, no `npm 
 - **Validates** — a QA Engineer checks the implementation; an opt-in approval gate lets you sign off on the plan first.
 - **Remembers** — results are written to `repo_info/` so later requests start with real context instead of re-deriving it.
 - **Three modes** — every workflow ships in a `general` (thorough), a `fast` (token-efficient), and a `skill` (community-skill-backed) variant.
+
+Use HarnessFlow for code implementation, refactors, debugging, codebase Q&A, correctness checks, command/skill execution, stacked-PR creation, and first-time repo initialization — eight request types, each backed by its own workflow file and available in `general`, `fast`, and `skill` modes. The rest of this README is a high-signal landing page: see what it does, install the entry point for your tool, pick a workflow mode, and dive into the deeper docs and benchmarks only when you need them.
 
 
 ## How it performs

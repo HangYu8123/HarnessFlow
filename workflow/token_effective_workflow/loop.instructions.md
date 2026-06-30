@@ -1,0 +1,139 @@
+---
+name: 'Fast Loop'
+description: 'Unified token-effective (fast) loop meta-workflow for Claude Code, Codex, and VS Code Copilot: a controller-only main agent repeats a delegated body action — observe, check exit conditions, reflect & ledger — until a goal-met or an always-on safety stop fires.'
+---
+# Loop Until Goal or Exit Condition
+
+**Safety: follow `_lib/safety_rules.md`.**
+
+> **Unified workflow (platform-adaptive).** This single file serves Claude Code, Codex, and VS Code Copilot. Resolve all paths via Pack Path Resolution (`.github/HarnessFlow/<path>` when installed, or `<path>` from the repo root). Launch subagents using your platform's mechanism per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Invocation. Handle repo-context handoff per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents: on **Claude Code** the main agent builds a condensed **[repo context digest]** and passes it inline to subagents; on **Codex** and **VS Code Copilot**, subagents read **[key md files]** directly.
+
+> **Loop meta-workflow.** The main agent is a **controller**, not a doer. It parses the spec; then for each iteration it **observes** the delegated result, **checks** the exit conditions, and **reflects & ledgers** — it never performs the body work itself. The *act* is **always delegated** to a spawned worker, which keeps the controller's context clean across many iterations. Exit conditions form an **OR-set** ("stop when ANY fires") with **always-on safety caps**, so the loop can never run away.
+
+<!-- Required Context Files (CLI-resolvable paths):
+  - philosophy/philosophy.instructions.md
+  - _lib/safety_rules.md
+  - _lib/workflow_contract.md
+  - _lib/approval_gate.md
+  - _lib/local_skill_discovery.md
+  - repo_info/codebase_overview.md
+  - repo_info/scripts_overview.md
+  - repo_info/update_logs.md
+  - repo_info/known_issues.md
+  - agents/devils-advocate.agent.md
+  - agents/online-researcher.agent.md
+  - agents/implementer.agent.md
+  - agents/executor.agent.md
+  - skills/index.md
+  - skills/claude-native-skills-subagents/SKILL.md
+  - (dispatch only) workflow/<mode>/<family>.instructions.md for the dispatched family
+-->
+
+[inputs]:
+- input 1: **[goal]** — *required*; a single concrete sentence (with a specific term/quantity, not a vague "improve").
+- input 2: **[success criteria + exit conditions]** — *required*; the verifiable check(s) that define "done", plus any extra exit conditions (budget / human checkpoint). The `max_iterations` / `no_progress_k` caps come from the header (defaults below).
+- input 3: **[loop body]** — *optional*; a free-form action to perform each iteration, **or** `dispatch: family=<code|debug|exec|refactor|query|correctness_check|pr|initialize> mode=<fast|general|skill>`. **If omitted, the controller decides the body from [goal] + [success criteria]** (see Step 1).
+- input 4: **[starting state]** — *optional*; files / target repo / baseline notes. **Defaults to the current repo/workspace state** if omitted.
+
+[key md files]: codebase_overview.md, scripts_overview.md, update_logs.md, known_issues.md (under `repo_info/`, resolved via Pack Path Resolution).
+
+**Model headers** (read from the request header; governed by [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Launch Contract — default `inherit`, never downgrade):
+- `subagent_model` — model for the loop's own workers (the free-form body-worker, Devils Advocate, Online Researcher).
+- `dispatch_main_model` — *dispatch only:* model for the sub-main agent that runs the dispatched family.
+- `dispatch_subagent_model` — *dispatch only:* model for that family's own subagents.
+
+**Safety-cap headers** (read from the request header; always enforced — these are the always-on stops):
+- `max_iterations` — hard iteration cap (default **10** if absent). The loop MUST stop here regardless of any other condition.
+- `no_progress_k` — stop after this many consecutive iterations with no measurable progress (default **3** if absent).
+
+**Read this file fully and follow each step.**
+Before doing any workflow-specific work, the main agent must read and follow [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) and [`philosophy/philosophy.instructions.md`](../../philosophy/philosophy.instructions.md) before proceeding.
+Every subagent created by this workflow must also read and follow those two files before reading [key md files] or performing task-specific work.
+
+Subagent launch rule: Follow the Subagent Launch Contract in [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md). After each subagent returns, the main agent must check that the result is complete, task-specific, grounded in the requested files, and uses the expected output label.
+
+> **Subagent invocation:** See `_lib/workflow_contract.md` §Subagent Invocation.
+
+---
+
+## CREATE ONE TODO PER STEP
+
+### Step 1 - Context Gathering & Loop-Spec Parsing
+Read [key md files]. If important files are specified in [inputs], read them. Then, per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents: on **Claude Code**, condense the understanding into a **[repo context digest]** (codebase structure/pipeline, key scripts, recent changes, active known issues) to pass inline to subagents; on **Codex** and **VS Code Copilot**, keep [key md files] for subagents to read directly.
+
+**Parse [inputs] into a draft [loop spec] — decompose, then formalize. Step 2 validates it.**
+
+*Decompose* the two required inputs into the fields below; *formalize* each so it is machine-checkable:
+- **goal** — the single-sentence target from [input 1].
+- **success criteria → verifiable checks** — turn each criterion from [input 2] into an **objective, tool-based check** (a test command, build/exit code, linter, or a grep/count) readable from a worker's result. **Never rely on model self-assessment alone** ("looks good" is not a check). For a command/test verifier, **capture the verifier's own exit status** (run it directly — a pipe like `… | tail` reports the *pipe's* exit code, not the verifier's), pin the pass condition to **`exit == 0`**, and **treat a vacuous result as failure** — an empty suite, all-skipped, or "no items collected" (e.g. `pytest` exit **5**) must NOT read as success; require a non-empty collected/asserted count.
+- **baseline** — snapshot the **starting state** ([input 4], or the current repo/workspace state by default) and record the **baseline value of the progress metric before iteration 1**. When the verifier is a test/script suite, also record a **hash of each verifier/test file** and the **collected-item count** (for the write-guard below).
+- **progress metric** — one cheap proxy tied to ≥1 success criterion (e.g. failing-test count, % coverage, items remaining, build exit code); `delta = current − baseline`. It must be cheap to read each iteration and **hard to game** (favor a metric that cannot be faked by adding comments/blank lines). **Anti-gaming write-guard (MANDATORY when the verifier is a test/script suite):** the body may edit **only non-verifier files**; each iteration the controller asserts the verifier/test files are **unchanged vs. the baseline hash** and the **collected-item count is invariant** — if a verifier/test file changed or the count moved, the metric was gamed (tests edited/skipped/deleted), so **reject/revert that iteration** rather than count it as progress.
+- **exit conditions** — an OR-set of boolean predicates, evaluated each iteration in **priority order**. **Make every predicate concrete here** — each must be a boolean check evaluable from the iteration's result (no abstract conditions); drop any you cannot instantiate:
+  1. **goal-met** (success) — all verifiable checks pass (e.g. `verifier exit == 0` with non-empty collection).
+  2. **hard blocker** (failure / needs-human) — the verifier exits with an **error** status that is not a clean pass/fail (e.g. `pytest` exit 2/3/4/5 — collection / internal / usage error or no-tests), or the worker reports an unrecoverable blocker → stop and escalate.
+  3. **budget / max-iterations** — `max_iterations` reached (header, default **10** — the hard cap), or any user token/time/cost budget exhausted.
+  4. **no-progress** (stagnation) — metric `delta == 0` for `no_progress_k` consecutive iterations (header, default **3**).
+  5. **divergence** (optional safety valve) — the metric is **worse than the prior iteration for 2 consecutive iterations**.
+  - **human checkpoint** — optional; pause for approval before a named irreversible action.
+- **loop body** — if [input 3] is given, use it. **Otherwise the controller decides it now:** classify the goal's intent (feature / fix / refactor / test / debug / query / exec / pr / …); when one of the existing families clearly fits, choose `dispatch: family=… mode=…`; otherwise choose a free-form action. Record the chosen body **and a one-line rationale** in the [loop spec].
+
+**Local Skill Discovery (before any plan drafting):** Perform Local Skill Discovery per `_lib/local_skill_discovery.md` (scan `skills/index.md`; on a confirmed match, read its `SKILL.md`). Record [local skills] and fold it into the repo context; if nothing matches, record [local skills]: none relevant.
+
+### Step 2 - Iteration Plan & Spec Validation
+The main agent drafts an **[iteration plan]**: what one pass does, what the worker must return, the progress metric, and exactly how each exit condition is evaluated from the worker's compact result.
+
+**The draft [loop spec] is validated here (not in Step 1), by the two subagents below — each runs the pre-flight guardrail checklist:** (a) the **goal** is concrete (a specific term/quantity, not a vague "improve"); (b) every **success criterion has an objective verifier** (tool-based, not model judgment alone); (c) the **baseline** is captured before the loop; (d) the **progress metric is hard to game** (composite or tied to real progress, not fakeable by comments/blank lines); (e) every **exit predicate is boolean-evaluable**; (f) the **loop body** (specified or controller-decided) fits the goal.
+
+**[PARALLEL EXECUTION — launch the listed subagents in parallel using your platform's subagent mechanism (see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Invocation); if parallel launch is unavailable, run them sequentially — sequential execution produces equivalent results]** This is the only pre-loop step that spawns subagents.
+
+| Subagent | Agent | When to spawn | Task |
+|----------|-------|---------------|------|
+| Challenge | **Devils Advocate** (`agents/devils-advocate.agent.md`) | Always | Receive the repo context (per §Context Passing) + [loop spec] + [iteration plan]. Run the **guardrail checklist adversarially** and challenge the metrics, iteration plan, and whether [loop spec] makes sense: what could make this loop run forever or stop too early; whether each success criterion is actually verifiable from the worker's compact result; whether the progress metric is meaningful, cheap, and **un-game-able**; whether the caps and baseline are sane; whether the controller-decided body fits the goal. Flag any destructive/irreversible action that should be gated behind a human checkpoint. Report only evidence-backed criticisms (do not manufacture problems). Return [spec critique]. |
+| Research | **Online Researcher** (`agents/online-researcher.agent.md`) | Always | Receive the repo context (per §Context Passing) + [loop spec]. **Validate the verification methods against established practice** — are the chosen checks the standard, robust way to verify these success criteria; are there known pitfalls or stronger verifiers; and (when the body needs them) reliable references/approaches for the body action. The subagent MUST actually call its platform's web search/fetch tool(s) and return source URLs as proof — see `agents/online-researcher.agent.md`. Return [research + verifier validation]. |
+
+The main agent folds [spec critique] + [research + verifier validation] into a finalized **[loop spec]** + **[iteration plan]**. On a failed guardrail: in **plan-only** mode surface the issue alongside the plan; in **autonomous** mode (default) record a one-line assumption/fix and proceed (per `_lib/approval_gate.md`).
+
+### Step 3 - Approval Gate
+Print the finalized [loop spec] + [iteration plan] (goal, body, exit OR-set, caps, progress metric).
+
+**Approval gate (opt-in):** see `_lib/approval_gate.md` — proceed directly to Step 4 unless the user asked for no changes or a plan-only review (in which case stop here, before any iteration or file change).
+
+### Step 4 - Run the Loop
+The main agent is the **controller**; the act is **always delegated**. Initialize the **[loop ledger]** (one line per iteration) and **persist it — plus the baseline (metric value, verifier/test-file hashes, collected-item count) — to a scratch file**, so loop state survives across iterations and the controller's context stays lean (each iteration reloads a compact tail, not the whole history). The following steps can be adapted based on the [loop spec] + [iteration plan], but **success criteria and exit conditions** can not be changed. If any critical exit condition needs to be verified by scripts or codes, now spawn a subagent to implement those scripts/codes before starting the loop.
+For iteration N = 1, 2, …:
+
+1. **Pre-iteration exit check.** Evaluate the OR-set *before* acting (goal already met? any cap exhausted?). If any condition fires, stop and record the reason.
+2. **Act (delegated) — the main agent never edits/fixes/runs the body work itself.**
+   - **Free-form:** spawn a **body-worker subagent** (model = `subagent_model`), passing [repo context digest] + [iteration plan] + the current [loop ledger] tail + this pass's specific action. It performs the action and returns a **compact result** only: **files changed** (one-line diff summary, or "none"), the **progress-metric value** (before → after), any **blocker**, and anything **noteworthy** (decisions, surprises, regressions). When the action is code or command work, the body-worker may be `agents/implementer.agent.md` or `agents/executor.agent.md`.
+   - **Dispatch:** spawn one depth-1 **sub-main agent** (model = `dispatch_main_model`), instructed to run the chosen family's file `workflow/<mode>/<family>.instructions.md` **as that family's main agent** — spawning that family's own subagents at the next level with model = `dispatch_subagent_model` — and to return only a **compact iteration summary** (**files changed** with a one-line diff summary, **progress-metric value** before → after, **blockers**, and **noteworthy items**), not its full transcript. **Platform-conditional:** on **Claude Code**, nested subagents are supported (the sub-main spawns the family's workers directly); on **Codex / VS Code Copilot**, where nesting is limited, the loop main agent runs the family's instruction file **inline** for this iteration instead — sequential, equivalent results.
+3. **Observe & measure.** Read the worker's compact result; re-run the verifiable check (capturing its own exit status) and compute the progress metric for iteration N. **When the verifier is a test/script suite, run the write-guard first:** assert the verifier/test files are unchanged vs. the baseline hash and the collected-item count is invariant; if either moved, **reject/revert this iteration** (the metric was gamed, not earned) and record it as a blocked iteration.
+4. **Post-iteration exit check.** Re-evaluate the OR-set in priority order: goal met (all checks pass)? hard blocker / needs-human? budget exhausted or `max_iterations` reached? progress metric unchanged for the last `no_progress_k` iterations (no-progress)? diverging? Record which condition fired.
+5. **Reflect & ledger.** Append a [loop ledger] entry for iteration N capturing: **action** (free-form, or dispatched family+mode); **code changes** (files touched + one-line diff summary, or "none"); **metric** (`before → after`, i.e. the improvement); **observation + blocker**; **noteworthy** (decisions, surprises, regressions, lessons); **exit-check result**. Carry one short lesson forward to the next iteration.
+6. **Continue or stop.** If no exit fired, start iteration N+1 with **fresh minimal context**: reload [loop spec] + the persisted [loop ledger] tail (from the scratch file) and discard the worker's verbose intermediate output (the context-rot defense). **The loop MUST terminate at the max-iterations cap regardless.**
+
+### Step 5 - Post-loop Review and Validation
+1. Summarize the outcome from the [loop ledger]: goal met (yes/no), which exit condition fired, final state vs success criteria, and — **aggregated across all iterations** — the **net code changes** (cumulative files touched + net diff summary), the **metric trajectory** (baseline → final value + total improvement), and the collected **noteworthy items** (key decisions, surprises, regressions, lessons).
+2. **Native review (platform-conditional):**
+   - **If the main agent is Claude Code (or another Claude agent with Claude Code skills available):** if any iteration edited source files, run the native review skills via [`skills/claude-native-skills-subagents/SKILL.md`](../../skills/claude-native-skills-subagents/SKILL.md) — `/simplify` then `/code-review` on the net diff. Skip when the loop only ran commands without editing source, or when the native skills are unavailable.
+   - **Otherwise (Codex, or VS Code Copilot without Claude Code skills):** skip the native skills; when iterations edited source, review the net diff directly.
+3. If the outcome did not meet the goal, summarize the gaps and lessons learned in bullet points to chat ( no more than 3 sentences), and pass to step 6 for documentation and summary. If the outcome met the goal, pass to step 6 for documentation and summary.
+
+### Step 6 - Documentation and Summary
+1. If the loop changed repo state, update codebase_overview.md and scripts_overview.md based on actual changes.
+2. Write to update_logs.md:
+```md
+{=============================Loop Update===============================}
+{Loop Name + Loop ID (last ID + 1)}
+{Description (1-2 sentences)}
+{Repos involved}
+{Goal / success criteria}
+{Loop body (free-form action, or dispatched family + mode)}
+{Exit conditions (the OR-set + caps that were in effect)}
+{Iterations run + exit reason (which condition fired)}
+{Code changes (net files touched + diff summary, or none)}
+{Metric trajectory (baseline → final, total improvement)}
+{Noteworthy (key decisions, surprises, regressions, lessons)}
+{summary from Step 5 (gaps if any)}
+{Achieved (yes/no, gaps if any)}
+```
+3. Summarize the loop outcome (iterations run, exit reason, net code changes, metric trajectory, achieved y/n) in bullet points to chat.

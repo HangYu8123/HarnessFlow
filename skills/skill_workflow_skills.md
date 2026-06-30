@@ -82,6 +82,13 @@ inline fallback.
 - **What it does:** Structured correctness/quality review of files and diffs with severity-rated findings.
 - **Backs:** The Correctness Analysis step in the correctness-check workflow.
 
+### Loop family mapping (`workflow/skill_workflow/loop.instructions.md`)
+The loop meta-workflow reuses the skills above (no loop-specific skill was adopted):
+- **iteration-plan drafting** → `writing-plans` (+ `brainstorming` when intent is ambiguous).
+- **spec-validation challenge** → `the-fool`; **verifier-validation research** → `deep-research`; **post-loop self-challenge** → `the-fool`.
+- **loop body** (delegated act) → `executing-plans` + `test-driven-development` for code/feature work, or `systematic-debugging` for debugging.
+- **Loop control stays INLINE — no qualifying ≥1000★ skill.** Spec parsing, the anti-gaming write-guard, exit-condition evaluation, and the ledger are bespoke loop machinery with no community-skill equivalent; per the selection rule above, those step instructions are kept verbatim (not skill-backed).
+
 ## Better-skill review (alternatives considered)
 
 A second adversarial pass compared each chosen skill against the strongest

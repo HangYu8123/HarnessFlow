@@ -25,6 +25,7 @@ If the prompt explicitly includes `mode: fast`, use the matching file under `wor
 | **Exec (Cmd/Skill Execution)** | execute, run, exec, invoke, launch command, run skill, run script, trigger, run cmd | #file:workflow/general_workflow/exec.instructions.md | #file:workflow/token_effective_workflow/exec.instructions.md |
 | **PR Creation** | pull request, PR, stacked PR, break down branch, split PR, create PR | #file:workflow/general_workflow/pr.instructions.md | #file:workflow/token_effective_workflow/pr.instructions.md |
 | **Initialize Repo** | initialize, init, setup repo, create overview, bootstrap, first-time setup | #file:workflow/general_workflow/initialize.instructions.md | #file:workflow/token_effective_workflow/initialize.instructions.md |
+| **Loop** | loop, iterate, repeat, keep going until, until <condition>, poll, recurring, converge, run until done, autonomous until | #file:workflow/general_workflow/loop.instructions.md | #file:workflow/token_effective_workflow/loop.instructions.md |
 
 All instruction files are under `.github/HarnessFlow/`.
 

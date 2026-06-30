@@ -34,6 +34,7 @@ If the prompt explicitly includes `mode: fast`, use the matching file under `wor
 | **Exec (Cmd/Skill Execution)** | execute, run, exec, invoke, launch command, run skill, run script, trigger | `workflow/general_workflow/exec.instructions.md` | `workflow/token_effective_workflow/exec.instructions.md` |
 | **PR Creation** | pull request, PR, stacked PR, break down branch, split PR, create PR | `workflow/general_workflow/pr.instructions.md` | `workflow/token_effective_workflow/pr.instructions.md` |
 | **Initialize Repo** | initialize, init, setup repo, create overview, bootstrap, first-time setup | `workflow/general_workflow/initialize.instructions.md` | `workflow/token_effective_workflow/initialize.instructions.md` |
+| **Loop** | loop, iterate, repeat, keep going until, until <condition>, poll, recurring, converge, run until done, autonomous until | `workflow/general_workflow/loop.instructions.md` | `workflow/token_effective_workflow/loop.instructions.md` |
 
 All instruction files are resolved via Pack Path Resolution.
 

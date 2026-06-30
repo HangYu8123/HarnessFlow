@@ -45,6 +45,8 @@ Subagent launch rule: Follow the Subagent Launch Contract in [`_lib/workflow_con
 ### Step 1 - Context Gathering
 Read [key md files]. If important files are specified in [inputs], read them. Condense them (plus any target files) into a **[repo context digest]** for use in later steps, and hand off repo context to subagents per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents: on **Claude Code** the main agent passes [repo context digest] inline; on **Codex** and **VS Code Copilot** subagents read [key md files] directly.
 
+**Local Skill Discovery (before any plan drafting):** Perform Local Skill Discovery per `_lib/local_skill_discovery.md` — scan `skills/index.md` for any local skill whose trigger fits [inputs]/the task; on a confirmed match, read its `SKILL.md`. Keep the result as [local skills], fold it into the repo context (per §Context Passing) so the Step 3 subagents receive it, and integrate it when the main agent drafts [plan]/[final plan]. If nothing matches, record [local skills]: none relevant.
+
 ### Step 2 - Implementation Planning
 Based on the repo context (per §Context Passing) + [inputs], the main agent reads the relevant files and proposes a [plan] for integrating the target functionalities (files to add/change, integration points, dependencies) + notes on keeping existing behavior and tests stable.
 

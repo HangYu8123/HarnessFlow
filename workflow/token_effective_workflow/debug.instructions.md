@@ -50,6 +50,8 @@ The main agent identifies the target scripts and entry points, runs the relevant
 ### Step 1 - Context Gathering
 Read [key md files]. If suspected scripts are specified in [inputs], read them. Condense them into a **[repo context digest]** — a concise bullet-point summary covering codebase structure/pipeline, key scripts and their roles, recent changes, and active known issues — for use in later steps and for handoff to subagents per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents.
 
+**Local Skill Discovery (before any plan drafting):** Perform Local Skill Discovery per `_lib/local_skill_discovery.md` — scan `skills/index.md` for any local skill whose trigger fits [inputs]/the task; on a confirmed match, read its `SKILL.md`. Keep the result as [local skills], fold it into the repo context (per §Context Passing) so the Step 3 subagents receive it, and integrate it when the main agent drafts [plan]/[final plan]. If nothing matches, record [local skills]: none relevant.
+
 ### Step 2 - Diagnosis and Fix Plan
 Based on [repo context digest] + [inputs] + [reproduction report] (if any), the main agent:
 1. Checks update_logs.md and known_issues.md for whether this bug was previously addressed and, if so, why the prior fix failed.

@@ -64,6 +64,9 @@
             background:var(--chip);font-size:13px;font-family:var(--mono)}
   .seg input:checked + span{background:var(--chip-on);color:var(--accent-ink);border-color:var(--chip-on);font-weight:600}
   .seg input:focus-visible + span{outline:2px solid var(--accent);outline-offset:2px}
+  .caps{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+  .cap{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+  .cap input{width:62px;font-family:var(--mono);font-size:13px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
   .custom-model{margin-top:8px;display:none}
   .custom-model.show{display:block}
   .custom-model input{width:100%;font-family:var(--mono);font-size:13px;padding:7px 9px;
@@ -139,6 +142,14 @@
         </div>
       </fieldset>
 
+      <fieldset id="fs-loopcaps" style="display:none">
+        <legend>loop caps <span style="font-weight:400">(loop only)</span></legend>
+        <div class="caps">
+          <label class="cap">max_iterations <input id="loop-maxiter" type="number" min="1" step="1" value="10"></label>
+          <label class="cap">no_progress_k <input id="loop-noprogress" type="number" min="1" step="1" value="3"></label>
+        </div>
+      </fieldset>
+
       <fieldset>
         <legend>agent type</legend>
         <div class="seg" id="seg-agent" role="radiogroup" aria-label="agent type">
@@ -202,7 +213,8 @@
   "refactor": "mode: fast\nagent type: claude\nsubagent_model: inherit\n\nFirst, **READ THROUGH THE corresponding refactor.instructions.md VERY CAREFULLY**. If the active agent is Codex (CLI or VS Code), use `.github/HarnessFlow/workflow/token_effective_workflow/refactor.instructions.md` for `mode: fast` and `.github/HarnessFlow/workflow/general_workflow/refactor.instructions.md` for `mode: general`. If the active agent is VS Code Copilot, use `@/.github/HarnessFlow/workflow/token_effective_workflow/refactor.instructions.md` for `mode: fast` and `@/.github/HarnessFlow/workflow/general_workflow/refactor.instructions.md` for `mode: general`. If the active agent is Claude Code, use `workflow/token_effective_workflow/refactor.instructions.md` for `mode: fast` and `workflow/general_workflow/refactor.instructions.md` for `mode: general`; the optional `subagent_model` header selects the model for all subagents — its default `inherit` keeps subagents on the main agent's model with no downgrade (in `mode: fast` the default main model is Sonnet 4.6), or set a specific model id to override. Follow the instructions in that file to implement the refactor goals specified by the followings.\n\nFollow the instructions in the selected refactor.instructions.md to implement the refactor goal to the:\n\n\nrefactor descriptions:\n",
   "exec": "mode: fast\nagent type: claude\nsubagent_model: inherit\n\nFirst, **READ THROUGH THE corresponding exec.instructions.md VERY CAREFULLY**. If the active agent is Codex (CLI or VS Code), use `.github/HarnessFlow/workflow/token_effective_workflow/exec.instructions.md` for `mode: fast` and `.github/HarnessFlow/workflow/general_workflow/exec.instructions.md` for `mode: general`. If the active agent is VS Code Copilot, use `@/.github/HarnessFlow/workflow/token_effective_workflow/exec.instructions.md` for `mode: fast` and `@/.github/HarnessFlow/workflow/general_workflow/exec.instructions.md` for `mode: general`. If the active agent is Claude Code, use `workflow/token_effective_workflow/exec.instructions.md` for `mode: fast` and `workflow/general_workflow/exec.instructions.md` for `mode: general`; the optional `subagent_model` header selects the model for all subagents — its default `inherit` keeps subagents on the main agent's model with no downgrade (in `mode: fast` the default main model is Sonnet 4.6), or set a specific model id to override. Follow the instructions in that file to execute the cmds/skills mentioned in the following.\n\nFollow the instructions in the selected exec.instructions.md to execute the target cmds/skills:\n\nTarget cmds/skills:\n",
   "pr": "mode: fast\nagent type: claude\nsubagent_model: inherit\n\nFirst, **READ THROUGH THE corresponding pr.instructions.md VERY CAREFULLY**. If the active agent is Codex (CLI or VS Code), use `.github/HarnessFlow/workflow/token_effective_workflow/pr.instructions.md` for `mode: fast` and `.github/HarnessFlow/workflow/general_workflow/pr.instructions.md` for `mode: general`. If the active agent is VS Code Copilot, use `@/.github/HarnessFlow/workflow/token_effective_workflow/pr.instructions.md` for `mode: fast` and `@/.github/HarnessFlow/workflow/general_workflow/pr.instructions.md` for `mode: general`. If the active agent is Claude Code, use `workflow/token_effective_workflow/pr.instructions.md` for `mode: fast` and `workflow/general_workflow/pr.instructions.md` for `mode: general`; the optional `subagent_model` header selects the model for all subagents — its default `inherit` keeps subagents on the main agent's model with no downgrade (in `mode: fast` the default main model is Sonnet 4.6), or set a specific model id to override. Follow the instructions in that file to break down and create PRs as described below.\n\nFollow the instructions in the selected pr.instructions.md to create PRs:\n\ntarget branch:\n\nbase branch:\n\nmode (plan/execute):\n\nmax lines per PR:\n\nstack tool preference:\n\nadditional notes:\n",
-  "initialize": "mode: fast\nagent type: claude\nsubagent_model: inherit\n\nFirst, **READ THROUGH THE corresponding initialize.instructions.md VERY CAREFULLY**. If the active agent is Codex (CLI or VS Code), use `.github/HarnessFlow/workflow/token_effective_workflow/initialize.instructions.md` for `mode: fast` and `.github/HarnessFlow/workflow/general_workflow/initialize.instructions.md` for `mode: general`. If the active agent is VS Code Copilot, use `@/.github/HarnessFlow/workflow/token_effective_workflow/initialize.instructions.md` for `mode: fast` and `@/.github/HarnessFlow/workflow/general_workflow/initialize.instructions.md` for `mode: general`. If the active agent is Claude Code, use `workflow/token_effective_workflow/initialize.instructions.md` for `mode: fast` and `workflow/general_workflow/initialize.instructions.md` for `mode: general`; the optional `subagent_model` header selects the model for all subagents — its default `inherit` keeps subagents on the main agent's model with no downgrade (in `mode: fast` the default main model is Sonnet 4.6), or set a specific model id to override. Follow the instructions in that file to initialize the repo.\n\nFollow the instructions in the selected initialize.instructions.md to initialize:\n\nrepo name:\n"
+  "initialize": "mode: fast\nagent type: claude\nsubagent_model: inherit\n\nFirst, **READ THROUGH THE corresponding initialize.instructions.md VERY CAREFULLY**. If the active agent is Codex (CLI or VS Code), use `.github/HarnessFlow/workflow/token_effective_workflow/initialize.instructions.md` for `mode: fast` and `.github/HarnessFlow/workflow/general_workflow/initialize.instructions.md` for `mode: general`. If the active agent is VS Code Copilot, use `@/.github/HarnessFlow/workflow/token_effective_workflow/initialize.instructions.md` for `mode: fast` and `@/.github/HarnessFlow/workflow/general_workflow/initialize.instructions.md` for `mode: general`. If the active agent is Claude Code, use `workflow/token_effective_workflow/initialize.instructions.md` for `mode: fast` and `workflow/general_workflow/initialize.instructions.md` for `mode: general`; the optional `subagent_model` header selects the model for all subagents — its default `inherit` keeps subagents on the main agent's model with no downgrade (in `mode: fast` the default main model is Sonnet 4.6), or set a specific model id to override. Follow the instructions in that file to initialize the repo.\n\nFollow the instructions in the selected initialize.instructions.md to initialize:\n\nrepo name:\n",
+  "loop": "mode: fast\nagent type: claude\nsubagent_model: inherit\ndispatch_main_model: inherit\ndispatch_subagent_model: inherit\nmax_iterations: 10\nno_progress_k: 3\n\nFirst, **READ THROUGH THE corresponding loop.instructions.md VERY CAREFULLY**. If the active agent is Codex (CLI or VS Code), use `.github/HarnessFlow/workflow/token_effective_workflow/loop.instructions.md` for `mode: fast` and `.github/HarnessFlow/workflow/general_workflow/loop.instructions.md` for `mode: general`. If the active agent is VS Code Copilot, use `@/.github/HarnessFlow/workflow/token_effective_workflow/loop.instructions.md` for `mode: fast` and `@/.github/HarnessFlow/workflow/general_workflow/loop.instructions.md` for `mode: general`. If the active agent is Claude Code, use `workflow/token_effective_workflow/loop.instructions.md` for `mode: fast` and `workflow/general_workflow/loop.instructions.md` for `mode: general`; the `subagent_model` header selects the model for the loop's own workers (its default `inherit` keeps subagents on the main agent's model with no downgrade \u2014 in `mode: fast` the default main model is Sonnet 4.6), when the loop body uses `dispatch:` the optional `dispatch_main_model` / `dispatch_subagent_model` headers select the model for the dispatched family's main agent and that family's own subagents respectively (both default `inherit`), and the `max_iterations` / `no_progress_k` headers set the always-on safety caps (hard iteration cap, default 10; stop after this many no-progress iterations, default 3). Follow the instructions in that file to run the loop described below.\n\nThe loop runs a delegated body action each iteration while the main agent controls observation, exit-condition checks, and the ledger. Provide a **goal** and **success criteria + exit conditions** (both required). The loop body and starting state are optional \u2014 if you omit the loop body, the controller decides it from your goal; starting state defaults to the current repo/workspace state.\n\nGoal (required):\n  - <one concrete sentence with a specific term/quantity, e.g. \"make all tests in tests/ pass\">\n\nSuccess criteria & exit conditions (required):\n  - success (goal-met): <verifiable check, e.g. \"pytest -q exits 0\">\n  - extra exit conditions (optional): <budget (token / time / cost) / human checkpoint>\n  - (max_iterations and no_progress_k are set in the headers above)\n\nLoop body (optional \u2014 if omitted, the controller decides it from the goal):\n  - action: <free-form, e.g. \"fix the next failing test\">   OR   dispatch: family=<code|debug|exec|refactor|query|correctness_check|pr|initialize> mode=<fast|general|skill>\n\nStarting state (optional \u2014 defaults to the current repo/workspace state):\n  - important files / target repo / baseline notes: <...>\n"
 }
 </script>
 
@@ -238,7 +250,10 @@ var CATEGORIES = [
    kw:"pull request, PR, stacked PR, break down branch, split PR"},
   {id:"initialize", label:"Initialize",
    desc:"Bootstrap repo overview / first-time setup.",
-   kw:"initialize, init, setup repo, create overview, bootstrap"}
+   kw:"initialize, init, setup repo, create overview, bootstrap"},
+  {id:"loop", label:"Loop", hasLoopCaps:true,
+   desc:"Repeat a delegated action until a goal or exit condition is met.",
+   kw:"loop, iterate, repeat, keep going until, until, poll, recurring, converge, run until done"}
 ];
 var CAT_BY_ID = {};
 CATEGORIES.forEach(function(c){ CAT_BY_ID[c.id] = c; });
@@ -249,7 +264,7 @@ var TEMPLATES = JSON.parse(document.getElementById("hf-templates").textContent);
 // UI state. Parameters are global (shared across templates); field values per category.
 var state = {
   cat: "code",
-  params: { "mode":"fast", "reproduce":"false", "agent type":"claude", "subagent_model":"inherit" },
+  params: { "mode":"fast", "reproduce":"false", "agent type":"claude", "subagent_model":"inherit", "max_iterations":"10", "no_progress_k":"3" },
   customModel: "",
   fieldValues: {}            // fieldValues[catId][label] = string
 };
@@ -344,6 +359,7 @@ function effectiveParams(cat){
         : state.params["subagent_model"]
   };
   if(cat.hasReproduce) p["reproduce"] = state.params["reproduce"];
+  if(cat.hasLoopCaps){ p["max_iterations"] = state.params["max_iterations"]; p["no_progress_k"] = state.params["no_progress_k"]; }
   return p;
 }
 
@@ -388,6 +404,11 @@ function renderRef(){
 function renderReproduceVisibility(){
   document.getElementById("fs-reproduce").style.display =
     CAT_BY_ID[state.cat].hasReproduce ? "" : "none";
+}
+
+function renderLoopCapsVisibility(){
+  document.getElementById("fs-loopcaps").style.display =
+    CAT_BY_ID[state.cat].hasLoopCaps ? "" : "none";
 }
 
 function renderFields(){
@@ -469,6 +490,7 @@ function renderAll(){
   updateTabSelection();
   renderRef();
   renderReproduceVisibility();
+  renderLoopCapsVisibility();
   renderFields();
   renderPath();
   renderPreview();
@@ -642,6 +664,8 @@ function seedStateFromDom(){
   state.params["mode"] = document.querySelector('input[name="mode"]:checked').value;
   state.params["agent type"] = document.querySelector('input[name="agent"]:checked').value;
   state.params["reproduce"] = document.querySelector('input[name="reproduce"]:checked').value;
+  state.params["max_iterations"] = document.getElementById("loop-maxiter").value || "10";
+  state.params["no_progress_k"] = document.getElementById("loop-noprogress").value || "3";
   var model = document.querySelector('input[name="model"]:checked').value;
   state.params["subagent_model"] = model;
   state.customModel = document.getElementById("customModel").value;
@@ -654,6 +678,12 @@ function wireParams(){
   });
   document.getElementById("seg-reproduce").addEventListener("change", function(e){
     state.params["reproduce"] = e.target.value; renderPreview();
+  });
+  document.getElementById("loop-maxiter").addEventListener("input", function(e){
+    state.params["max_iterations"] = e.target.value || "10"; renderPreview();
+  });
+  document.getElementById("loop-noprogress").addEventListener("input", function(e){
+    state.params["no_progress_k"] = e.target.value || "3"; renderPreview();
   });
   document.getElementById("seg-agent").addEventListener("change", function(e){
     state.params["agent type"] = e.target.value; renderPath(); renderPreview();
