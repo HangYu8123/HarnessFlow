@@ -1,0 +1,34 @@
+<svg viewBox="0 0 780 470" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,Segoe UI,Roboto,sans-serif">
+<rect width="780" height="470" fill="#ffffff"/>
+<text x="390" y="26" font-size="16" text-anchor="middle" fill="#0f172a" font-weight="700">Token cost: fast vs. general workflow</text>
+<text x="390" y="44" font-size="12" text-anchor="middle" fill="#64748b">Two independent benchmarks — both arms reach identical outcomes; fast spends 39–50% of general's tokens (lower = cheaper)</text>
+<line x1="56" y1="370.0" x2="760" y2="370.0" stroke="#e2e8f0"/>
+<text x="48" y="374.0" font-size="11" text-anchor="end" fill="#64748b">0</text>
+<line x1="56" y1="311.6" x2="760" y2="311.6" stroke="#e2e8f0"/>
+<text x="48" y="315.6" font-size="11" text-anchor="end" fill="#64748b">1M</text>
+<line x1="56" y1="253.2" x2="760" y2="253.2" stroke="#e2e8f0"/>
+<text x="48" y="257.2" font-size="11" text-anchor="end" fill="#64748b">2M</text>
+<line x1="56" y1="194.8" x2="760" y2="194.8" stroke="#e2e8f0"/>
+<text x="48" y="198.8" font-size="11" text-anchor="end" fill="#64748b">3M</text>
+<line x1="56" y1="136.4" x2="760" y2="136.4" stroke="#e2e8f0"/>
+<text x="48" y="140.4" font-size="11" text-anchor="end" fill="#64748b">4M</text>
+<line x1="56" y1="78.0" x2="760" y2="78.0" stroke="#e2e8f0"/>
+<text x="48" y="82.0" font-size="11" text-anchor="end" fill="#64748b">5M</text>
+<rect x="150.0" y="224.6" width="90.0" height="145.4" fill="#16a34a" rx="2"/>
+<rect x="250.0" y="78.0" width="90.0" height="292.0" fill="#94a3b8" rx="2"/>
+<rect x="470.0" y="268.4" width="90.0" height="101.6" fill="#16a34a" rx="2"/>
+<rect x="570.0" y="110.1" width="90.0" height="259.9" fill="#94a3b8" rx="2"/>
+<text x="195.0" y="218.6" font-size="12" text-anchor="middle" fill="#334155" font-weight="600">2.49M</text>
+<text x="295.0" y="72.0" font-size="12" text-anchor="middle" fill="#334155" font-weight="600">5.00M</text>
+<text x="515.0" y="262.4" font-size="12" text-anchor="middle" fill="#334155" font-weight="600">1.74M</text>
+<text x="615.0" y="104.1" font-size="12" text-anchor="middle" fill="#334155" font-weight="600">4.45M</text>
+<text x="195.0" y="386" font-size="11" text-anchor="middle" fill="#16803a" font-weight="600">fast</text>
+<text x="295.0" y="386" font-size="11" text-anchor="middle" fill="#64748b">general</text>
+<text x="515.0" y="386" font-size="11" text-anchor="middle" fill="#16803a" font-weight="600">fast</text>
+<text x="615.0" y="386" font-size="11" text-anchor="middle" fill="#64748b">general</text>
+<text x="245.0" y="406" font-size="12" text-anchor="middle" fill="#0f172a" font-weight="600">ShapeLab build</text>
+<text x="245.0" y="423" font-size="11" text-anchor="middle" fill="#0f6e56">✓ identical outcome</text>
+<text x="565.0" y="406" font-size="12" text-anchor="middle" fill="#0f172a" font-weight="600">SWE-bench fix (sympy-24213)</text>
+<text x="565.0" y="423" font-size="11" text-anchor="middle" fill="#0f6e56">✓ identical outcome</text>
+<rect x="56" y="450" width="12" height="12" fill="#16a34a" rx="2"/><text x="74" y="460" font-size="12" fill="#334155">fast (ours)</text><rect x="166" y="450" width="12" height="12" fill="#94a3b8" rx="2"/><text x="184" y="460" font-size="12" fill="#334155">general</text>
+</svg>

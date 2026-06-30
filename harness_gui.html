@@ -73,9 +73,19 @@
   .pathbox .lbl{display:block;color:#8b94a7;font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
   .field{margin-bottom:12px}
   .field label{display:block;font-size:13px;font-weight:600;margin-bottom:4px}
+  .field-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .field-head label{margin-bottom:4px}
+  .browse{appearance:none;border:1px solid var(--line);background:var(--chip);color:var(--ink);
+        padding:3px 9px;border-radius:7px;font-size:11.5px;line-height:1.4;cursor:pointer;
+        font-family:inherit;font-weight:600;white-space:nowrap;margin-bottom:4px}
+  .browse:hover{border-color:var(--accent)}
+  .browse:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .hint{color:var(--muted);font-size:12px;margin:-4px 0 12px}
   .field textarea{width:100%;min-height:42px;resize:vertical;font-family:var(--mono);font-size:13px;
         padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
   .field textarea:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+  .field.drop textarea{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--bg))}
+  .field.drop{outline:2px dashed var(--accent);outline-offset:3px;border-radius:8px}
   .preview-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
   .preview-head h2{margin:0}
   .btns{display:flex;flex-wrap:wrap;gap:8px}
@@ -159,6 +169,7 @@
     <!-- RIGHT: fill + output -->
     <section class="panel">
       <h2>3 · Fill in</h2>
+      <p class="hint" id="fillHint"></p>
       <div id="fields"></div>
 
       <div class="preview-head" style="margin-top:18px">
@@ -388,19 +399,57 @@ function renderFields(){
     var wrap = document.createElement("div");
     wrap.className = "field";
     var id = "f_" + cat.id + "_" + slot.key.replace(/[^a-z0-9]+/gi,"_");
+
+    var head = document.createElement("div");
+    head.className = "field-head";
     var lab = document.createElement("label");
     lab.setAttribute("for", id);
     lab.textContent = slot.label;
+    head.appendChild(lab);
+
     var ta = document.createElement("textarea");
     ta.id = id;
     ta.rows = 2;
     ta.value = state.fieldValues[cat.id][slot.key] || "";
-    ta.addEventListener("input", function(){
+    var pushValue = function(){
       state.fieldValues[cat.id][slot.key] = ta.value;
       autosize(ta);
       renderPreview();
-    });
-    wrap.appendChild(lab);
+    };
+    ta.addEventListener("input", pushValue);
+
+    // "file"-ish slots (e.g. "important files:") get a native Browse button and
+    // quote-stripping paste; every field still accepts drag-and-drop of paths.
+    var isFileField = /\bfiles?\b/i.test(slot.label) || /\bfiles?\b/i.test(slot.key);
+
+    // Browse needs the Python server's /__pick__ endpoint; file:// has no backend.
+    if(isFileField && location.protocol !== "file:"){
+      var browse = document.createElement("button");
+      browse.type = "button";
+      browse.className = "browse";
+      browse.textContent = "📁 Browse…";
+      browse.title = "Open a native picker and insert the real file path(s)";
+      browse.addEventListener("click", function(){ pickFilesInto(ta, pushValue); });
+      head.appendChild(browse);
+    }
+
+    if(isFileField){
+      // Windows "Copy as path" wraps the path in quotes — drop them on paste.
+      ta.addEventListener("paste", function(e){
+        var cd = e.clipboardData || window.clipboardData;
+        if(!cd) return;
+        var s = cd.getData("text");
+        if(s && /^\s*"[^"]+"\s*$/.test(s)){
+          e.preventDefault();
+          insertAtCaret(ta, s.trim().replace(/^"|"$/g, ""));
+          pushValue();
+        }
+      });
+    }
+
+    wireDrop(wrap, ta, pushValue, isFileField);
+
+    wrap.appendChild(head);
     wrap.appendChild(ta);
     box.appendChild(wrap);
     autosize(ta);
@@ -428,6 +477,102 @@ function renderAll(){
 // --- Helpers ---------------------------------------------------------------
 
 function autosize(ta){ ta.style.height = "auto"; ta.style.height = (ta.scrollHeight + 2) + "px"; }
+
+// --- File paths: drag/drop + native picker ---------------------------------
+
+// Replace the textarea's current selection with `text`, leaving the caret after it.
+function insertAtCaret(ta, text){
+  var s = ta.selectionStart != null ? ta.selectionStart : ta.value.length;
+  var e = ta.selectionEnd   != null ? ta.selectionEnd   : ta.value.length;
+  ta.value = ta.value.slice(0, s) + text + ta.value.slice(e);
+  ta.selectionStart = ta.selectionEnd = s + text.length;
+  ta.focus();
+}
+
+// Append path(s) to a file field, comma-separating from any existing content
+// (templates read "important files: a, b, c").
+function appendPaths(ta, paths){
+  var add = paths.filter(Boolean).join(", ");
+  if(!add) return;
+  var cur = ta.value.replace(/\s+$/, "");
+  ta.value = cur ? (cur + ", " + add) : add;
+  ta.selectionStart = ta.selectionEnd = ta.value.length;
+}
+
+// Turn a file:// URI into a plain OS path; strip wrapping quotes; tidy the leading
+// slash before a Windows drive letter. Used for dragged text and text/uri-list.
+function normalizePath(s){
+  s = (s || "").trim().replace(/^"|"$/g, "");
+  if(/^file:\/\//i.test(s)){
+    try { s = decodeURIComponent(s.replace(/^file:\/\//i, "")); } catch(e){}
+    s = s.replace(/^\/([A-Za-z]:)/, "$1");          // /C:/x -> C:/x
+    if(/Windows/i.test(navigator.userAgent)) s = s.replace(/\//g, "\\");
+  }
+  return s;
+}
+
+// True full paths via the Python server's native picker (browsers won't reveal
+// the path of a dropped/chosen file, so this is the reliable route).
+async function pickFilesInto(ta, after){
+  try{
+    var res = await fetch("/__pick__?mode=files", { cache: "no-store" });
+    var data = await res.json();
+    if(data && data.paths && data.paths.length){
+      appendPaths(ta, data.paths); after();
+    } else if(data && data.error){
+      toast("Picker error: " + data.error);
+    }
+  }catch(e){
+    toast("Browse needs the server — run: python harness_gui.py");
+  }
+}
+
+// Accept dropped path text / file:// URIs (full path) or dropped files (name only).
+function wireDrop(wrap, ta, after, isFile){
+  function show(on){ wrap.classList.toggle("drop", on); }
+  ta.addEventListener("dragenter", function(e){ e.preventDefault(); show(true); });
+  ta.addEventListener("dragover",  function(e){ e.preventDefault(); show(true); });
+  ta.addEventListener("dragleave", function(){ show(false); });
+  ta.addEventListener("drop", function(e){
+    e.preventDefault(); e.stopPropagation(); show(false);
+    var dt = e.dataTransfer; if(!dt) return;
+
+    // Dragged text / file:// URIs carry the real path — prefer them.
+    var text = dt.getData("text/uri-list") || dt.getData("text/plain") || "";
+    var paths = text.split(/[\r\n]+/).map(normalizePath).filter(Boolean);
+    if(paths.length){
+      if(isFile) appendPaths(ta, paths); else insertAtCaret(ta, paths.join("\n"));
+      after(); return;
+    }
+
+    // Files dragged from the OS file manager: browsers expose only the name.
+    if(dt.files && dt.files.length){
+      var names = Array.prototype.map.call(dt.files, function(f){ return f.name; });
+      if(isFile) appendPaths(ta, names); else insertAtCaret(ta, names.join(", "));
+      after();
+      toast("Browsers hide full paths — use 📁 Browse or Windows ‘Copy as path’.");
+    }
+  });
+}
+
+// Keep a stray file dropped outside a field from navigating the page away.
+function preventStrayDrops(){
+  ["dragover","drop"].forEach(function(ev){
+    window.addEventListener(ev, function(e){
+      if(e.target && e.target.tagName === "TEXTAREA") return;  // field handlers own these
+      e.preventDefault();
+    });
+  });
+}
+
+// One-time tip under "Fill in"; wording depends on whether Browse is available.
+function renderHint(){
+  var el = document.getElementById("fillHint");
+  if(!el) return;
+  el.textContent = location.protocol === "file:"
+    ? "Tip: drag a path in, or paste one (Windows ‘Copy as path’). Run via python harness_gui.py to enable 📁 Browse."
+    : "Tip: drag a path in, or use 📁 Browse on file fields. Browsers can’t read a dragged file’s full path — Browse (or ‘Copy as path’) gives the real one.";
+}
 
 function toast(msg){
   var t = document.getElementById("toast");
@@ -540,8 +685,10 @@ function wireButtons(){
 buildTabs();
 seedStateFromDom();
 renderAll();
+renderHint();
 wireParams();
 wireButtons();
+preventStrayDrops();
 liveSync();
 </script>
 </body>

@@ -8,16 +8,67 @@ One command, no install, no dependencies:
 Starts a tiny local web server rooted at this folder and opens
 ``harness_gui.html`` in your default browser automatically. Serving over http
 (instead of opening the file directly) lets the page live-sync the templates
-from ``request_template/``. Press Ctrl+C to stop.
+from ``request_template/`` AND enables the native "Browse" file picker.
+
+WHY a native picker: browsers deliberately hide the full filesystem path of a
+dragged or chosen file (you only ever get the bare file name). The page therefore
+calls back to this server's ``/__pick__`` endpoint, which opens a native OS file
+dialog (stdlib ``tkinter`` — no third-party dependency) and returns the real
+absolute paths. Paths that live under this folder come back repo-relative with
+forward slashes, matching how the request templates reference files.
 
 Set ``HARNESS_GUI_PORT`` to pin a port (default ``0`` picks a free one).
+Press Ctrl+C to stop.
 """
 import http.server
+import json
 import os
 import socketserver
+import subprocess
+import sys
+import urllib.parse
 import webbrowser
 
 PAGE = "harness_gui.html"
+
+
+def _pick_paths(mode, root):
+    """Open a native file/folder dialog and return the chosen paths.
+
+    Runs in its own short-lived process (see ``--pick`` in ``__main__``) so the
+    Tk interpreter never touches the HTTP server's thread/event state. Paths under
+    ``root`` are returned repo-relative with forward slashes (e.g.
+    ``repo_info/codebase_overview.md``); anything else stays absolute and native.
+    """
+    import tkinter as tk
+    from tkinter import filedialog
+
+    win = tk.Tk()
+    win.withdraw()
+    win.attributes("-topmost", True)  # surface the dialog above the browser
+    try:
+        if mode == "dir":
+            sel = filedialog.askdirectory(parent=win, title="Select a folder")
+            chosen = [sel] if sel else []
+        else:
+            sel = filedialog.askopenfilenames(parent=win, title="Select file(s)")
+            chosen = list(sel)
+    finally:
+        win.destroy()
+
+    out = []
+    for p in chosen:
+        ap = os.path.abspath(p)
+        rel = None
+        try:
+            rel = os.path.relpath(ap, root)
+        except ValueError:
+            rel = None  # different drive on Windows -> keep absolute
+        if rel and not rel.startswith(".."):
+            out.append(rel.replace(os.sep, "/"))
+        else:
+            out.append(ap)
+    return out
 
 
 def main():
@@ -29,6 +80,35 @@ def main():
     class Handler(http.server.SimpleHTTPRequestHandler):
         def log_message(self, *args):
             pass  # keep the console quiet
+
+        def do_GET(self):
+            if urllib.parse.urlparse(self.path).path == "/__pick__":
+                self._serve_pick()
+                return
+            super().do_GET()
+
+        # GET /__pick__?mode=files|dir -> {"paths": [...]} from a native dialog.
+        # We shell out to ``this_file --pick <mode>`` so Tk gets a clean main
+        # thread; the dialog blocks this single-threaded server only while open,
+        # which is fine for a local single-user tool.
+        def _serve_pick(self):
+            qs = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)
+            mode = "dir" if (qs.get("mode") or ["files"])[0] == "dir" else "files"
+            try:
+                proc = subprocess.run(
+                    [sys.executable, os.path.abspath(__file__), "--pick", mode],
+                    capture_output=True, text=True, timeout=600,
+                )
+                body = (proc.stdout or "").strip() or '{"paths": []}'
+            except Exception as e:  # noqa: BLE001 - report any failure to the UI
+                body = json.dumps({"paths": [], "error": str(e)})
+            data = body.encode("utf-8")
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Content-Length", str(len(data)))
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
+            self.wfile.write(data)
 
     port = int(os.environ.get("HARNESS_GUI_PORT", "0"))
     socketserver.TCPServer.allow_reuse_address = True
@@ -44,4 +124,14 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    # Child-process mode for the native picker: print the chosen paths as JSON and
+    # exit. Kept out of main() so importing/serving never pulls in tkinter.
+    if "--pick" in sys.argv:
+        pick_mode = "dir" if "dir" in sys.argv[sys.argv.index("--pick") + 1:] else "files"
+        pick_root = os.path.dirname(os.path.abspath(__file__))
+        try:
+            print(json.dumps({"paths": _pick_paths(pick_mode, pick_root)}))
+        except Exception as e:  # noqa: BLE001 - surface picker errors to the UI
+            print(json.dumps({"paths": [], "error": str(e)}))
+    else:
+        main()
