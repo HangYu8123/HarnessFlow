@@ -161,13 +161,40 @@
 
       <fieldset>
         <legend>subagent_model</legend>
+        <!-- GUI-only default: pre-checks sonnet 4.6 for convenience. request_template/*.md's own
+             "subagent_model: inherit" header line (and its prose elsewhere in the pack) is
+             unchanged by this — picking "inherit" here still reproduces that literal default.
+             Note: applyParams() only rewrites the header line, never the template body, so a
+             copied prompt's body prose ("its default inherit...") can still describe a different
+             value than the header when any non-inherit option is picked. -->
         <div class="seg" id="seg-model" role="radiogroup" aria-label="subagent model">
-          <label><input type="radio" name="model" value="inherit" checked><span>inherit</span></label>
-          <label><input type="radio" name="model" value="claude-sonnet-4-6"><span>sonnet 4.6</span></label>
+          <label><input type="radio" name="model" value="claude-sonnet-5" data-effort="high"><span>sonnet 5</span></label>
+          <label><input type="radio" name="model" value="inherit"><span>inherit</span></label>
+          <label><input type="radio" name="model" value="claude-sonnet-4-6" data-effort="high" checked><span>sonnet 4.6</span></label>
           <label><input type="radio" name="model" value="__custom__"><span>custom id…</span></label>
         </div>
         <div class="custom-model" id="customModelWrap">
           <input id="customModel" type="text" placeholder="e.g. claude-opus-4-8" autocomplete="off" spellcheck="false">
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>subagent_effort</legend>
+        <!-- GUI-injected header field: unlike subagent_model, "subagent_effort" has no matching
+             concept anywhere in the pack's instructions/templates yet (not in
+             _lib/workflow_contract.md, philosophy/philosophy.instructions.md, or any
+             request_template/*.md) — it is the Claude Code / Agent SDK subagent effort tier
+             (low/medium/high/xhigh/max) surfaced here for convenience. applyParams() inserts it
+             as a new "subagent_effort:" header line (right after subagent_model) since no
+             template has one to rewrite. Default is driven by each subagent_model radio's own
+             `data-effort` attribute above; inherit/custom id carry none, so picking them leaves
+             whichever effort is currently selected untouched. -->
+        <div class="seg" id="seg-effort" role="radiogroup" aria-label="subagent effort">
+          <label><input type="radio" name="effort" value="low"><span>low</span></label>
+          <label><input type="radio" name="effort" value="medium"><span>medium</span></label>
+          <label><input type="radio" name="effort" value="high" checked><span>high</span></label>
+          <label><input type="radio" name="effort" value="xhigh"><span>xhigh</span></label>
+          <label><input type="radio" name="effort" value="max"><span>max</span></label>
         </div>
       </fieldset>
 
@@ -262,9 +289,12 @@ CATEGORIES.forEach(function(c){ CAT_BY_ID[c.id] = c; });
 var TEMPLATES = JSON.parse(document.getElementById("hf-templates").textContent);
 
 // UI state. Parameters are global (shared across templates); field values per category.
+// The literals below mirror each control's `checked`/`value` HTML default; seedStateFromDom()
+// (below) always re-derives every key from the live DOM before first render, so these only
+// matter for source-readability — keep them in sync with the markup rather than removing them.
 var state = {
   cat: "code",
-  params: { "mode":"fast", "reproduce":"false", "agent type":"claude", "subagent_model":"inherit", "max_iterations":"10", "no_progress_k":"3" },
+  params: { "mode":"fast", "reproduce":"false", "agent type":"claude", "subagent_model":"claude-sonnet-4-6", "subagent_effort":"high", "max_iterations":"10", "no_progress_k":"3" },
   customModel: "",
   fieldValues: {}            // fieldValues[catId][label] = string
 };
@@ -287,6 +317,21 @@ function applyParams(text, params){
     }
     return line;
   });
+  // subagent_effort has no header line in any template to rewrite (unlike the keys
+  // above, which all pre-exist) -- insert it right after subagent_model instead. This
+  // always runs against the pristine `text` (buildPrompt re-reads TEMPLATES[state.cat]
+  // fresh every call), so repeated renderPreview() calls can't accumulate duplicate lines.
+  if(Object.prototype.hasOwnProperty.call(params, "subagent_effort")){
+    var effortLine = "subagent_effort: " + params["subagent_effort"];
+    var effortIdx = lines.findIndex(function(l){ return /^subagent_effort:/.test(l); });
+    if(effortIdx !== -1){
+      lines[effortIdx] = effortLine;
+    } else {
+      var modelIdx = lines.findIndex(function(l){ return /^subagent_model:/.test(l); });
+      if(modelIdx !== -1) lines.splice(modelIdx + 1, 0, effortLine);
+      else lines.push(effortLine);
+    }
+  }
   return lines.join("\n") + rest;
 }
 
@@ -354,9 +399,13 @@ function effectiveParams(cat){
   var p = {
     "mode": state.params["mode"],
     "agent type": state.params["agent type"],
+    // "custom id…" picked but left blank -> falls back to "inherit" specifically (not
+    // whatever pill is checked/default): inherit is the pack's documented neutral/no-override
+    // value, independent of this picker's own pre-selected default.
     "subagent_model": state.params["subagent_model"] === "__custom__"
         ? (state.customModel.trim() || "inherit")
-        : state.params["subagent_model"]
+        : state.params["subagent_model"],
+    "subagent_effort": state.params["subagent_effort"]
   };
   if(cat.hasReproduce) p["reproduce"] = state.params["reproduce"];
   if(cat.hasLoopCaps){ p["max_iterations"] = state.params["max_iterations"]; p["no_progress_k"] = state.params["no_progress_k"]; }
@@ -658,6 +707,15 @@ async function liveSync(){
 
 // --- Wiring ----------------------------------------------------------------
 
+// Checks the named effort radio and syncs state -- called both at seed time and
+// whenever a model pick carries its own linked default (see data-effort below).
+function setEffort(val){
+  var el = document.querySelector('input[name="effort"][value="' + val + '"]');
+  if(!el) return;   // val must match one of the 5 effort radios (guards against a typo'd data-effort)
+  el.checked = true;
+  state.params["subagent_effort"] = val;
+}
+
 // Browsers can restore radio/input state across a reload — derive state from the
 // actually-checked controls so the preview always matches what's on screen.
 function seedStateFromDom(){
@@ -666,10 +724,15 @@ function seedStateFromDom(){
   state.params["reproduce"] = document.querySelector('input[name="reproduce"]:checked').value;
   state.params["max_iterations"] = document.getElementById("loop-maxiter").value || "10";
   state.params["no_progress_k"] = document.getElementById("loop-noprogress").value || "3";
-  var model = document.querySelector('input[name="model"]:checked').value;
-  state.params["subagent_model"] = model;
+  var modelEl = document.querySelector('input[name="model"]:checked');
+  state.params["subagent_model"] = modelEl.value;
   state.customModel = document.getElementById("customModel").value;
-  document.getElementById("customModelWrap").classList.toggle("show", model === "__custom__");
+  document.getElementById("customModelWrap").classList.toggle("show", modelEl.value === "__custom__");
+
+  // Effort default lives on the model radio's own `data-effort` attribute (inherit /
+  // custom id carry none), rather than a separate lookup table to keep in sync.
+  if(modelEl.dataset.effort) setEffort(modelEl.dataset.effort);
+  else state.params["subagent_effort"] = document.querySelector('input[name="effort"]:checked').value;
 }
 
 function wireParams(){
@@ -692,10 +755,14 @@ function wireParams(){
     state.params["subagent_model"] = e.target.value;
     document.getElementById("customModelWrap").classList.toggle("show", e.target.value === "__custom__");
     if(e.target.value === "__custom__") document.getElementById("customModel").focus();
+    if(e.target.dataset.effort) setEffort(e.target.dataset.effort);
     renderPreview();
   });
   document.getElementById("customModel").addEventListener("input", function(e){
     state.customModel = e.target.value; renderPreview();
+  });
+  document.getElementById("seg-effort").addEventListener("change", function(e){
+    state.params["subagent_effort"] = e.target.value; renderPreview();
   });
 }
 

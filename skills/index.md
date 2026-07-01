@@ -25,6 +25,26 @@ Search this index before using repository skills. Each skill is an official skil
 - Condition: Use only when the main agent is Claude Code or another Claude agent with Claude Code skills available.
 - Keywords: Claude Code, Claude agent, native skills, bundled skills, simplify, batch, claude-api, debug, implementation review.
 
+## create-readme
+
+- Path: `skills/create-readme/SKILL.md`
+- Slash name: `/create-readme`
+- Purpose: Review the entire project/workspace and produce one comprehensive, polished, well-structured README.md grounded in the actual source files.
+- Trigger: Use when the user asks to create / write / generate / draft a README (README.md) for a project and wants a comprehensive, human-readable result. This is the **default** README skill.
+- Condition: When the request instead emphasizes a quick, manifest/dependency-driven scaffold for a standard single-ecosystem project, prefer `readme-generator`.
+- Source: Adapted from `github/awesome-copilot` · `skills/create-readme/SKILL.md` (35,991★, MIT, verified 2026-06-30).
+- Keywords: README, README.md, create readme, write readme, generate readme, draft readme, project documentation, comprehensive readme.
+
+## readme-generator
+
+- Path: `skills/readme-generator/SKILL.md`
+- Slash name: `/readme-generator`
+- Purpose: Generate a README.md by analyzing project structure, manifests, and dependencies (package.json / pyproject.toml / Cargo.toml / go.mod) across Python, Node.js, Rust, Go, and generic projects.
+- Trigger: Use when the user wants a quick, structure/dependency-driven README scaffold for a standard project, or explicitly asks to build the README from project structure or dependencies.
+- Condition: For a comprehensive, polished, whole-workspace README, prefer `create-readme` (the default README skill).
+- Source: Adapted from `glincker/claude-code-marketplace` · `skills/documentation/readme-generator/SKILL.md` (32★, Apache-2.0, verified 2026-06-30).
+- Keywords: README generator, generate readme, readme from dependencies, project structure readme, package.json readme, manifest-driven readme, scaffold readme.
+
 ## weekly-update-report
 
 - Path: `skills/weekly-update-report/SKILL.md`
