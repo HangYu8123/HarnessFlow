@@ -8,7 +8,7 @@ Each platform uses its native mechanism to invoke agents by name:
 
 - **VS Code Copilot**: Agents discovered from `.github/HarnessFlow/agents/` (configured via `chat.agentFilesLocations` in `setup.sh`). The routed main agent (the Master Orchestrator in `copilot-instructions.md`, following the matched workflow instruction file) invokes these worker agents by name.
 - **Claude Code CLI**: Agent definitions in `agents/` directory referenced by role name. Sub-agents spawned via Claude Code's native `Task` tool with inline prompts. For parallel execution, Claude Code launches agent teams — multiple sub-agents working concurrently and coordinating through the main agent.
-- **Codex CLI / Codex-in-VS Code**: Agents referenced by name; Codex agent workers handle parallel execution (concurrency controlled by `agents.max_threads`). Applies to both Codex CLI and Codex running in VS Code. Sequential fallback if worker spawning or model parity is unavailable.
+- **Codex CLI / Codex-in-VS Code**: Agents referenced by name; Codex agent workers handle parallel execution (concurrency controlled by `agents.max_threads`). Applies to both Codex CLI and Codex running in VS Code. Sequential fallback if worker spawning or the specified subagent model is unavailable.
 
 ## Worker Subagents
 

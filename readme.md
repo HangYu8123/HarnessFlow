@@ -421,7 +421,7 @@ Keep destructive auto-approval disabled for any command that can delete or overw
 
 - This repo is an instruction pack, not an application. There is no package manifest, runtime, build command, or formal test suite.
 - The setup scripts are Bash scripts.
-- CLI subagent behavior depends on the capabilities of the active CLI tool and model parity support.
+- CLI subagent behavior depends on the capabilities of the active CLI tool and its support for selecting the specified subagent model.
 - Claude-native skill steps only apply in Claude Code environments.
 - The source repo ignores `.github/` and `repo_info/`, so generated target-repo files are not tracked here.
 - Root `AGENTS.md` and `CLAUDE.md` in this source repo are templates for installed target repos; their `.github/HarnessFlow/...` paths are expected to resolve after installation.

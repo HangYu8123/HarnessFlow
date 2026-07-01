@@ -25,7 +25,6 @@ description: 'Unified token-effective (fast) loop meta-workflow for Claude Code,
   - agents/implementer.agent.md
   - agents/executor.agent.md
   - skills/index.md
-  - skills/claude-native-skills-subagents/SKILL.md
   - (dispatch only) workflow/<mode>/<family>.instructions.md for the dispatched family
 -->
 
@@ -118,12 +117,12 @@ For iteration N = 1, 2, …:
 ### Step 5 - Post-loop Review and Validation
 1. Summarize the outcome from the [loop ledger]: goal met (yes/no), which exit condition fired, final state vs success criteria, and — **aggregated across all iterations** — the **net code changes** (cumulative files touched + net diff summary), the **metric trajectory** (baseline → final value + total improvement), and the collected **noteworthy items** (key decisions, surprises, regressions, lessons).
 2. **Native review (platform-conditional):**
-   - **If the main agent is Claude Code (or another Claude agent with Claude Code skills available):** if any iteration edited source files, run the native review skills via [`skills/claude-native-skills-subagents/SKILL.md`](../../skills/claude-native-skills-subagents/SKILL.md) — `/simplify` then `/code-review` on the net diff. Skip when the loop only ran commands without editing source, or when the native skills are unavailable.
+   - **If the main agent is Claude Code (or another Claude agent with Claude Code skills available):** if any iteration edited source files, run the native review as **two subagents, one skill each — no orchestration wrapper**, following the Subagent Launch Contract in [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) (subagents inherit [main agent model] / the `subagent_model` header; keep an activity log and record fallbacks). Run them **sequentially, not in parallel**, and invoke each skill exactly once: **(1)** spawn a **simplify subagent** — pass it the net diff plus the relevant repo context and have it run `/simplify` to cut complexity and redundancy without changing behavior (it applies its edits to the working tree); record [simplify]. **(2)** *after that subagent returns*, spawn a **code-review subagent** at **medium** reasoning effort (set this subagent's effort to medium, overriding the workflow's `subagent_effort`) — pass it the resulting post-simplify net diff plus the relevant repo context and have it run `/code-review` **review-only** (never `--fix` or `--comment`) for correctness bugs and reuse/simplification/efficiency cleanups; record [code-review]. Order matters: `/simplify` writes the working tree and `/code-review` reads the resulting diff. **Fallback:** if a subagent cannot invoke its slash command or fails to spawn, the main agent runs that skill directly — or reviews the net diff inline if the skill itself is unavailable — and records a `[fallback result]` (`status: fallback-single-agent`). Skip when the loop only ran commands without editing source, or when the native skills are unavailable.
    - **Otherwise (Codex, or VS Code Copilot without Claude Code skills):** skip the native skills; when iterations edited source, review the net diff directly.
-3. If the outcome did not meet the goal, summarize the gaps and lessons learned in bullet points to chat ( no more than 3 sentences), and pass to step 6 for documentation and summary. If the outcome met the goal, pass to step 6 for documentation and summary.
+3. Consolidate the Step 5 outcome summary with [simplify] + [code-review] into a [final report], recording any remaining gaps. If the outcome did not meet the goal, summarize the gaps and lessons learned in bullet points to chat ( no more than 3 sentences), and pass to step 6 for documentation and summary. If the outcome met the goal, pass to step 6 for documentation and summary.
 
 ### Step 6 - Documentation and Summary
-1. If the loop changed repo state, update codebase_overview.md and scripts_overview.md based on actual changes.
+1. If the loop changed repo state, update codebase_overview.md and scripts_overview.md based on actual changes and [final report].
 2. Write to update_logs.md:
 ```md
 {=============================Loop Update===============================}

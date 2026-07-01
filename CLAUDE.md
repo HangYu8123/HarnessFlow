@@ -44,7 +44,7 @@ All instruction files are resolved via Pack Path Resolution.
 2. **Classify** it into exactly one category from the table above.
 3. **Select general, fast, or skill mode**, then read the matched instruction file in its entirety.
 4. **Require** every subagent to read and follow `_lib/workflow_contract.md` and `philosophy/philosophy.instructions.md` (resolved via Pack Path Resolution) before doing workflow-specific work.
-5. **Model parity:** In Claude Code, subagents automatically inherit the main agent's model (see `_lib/workflow_contract.md` §Implementer Model Verification Fallback), so there is no separate model-selection step — just do not downgrade. On other platforms, follow the Subagent Launch Contract's model-parity steps in `_lib/workflow_contract.md`.
+5. **Subagent model:** Create every subagent on the model the instructions specify — the `subagent_model` header (see `_lib/workflow_contract.md` §Subagent Launch Contract). In Claude Code the main agent sets the subagent's model when spawning it: a specific `subagent_model` id runs the subagent on that exact id (a deliberate override — honor it even if smaller), while `inherit` or unset uses the main agent's model with no downgrade. On other platforms, follow the Subagent Launch Contract's model-selection steps in `_lib/workflow_contract.md`.
 6. **Follow** the matched instruction file step-by-step to complete the request.
 
 ## If multiple intents are present

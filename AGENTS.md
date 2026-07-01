@@ -44,7 +44,7 @@ All instruction files are resolved via Pack Path Resolution.
 2. **Classify** it into exactly one category from the table above.
 3. **Select general, fast, or skill mode**, then read the matched instruction file in its entirety.
 4. **Require** every subagent to read and follow `_lib/workflow_contract.md` and `philosophy/philosophy.instructions.md` (resolved via Pack Path Resolution) before doing workflow-specific work.
-5. **Model parity:** Codex does not auto-inherit the main agent's model, so follow the Subagent Launch Contract's model-parity steps in `_lib/workflow_contract.md` (resolved via Pack Path Resolution) and explicitly instruct every subagent: "**Use the exact same model as the main agent — do not downgrade.**"
+5. **Subagent model:** Create every subagent on the model the instructions specify — the `subagent_model` header — following the Subagent Launch Contract's model-selection steps in `_lib/workflow_contract.md` (resolved via Pack Path Resolution). Since Codex does not auto-inherit the main agent's model (a worker's model is set via its named custom-agent definition), explicitly instruct every subagent: "**Use the model the instructions specify via `subagent_model`: a specific id is a deliberate override — use it even if it is smaller; when it is `inherit` or unset, use the exact same model as the main agent and do not downgrade.**"
 6. **Follow** the matched instruction file step-by-step to complete the request.
 
 ## If multiple intents are present

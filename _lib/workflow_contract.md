@@ -48,14 +48,14 @@ In installed repos, do not create `repo_info/` outside `.github/HarnessFlow/repo
 
 ## Subagent Launch Contract
 
-- Before creating any subagent, ask the main agent to answer what model it is using, refer the model as [main agent model]
-- when creating any subagent, explicitly instruct the main agent to: "**Create subagent with the exact [main agent model] — do not downgrade.**"
-- Subagents must use the [main agent model]
-- **Subagent model (default = main agent model):** By default every subagent uses the same model as the main agent ([main agent model]) — never downgrade. The default [main agent model] depends on mode: in **fast mode** (`mode: fast`) the default main model is **Sonnet 4.6**, so subagents default to Sonnet 4.6; in **general** and **skill** modes subagents inherit whatever model the main agent is running. The optional `subagent_model` header overrides this default: its default value `inherit` keeps subagents on [main agent model], while a specific model id is used for all subagents instead. (Request templates ship with `subagent_model: inherit`.)
+- Before creating any subagent, resolve the model the instructions specify for subagents — the `subagent_model` header value — and refer to it as [specified subagent model]. Also note what model the main agent is itself running, and refer to that as [main agent model], because [specified subagent model] resolves to [main agent model] whenever `subagent_model` is `inherit` or unset.
+- when creating any subagent, explicitly instruct the main agent to: "**Create the subagent with the exact [specified subagent model]. When `subagent_model` is a specific model id, use that exact id — a deliberate override; honor it even if it is smaller than [main agent model]. When `subagent_model` is `inherit` or unset, use [main agent model] and do not downgrade.**"
+- Subagents must use the [specified subagent model]
+- **Subagent model (specified by the instructions):** Every subagent uses the model the instructions specify via the `subagent_model` header. When `subagent_model` is a specific model id, all subagents run on that exact id (a deliberate override — honor it even if it is smaller than [main agent model]). When `subagent_model` is `inherit` or unset, [specified subagent model] falls back to [main agent model] — the model the main agent is running — which must not be downgraded: in **fast mode** (`mode: fast`) the default main model is **Sonnet 4.6**, so `inherit` subagents run on Sonnet 4.6; in **general** and **skill** modes `inherit` subagents run on whatever model the main agent is running. (Request templates ship with `subagent_model: inherit`.)
 - A subagent means a separate spawned agent invocation with its own context. Main-agent roleplay, self-simulation, or inline execution must not be labeled as subagent output.
 - Each subagent prompt must include: the role/mode, exact task, required inputs, context files to read, expected output label, this contract path, and `philosophy/philosophy.instructions.md`.
 - For a parallel group, launch all listed subagents as separate invocations before waiting for results. If parallel launch is unavailable, launch the same subagent prompts one at a time; preserve the same output labels.
-- If native subagent creation is unavailable, blocked, or cannot preserve model parity, do not hide the failure. Record a fallback result with the same output label and `status: fallback-single-agent` or `status: blocked`, then continue only where the workflow allows fallback.
+- If native subagent creation is unavailable, blocked, or cannot use the [specified subagent model], do not hide the failure. Record a fallback result with the same output label and `status: fallback-single-agent` or `status: blocked`, then continue only where the workflow allows fallback.
 - Maintain an in-memory activity log for every subagent group with: role, output label, launch mechanism, requested model, confirmed model when available, context files, start status, completion status, and fallback reason if any.
 - Every real subagent result should include the following metadata. **In VS Code Copilot and Codex**, the result must begin with this header block. **In Claude Code**, the header is optional — the `Task` tool scopes results automatically, so subagents may return their analysis directly without the header:
 
@@ -102,16 +102,16 @@ If subagent invocation fails (e.g., tool is unavailable, agent not found), recor
 
 ## Implementer Model Verification Fallback
 
-When creating an **Implementer** subagent, the main agent must verify model parity before the subagent begins any implementation work.
+When creating an **Implementer** subagent, the main agent must ensure the subagent runs on the [specified subagent model] (per §Subagent Launch Contract) before the subagent begins any implementation work.
 
-**Claude Code CLI:** Subagents inherit the session model automatically. Model verification is not required — skip the retry loop and proceed directly. If a subagent spawn fails for any reason, the main agent performs the implementation directly and records a `[fallback result]` with `status: fallback-single-agent`.
+**Claude Code CLI:** The main agent launches the Implementer on the [specified subagent model] by setting the subagent's model explicitly when spawning it — when `subagent_model` is a specific id, spawn on that exact id (honor it even if smaller); when it is `inherit` or unset, the subagent inherits the session model ([main agent model]) and must not be downgraded. No retry loop is needed. If a subagent spawn fails for any reason, the main agent performs the implementation directly and records a `[fallback result]` with `status: fallback-single-agent`.
 
 **Other platforms (VS Code Copilot, Codex CLI):**
 
-1. After creating the **Implementer** subagent, the main agent must confirm the subagent's model matches [main agent model] before the subagent starts implementing.
-2. If the subagent's model does not match [main agent model], stop that subagent immediately.
+1. After creating the **Implementer** subagent, the main agent must confirm the subagent's model matches the [specified subagent model] before the subagent starts implementing.
+2. If the subagent's model does not match the [specified subagent model], stop that subagent immediately.
 3. Re-create the **Implementer** subagent (retry up to 3 times total).
-4. If after 3 retries the **Implementer** subagent still cannot use [main agent model], the main agent must abandon the subagent approach and perform the implementation directly itself, following the same plan and instructions that would have been given to the **Implementer** subagent. Record a `[fallback result]` with `status: fallback-single-agent` and `reason: implementer-model-mismatch`.
+4. If after 3 retries the **Implementer** subagent still cannot use the [specified subagent model], the main agent must abandon the subagent approach and perform the implementation directly itself, following the same plan and instructions that would have been given to the **Implementer** subagent. Record a `[fallback result]` with `status: fallback-single-agent` and `reason: implementer-model-mismatch`.
 
 This fallback applies to every workflow step that creates an **Implementer** or **Executor** subagent.
 

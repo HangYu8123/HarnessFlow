@@ -21,7 +21,6 @@ description: 'Unified token-effective (fast) PR-stack workflow for Claude Code, 
   - repo_info/known_issues.md
   - skills/index.md
   - skills/breakdown-pr/SKILL.md
-  - skills/claude-native-skills-subagents/SKILL.md
   - agents/devils-advocate.agent.md
   - agents/online-researcher.agent.md
 -->
@@ -90,11 +89,11 @@ Record [execution report] containing branches created, commits made, PRs submitt
 
 ### Step 6 — Stack Review and Verification
 1. **Native review skills (platform-conditional):** PR re-organization authors no new logic, so the native skills run only when source files were actually edited (e.g., conflict resolution).
-   - **If the main agent is Claude Code (or another Claude agent with Claude Code skills available):** only when source files were edited, run the native review skills via [`skills/claude-native-skills-subagents/SKILL.md`](../../skills/claude-native-skills-subagents/SKILL.md): `/simplify` first on the resulting diff, record results as [simplify]; then `/code-review` on the resulting diff, record as [code-review]. Skip when no source was edited or the native skills are unavailable.
+   - **If the main agent is Claude Code (or another Claude agent with Claude Code skills available):** only when source files were edited, run the native review as **two subagents, one skill each — no orchestration wrapper**, following the Subagent Launch Contract in [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) (subagents inherit [main agent model] / the `subagent_model` header; keep an activity log and record fallbacks). Run them **sequentially, not in parallel**, and invoke each skill exactly once: **(1)** spawn a **simplify subagent** — pass it the edited source files (the current diff) plus the relevant repo context and have it run `/simplify` to cut complexity and redundancy without changing behavior (it applies its edits to the working tree); record [simplify]. **(2)** *after that subagent returns*, spawn a **code-review subagent** at **medium** reasoning effort (set this subagent's effort to medium, overriding the workflow's `subagent_effort`) — pass it the resulting post-simplify diff plus the relevant repo context and have it run `/code-review` **review-only** (never `--fix` or `--comment`) for correctness bugs and reuse/simplification/efficiency cleanups; record [code-review]. Order matters: `/simplify` writes the working tree and `/code-review` reads the resulting diff. **Fallback:** if a subagent cannot invoke its slash command or fails to spawn, the main agent runs that skill directly — or reviews the diff inline if the skill itself is unavailable — and records a `[fallback result]` (`status: fallback-single-agent`). Skip when no source was edited or the native skills are unavailable.
    - **Otherwise (Codex, or VS Code Copilot without Claude Code skills):** skip the native skills; only when source files were edited, the main agent reviews those edits directly.
-2. The main agent should claim every item in the [execution report] is wrong, and start explaining why it is wrong. After explaining all the items, the main agent should then draft a [post-impl challenge report].
-3. The main agent verifies the stack directly against [final plan] and [execution report]: branch/commit structure, dependency order, no unrelated or auto-generated files included, all necessary files present, and the final stack top matches the original branch diff. Run [breakdown-pr skill] step 7 verification, including `git diff --exit-code` and `git range-diff` where appropriate. Save the conclusion as [direct review].
-4. Based on whichever of [simplify] + [code-review] + [post-impl challenge report] + [direct review] were produced, if any verification fails, perform **one** remediation pass (repair the affected branches, then re-verify once); record any remaining gaps for Step 7.
+2. Meanwhile, the main agent verifies the stack directly against [final plan] and [execution report]: branch/commit structure, dependency order, no unrelated or auto-generated files included, all necessary files present, and the final stack top matches the original branch diff. Run [breakdown-pr skill] step 7 verification, including `git diff --exit-code` and `git range-diff` where appropriate. Save the conclusion as [direct review].
+
+Based on [simplify] + [code-review] + [direct review], generate a [final report] and record any remaining gaps for Step 7.
 
 ### Step 7 — Documentation and Summary
 1. Write to update_logs.md (one entry per PR in the stack):
@@ -108,4 +107,4 @@ Record [execution report] containing branches created, commits made, PRs submitt
 {Dependencies (which PRs must land before this one)}
 {Status (created / submitted / failed — and reason if failed)}
 ```
-2. Summarize the PR stack in bullet points to chat.
+2. Summarize the PR stack and [final report] in bullet points to chat, and a yes/no answer indicating whether the stack was created with no issues. If there are gaps, describe them.

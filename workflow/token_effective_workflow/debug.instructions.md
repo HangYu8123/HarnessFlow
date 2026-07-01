@@ -14,7 +14,6 @@ description: 'Unified token-effective (fast) debug workflow for Claude Code, Cod
   - repo_info/update_logs.md
   - repo_info/known_issues.md
   - skills/index.md
-  - skills/claude-native-skills-subagents/SKILL.md
   - agents/devils-advocate.agent.md
   - agents/online-researcher.agent.md
 -->
@@ -76,15 +75,14 @@ The main agent implements [final plan] directly and records [implementation repo
 
 ### Step 6 - Code Review and Validation
 1. **Native review skills (platform-conditional):**
-   - **If the main agent is Claude Code (or another Claude agent with Claude Code skills available):** run the native review skills using the skill at [`skills/claude-native-skills-subagents/SKILL.md`](../../skills/claude-native-skills-subagents/SKILL.md) — `/simplify` first on the resulting diff, record results as [simplify]; then `/code-review` on the resulting diff, record as [code-review]. If the native skills are unavailable, skip them.
+   - **If the main agent is Claude Code (or another Claude agent with Claude Code skills available):** run the native review as **two subagents, one skill each — no orchestration wrapper**, following the Subagent Launch Contract in [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) (subagents inherit [main agent model] / the `subagent_model` header; keep an activity log and record fallbacks). Run them **sequentially, not in parallel**, and invoke each skill exactly once: **(1)** spawn a **simplify subagent** — pass it the changed files (the fix diff) plus the relevant repo context and have it run `/simplify` to cut complexity and redundancy without changing behavior (it applies its edits to the working tree); record [simplify]. **(2)** *after that subagent returns*, spawn a **code-review subagent** at **medium** reasoning effort (set this subagent's effort to medium, overriding the workflow's `subagent_effort`) — pass it the resulting post-simplify diff plus the relevant repo context and have it run `/code-review` **review-only** (never `--fix` or `--comment`) for correctness bugs and reuse/simplification/efficiency cleanups; record [code-review]. Order matters: `/simplify` writes the working tree and `/code-review` reads the resulting diff. **Fallback:** if a subagent cannot invoke its slash command or fails to spawn, the main agent runs that skill directly — or reviews the diff inline if the skill itself is unavailable — and records a `[fallback result]` (`status: fallback-single-agent`). If neither native skill is available, skip them.
    - **Otherwise (Codex, or VS Code Copilot without Claude Code skills):** skip the native skills.
-2. The main agent should claim every item in the [implementation report] is wrong, and start explaining why it is wrong. After explaining all the items, the main agent should then draft a [post-impl challenge report].
-3. The main agent reviews the changes directly, save the conclusion as [direct review]. When a reproduction path exists (Step 0) or the user requested runs, re-run the failing path to confirm the bug no longer occurs.
+2. Meanwhile, the main agent reviews the changes directly, save the conclusion as [direct review]. When a reproduction path exists (Step 0) or the user requested runs, re-run the failing path to confirm the bug no longer occurs.
 
-Based on whichever of [simplify] + [code-review] + [post-impl challenge report] + [direct review] were produced, perform **one** remediation pass (fix, then re-validate once); record any remaining gaps for Step 7.
+Based on [simplify] + [code-review] + [direct review], generate a [final report] and record any remaining gaps for Step 7.
 
 ### Step 7 - Documentation and Summary
-1. Update codebase_overview.md and scripts_overview.md based on actual changes.
+1. Update codebase_overview.md and scripts_overview.md based on actual changes and [final report].
 2. Write to update_logs.md:
 ```md
 {=============================BUG FIX===============================}
@@ -103,4 +101,4 @@ b. Last attempt summary
 c. Why last fix failed
 d. Current fix
 ```
-4. Summarize changes in bullet points to chat.
+4. Summarize changes in bullet points to chat, and a yes/no answer indicating whether the bug was fixed with no issues. If there are gaps, describe them.
