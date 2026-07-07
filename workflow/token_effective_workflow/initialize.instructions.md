@@ -8,6 +8,7 @@ description: 'Unified token-effective (fast) repo-initialization workflow for Cl
   - philosophy/philosophy.instructions.md
   - _lib/safety_rules.md
   - _lib/workflow_contract.md
+  - _lib/absolutize_pack_paths.md
   - repo_info/ (created by this workflow)
   - agents/free-analyst.agent.md
   - agents/focus-analyst.agent.md
@@ -59,7 +60,7 @@ Then:
 From the Step 1 scan, the main agent produces [file structure] (the directory/file tree) and validates it for completeness. No subagent is needed — the main agent already holds the listing.
 
 ### Step 3 - Documentation Generation
-Generate each overview **once**. **[PARALLEL EXECUTION — launch the listed subagents in parallel using your platform's subagent mechanism (see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Invocation); if parallel launch is unavailable, run them sequentially — sequential execution produces equivalent results]** This is the only step that spawns subagents.
+Generate each overview **once**. **[PARALLEL EXECUTION — launch all listed subagents in parallel; see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]** This is the only step that spawns subagents.
 
 | Subagent | Agent | Role | Task |
 |----------|-------|------|------|
@@ -101,36 +102,8 @@ After completing all steps above, check whether path references need cleanup. Ha
 
 ### Step 9 - Absolutize Claude Code & Codex Pack Paths
 
-After path cleanup (Step 8), rewrite the **Claude Code** and **Codex** pack-relative path references to **absolute filesystem paths**, anchored to **this pack's own root**. This is what makes nested or multiple packs work: one repo may contain more than one pack — e.g., a parent pack at the repo root and a child pack in a subfolder, each with its own `request_template/`, `workflow/`, `repo_info/`, `_lib/`, and `philosophy/`. Paths that resolve against the working directory — pasted-in request templates, and Pack Path Resolution references such as `repo_info/…` — are ambiguous across packs; an absolute path anchored to the pack that owns the file is not.
-
-**Scope of this rewrite:** request templates, `repo_info/` references, and the always-read shared files `_lib/workflow_contract.md` and `philosophy/philosophy.instructions.md`. (Do not absolutize `agents/`, `skills/`, or narrative prose.)
-
-**Platform rule — rewrite Claude Code and Codex forms only; leave VS Code Copilot untouched:**
-- **Claude Code** forms are bare Pack-Path-Resolution paths: `workflow/…`, `repo_info/…`, `_lib/…`, `philosophy/…`.
-- **Codex** forms are `.github/HarnessFlow/`-prefixed paths: `.github/HarnessFlow/workflow/…`, `.github/HarnessFlow/repo_info/…`, etc.
-- Both forms → `[PACK_ROOT_ABS]/<tail>`.
-- **Leave unchanged:** every VS Code Copilot `@/…` path, every `#file:…` reference, and every relative-to-file markdown-link href written as `(../…)` / `(../../…)`. Copilot keeps its native `@/[repo folder name]/` multi-root scheme from Step 8; absolute paths are not part of Copilot's `@/`/`#file:` syntax, and relative-to-file hrefs are already pack-local. When a reference is a markdown link `` [`code`](href) ``, rewrite **only the backticked code-span** (which Claude Code/Codex follow) and leave the `(href)` intact.
-
-1. **Determine `[PACK_ROOT_ABS]` — the absolute path of THIS pack's root.** It is the directory containing the `request_template/`, `workflow/`, `repo_info/`, `_lib/`, and `philosophy/` siblings being initialized — the parent of the `request_template/` directory you are editing. Resolve it from the files' own location, **not** from `git rev-parse --show-toplevel` (the git toplevel returns the outermost repo, which is wrong for a nested child pack). You already address these files by absolute path when editing them. Examples: `/Users/me/project/.github/HarnessFlow` (installed), `/Users/me/project` (source layout), `/Users/me/project/child/.github/HarnessFlow` (nested child pack).
-
-2. **Idempotency guard:** Inspect the in-scope Claude Code/Codex references in the files listed in step 4. If they already begin with `[PACK_ROOT_ABS]/`, this step has already run for this pack — skip to Step 10.
-
-3. **Stale-root repair (moved / renamed / cloned tree):** If an in-scope Claude Code/Codex reference is already absolute (begins with `/`) but under a different root — `[old_root]/{workflow|repo_info|_lib|philosophy}/…` — replace `[old_root]` with `[PACK_ROOT_ABS]`, then skip to step 5 (verify).
-
-4. **Apply the rewrite** (substitute the real absolute path for `[PACK_ROOT_ABS]`; never leave the literal token in any file):
-
-   **4a. Request templates** — for every `.md` under `request_template/`:
-   - Claude Code section (after "If the active agent is Claude Code, use"): `` `workflow/{family}/{name}.instructions.md` `` → `` `[PACK_ROOT_ABS]/workflow/{family}/{name}.instructions.md` `` for families `token_effective_workflow`, `general_workflow`, and `skill_workflow` (if present). A prior install may show `` `.github/HarnessFlow/workflow/{family}/{name}.instructions.md` `` instead — map it to the same absolute target.
-   - Codex section (after "If the active agent is Codex"): `` `.github/HarnessFlow/workflow/{family}/{name}.instructions.md` `` → `` `[PACK_ROOT_ABS]/workflow/{family}/{name}.instructions.md` ``.
-   - Leave the VS Code Copilot section (`@/…`) unchanged.
-
-   **4b. Root entry points** — in `CLAUDE.md` (Claude Code) rewrite the code-span references `` `_lib/workflow_contract.md` ``, `` `philosophy/philosophy.instructions.md` ``, and `` `repo_info/…` `` to absolute. In `AGENTS.md` (Codex) rewrite `` `.github/HarnessFlow/_lib/workflow_contract.md` ``, `` `.github/HarnessFlow/philosophy/philosophy.instructions.md` ``, and `` `.github/HarnessFlow/repo_info/…` `` to absolute. Leave `copilot-instructions.md` unchanged. (Step 9 runs before Step 10, so the absolutized copies are what Step 10 propagates to the repo root.)
-
-   **4c. Shared workflow + contract files** — in every `.md` under `workflow/general_workflow/`, `workflow/token_effective_workflow/`, and `workflow/skill_workflow/`, and in `_lib/workflow_contract.md`, rewrite the **backticked code-span** references to `_lib/workflow_contract.md`, `philosophy/philosophy.instructions.md`, and `repo_info/…` (the bare Pack-Path-Resolution forms Claude Code/Codex follow) to absolute under `[PACK_ROOT_ABS]`. Leave every `(../…)` / `(../../…)` markdown-link href, `@/…`, and `#file:…` untouched.
-
-5. **Verify:** Confirm that a rewritten absolute path resolves to a real file on disk in at least one request template, one entry point, and one shared workflow file.
-
-> **Note:** Absolute paths are machine-specific. If the pack is later moved or cloned, re-run initialization — step 3's stale-root repair refreshes them. Avoid committing these machine-local paths into shared source control (keep the rewritten files out of version control, or restore the relative form before committing).
+After path cleanup (Step 8), follow the canonical procedure in [`_lib/absolutize_pack_paths.md`](../../_lib/absolutize_pack_paths.md): determine `[PACK_ROOT_ABS]`, record it in the git-ignored `.pack_root`, rewrite the in-scope Claude Code/Codex references, and regenerate the `harness_gui.html` template snapshots via `sync_gui_templates.py`.
+If its idempotency guard triggers (this pack is already absolutized), skip to Step 10.
 
 ### Step 10 - Refresh Cross-Tool Entry Points
 Copy the entry-point files from the pack to their standard discoverable locations so every supported tool can auto-discover its instructions after initialization. Handle per platform:

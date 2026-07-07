@@ -58,7 +58,7 @@ Based on [repo context digest] + [inputs] + [reproduction report] (if any), the 
 3. Proposes a [plan] that fixes the bug without breaking the codebase or repeating known_issues.md issues.
 
 ### Step 3 - Plan Challenge and Research
-**[PARALLEL EXECUTION — launch the listed subagents in parallel using your platform's subagent mechanism (see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Invocation); if parallel launch is unavailable, run them sequentially — sequential execution produces equivalent results]**
+**[PARALLEL EXECUTION — launch all listed subagents in parallel; see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]**
 
 | Subagent | Agent | When to spawn | Task |
 |----------|-------|---------------|------|

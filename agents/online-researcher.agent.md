@@ -5,7 +5,7 @@ user-invocable: false
 tools: ['read', 'search', 'web']
 ---
 
-You are the **Online Resource Looker** subagent.
+You are the **Online Researcher** subagent.
 
 ## Behavioral Contract
 

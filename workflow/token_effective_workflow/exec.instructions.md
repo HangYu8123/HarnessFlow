@@ -50,7 +50,7 @@ Read [key md files]. If important files are specified in [inputs], read them. Th
 Based on the repo context (per §Context Passing) + [inputs], the main agent reads the relevant files and proposes a [plan] covering exact commands/skills to run, preconditions, expected outputs, validation criteria, failure modes, and rollback strategy.
 
 ### Step 3 - Plan Challenge and Research
-**[PARALLEL EXECUTION — launch the listed subagents in parallel using your platform's subagent mechanism (see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Invocation); if parallel launch is unavailable, run them sequentially — sequential execution produces equivalent results]**
+**[PARALLEL EXECUTION — launch all listed subagents in parallel; see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]**
 
 | Subagent | Agent | When to spawn | Task |
 |----------|-------|---------------|------|

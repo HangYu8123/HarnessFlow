@@ -20,7 +20,7 @@ confirmed to genuinely fit the step. Otherwise the step is left **unchanged**
 Star counts were read directly from the GitHub REST API
 (`https://api.github.com/repos/<owner>/<repo>` → `stargazers_count`) and each
 cited `SKILL.md` path was confirmed to return HTTP 200. **Verified on
-2026-06-16.** Star counts grow over time; re-check before relying on the gate.
+2026-07-07.** Star counts grow over time; re-check before relying on the gate.
 
 **Path notation:** in the workflow files, external skills are cited as
 `owner/repo:path/within/repo` (e.g. `obra/superpowers:skills/writing-plans/SKILL.md`).
@@ -29,23 +29,23 @@ Resolution. Install the skill (see *Availability and fallback* below) or fetch
 that path from the named GitHub repo; if neither is possible, take the step's
 inline fallback.
 
-| Repo | Stars (2026-06-16) | Gate (≥1000) |
+| Repo | Stars (2026-07-07) | Gate (≥1000) |
 |---|---:|:---:|
-| `obra/superpowers` | 229,665 | ✅ |
-| `davila7/claude-code-templates` | 28,103 | ✅ |
-| `Jeffallan/claude-skills` | 9,938 | ✅ |
+| `obra/superpowers` | 248,509 | ✅ |
+| `davila7/claude-code-templates` | 28,496 | ✅ |
+| `Jeffallan/claude-skills` | 10,457 | ✅ |
 
 ## Skills used
 
 ### `writing-plans` — planning
-- **Source:** `obra/superpowers` (229,665★) · `skills/writing-plans/SKILL.md`
+- **Source:** `obra/superpowers` (248,509★) · `skills/writing-plans/SKILL.md`
 - **Trigger:** "Use when you have a spec or requirements for a multi-step task, before touching code."
 - **What it does:** Turns a spec/requirements into bite-sized (2–5 min), dependency-ordered tasks with the exact files to touch and a verification step per task.
 - **Backs:** Implementation/Refactor planning step.
 - **Optional companion:** `brainstorming` (same repo) — clarifies intent and weighs 2–3 approaches when requirements are ambiguous; see its own entry below.
 
 ### `brainstorming` — requirement/approach clarification (optional companion)
-- **Source:** `obra/superpowers` (229,665★) · `skills/brainstorming/SKILL.md`
+- **Source:** `obra/superpowers` (248,509★) · `skills/brainstorming/SKILL.md`
 - **Trigger:** "Use when intent or requirements are ambiguous, before planning — to clarify the goal and weigh 2–3 approaches."
 - **What it does:** Structured questioning that pins down intent and surfaces 2–3 candidate approaches before a plan is written.
 - **Backs:** Implementation/Refactor planning step, as a companion to `writing-plans`; invoked only when intent is ambiguous.
@@ -53,31 +53,31 @@ inline fallback.
 - **Fallback:** if unavailable, take the planning step's inline fallback — clarify ambiguous requirements inline before drafting the plan.
 
 ### `executing-plans` + `test-driven-development` — implementation
-- **Source:** `obra/superpowers` (229,665★) · `skills/executing-plans/SKILL.md`, `skills/test-driven-development/SKILL.md`
+- **Source:** `obra/superpowers` (248,509★) · `skills/executing-plans/SKILL.md`, `skills/test-driven-development/SKILL.md`
 - **Triggers:** executing-plans — "Use when you have a written implementation plan to execute … with review checkpoints." test-driven-development — "Use when implementing any feature or bugfix, before writing implementation code."
 - **What they do:** `executing-plans` loads the finalized plan, reviews it critically, then executes each task step-by-step with verification. `test-driven-development` enforces the red→green→refactor loop while writing code.
 - **Backs:** Implementation step.
 
 ### `systematic-debugging` — diagnosis & reproduction
-- **Source:** `obra/superpowers` (229,665★) · `skills/systematic-debugging/SKILL.md`
+- **Source:** `obra/superpowers` (248,509★) · `skills/systematic-debugging/SKILL.md`
 - **Trigger:** "Use when encountering any bug, test failure, or unexpected behavior, before proposing fixes."
 - **What it does:** Forces reproduce → isolate → identify root cause (with evidence) before any fix; its first phase is establishing the cheapest reliable reproduction.
 - **Backs:** Debug reproduction step (its reproduction phase) and Debug diagnosis step.
 
 ### `the-fool` — challenge / devil's advocate
-- **Source:** `Jeffallan/claude-skills` (9,938★) · `skills/the-fool/SKILL.md`
+- **Source:** `Jeffallan/claude-skills` (10,457★) · `skills/the-fool/SKILL.md`
 - **Trigger:** "Use when challenging ideas, plans, decisions, or proposals using structured critical reasoning. Invoke to play devil's advocate, run a pre-mortem."
 - **What it does:** Structured critical-reasoning / pre-mortem pass that surfaces flawed assumptions, overlooked risks, and failure modes.
 - **Backs:** The Challenge subagent (replaces the Devil's Advocate task body) in every workflow, and the post-implementation "claim everything is wrong" challenge in the review step.
 
 ### `deep-research` — online research report
-- **Source:** `davila7/claude-code-templates` (28,103★) · `cli-tool/components/skills/ai-research/deep-research/SKILL.md`
+- **Source:** `davila7/claude-code-templates` (28,496★) · `cli-tool/components/skills/ai-research/deep-research/SKILL.md`
 - **Trigger:** "Run autonomous research tasks that plan, search, read, and synthesize information into comprehensive reports."
 - **What it does:** Plans a search, runs web searches, reads sources, and synthesizes a cited report — directly producing the `[online resource]` report.
 - **Backs:** The Online Research subagent in every workflow.
 
 ### `code-reviewer` — correctness analysis
-- **Source:** `Jeffallan/claude-skills` (9,938★) · `skills/code-reviewer/SKILL.md`
+- **Source:** `Jeffallan/claude-skills` (10,457★) · `skills/code-reviewer/SKILL.md`
 - **Trigger:** "Analyzes code diffs and files to identify bugs, security vulnerabilities, code smells, N+1 queries, naming issues, and architectural concerns."
 - **What it does:** Structured correctness/quality review of files and diffs with severity-rated findings.
 - **Backs:** The Correctness Analysis step in the correctness-check workflow.
@@ -93,7 +93,7 @@ The loop meta-workflow reuses the skills above (no loop-specific skill was adopt
 
 A second adversarial pass compared each chosen skill against the strongest
 higher-starred alternatives surfaced during discovery — notably
-`EveryInc/compound-engineering-plugin` (21,541★, verified 2026-06-16), a
+`EveryInc/compound-engineering-plugin` (22,774★, verified 2026-07-07), a
 sophisticated multi-persona review/plan/debug suite. **Conclusion: no swaps.**
 The chosen skills win on (a) being self-contained single-skill folders (the
 EveryInc personas require installing the whole compound-engineering plugin and
@@ -103,12 +103,12 @@ set, a designed handoff chain (`writing-plans` → `executing-plans` →
 
 | Step | Chosen (★) | Strongest alternative (★) | Why the chosen skill was kept |
 |---|---|---|---|
-| planning | writing-plans (229,665) | ce-plan (21,541) | self-contained; pairs with executing-plans; emits a granular task list |
-| implementation | executing-plans + TDD (229,665) | ce-work (21,541) | designed handoff from writing-plans; adds red→green→refactor |
-| debug diagnosis | systematic-debugging (229,665) | ce-debug (21,541) | self-contained; most-adopted root-cause-before-fix skill |
-| challenge | the-fool (9,938) | ce-doc-review / ce-adversarial-* (21,541) | self-contained; broader scope (challenges plans, diagnoses, answers, reports), not doc-only |
-| online research | deep-research (28,103) | ce-web-researcher (21,541) | standalone `SKILL.md` that emits a cited report, not a plugin-bound agent persona |
-| correctness audit | code-reviewer (9,938) | ce-code-review (21,541) | reviews whole files (not just large diffs); self-contained |
+| planning | writing-plans (248,509) | ce-plan (22,774) | self-contained; pairs with executing-plans; emits a granular task list |
+| implementation | executing-plans + TDD (248,509) | ce-work (22,774) | designed handoff from writing-plans; adds red→green→refactor |
+| debug diagnosis | systematic-debugging (248,509) | ce-debug (22,774) | self-contained; most-adopted root-cause-before-fix skill |
+| challenge | the-fool (10,457) | ce-doc-review / ce-adversarial-* (22,774) | self-contained; broader scope (challenges plans, diagnoses, answers, reports), not doc-only |
+| online research | deep-research (28,496) | ce-web-researcher (22,774) | standalone `SKILL.md` that emits a cited report, not a plugin-bound agent persona |
+| correctness audit | code-reviewer (10,457) | ce-code-review (22,774) | reviews whole files (not just large diffs); self-contained |
 
 Repos that surfaced but are **not Agent Skills** (so ineligible to replace a
 step's instructions): `github/spec-kit` (CLI toolkit), `LearningCircuit/local-deep-research`

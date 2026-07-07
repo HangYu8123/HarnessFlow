@@ -16,23 +16,15 @@ Purpose of the Main Agent: The main agent must have high-level information about
 
 ## Parallel Subagent Fallback Protocol
 
-When a workflow step requires launching multiple subagents in parallel:
-
-1. **Validate creation**: After attempting to launch subagents in parallel, verify each subagent was created successfully and returned a result.
-2. **Retry on failure**: If any subagent fails to create or does not return a successful result, retry that specific subagent up to 3 times.
-3. **Degrade to sequential**: After 3 failed retries for parallel execution, attempt to launch the failed subagents one at a time (sequentially).
-4. **Fallback record**: If sequential subagent creation also fails, record a `[fallback result]` with the same output label and do not label the work as subagent output. Continue only where the workflow or user allows fallback; otherwise report the blocked subagent step.
-
-This protocol applies to every `[PARALLEL EXECUTION]` directive in all workflow files.
+The launch/validate/retry-3×/sequential-degrade/fallback-record protocol for every `[PARALLEL EXECUTION]` directive lives in `_lib/workflow_contract.md` §Parallel Execution & Fallback (canonical single source).
+Follow it there — this section deliberately does not restate it.
 
 ---
 
 ## Approval Gate Principle
 
-All code-modifying workflows (code, debug, refactor, exec, pr) run the gate in one of two modes (see `_lib/approval_gate.md`):
-
-- **Plan-only / no-changes mode** (opt-in via `plan:`, `plan only`, `no file changes`, `no changes`, `review first`, `dry run`): print the finalized plan and **stop before any file change**, waiting for explicit approval before implementing.
-- **Autonomous mode** (default): print the plan and proceed straight through implementation. Make best-effort assumptions, state them with the plan, and **do not ask clarification questions** — decide ambiguous choices yourself; pause only for irreversible/destructive or outward-facing actions.
+All code-modifying workflows (code, debug, refactor, exec, pr, loop) run a two-mode gate: **Plan-only / no-changes** (opt-in via a clearly-delimited trigger phrase — print the finalized plan, stop before any file change) or **Autonomous** (default — proceed end-to-end, no clarification questions).
+The operative rule (trigger-phrase list, per-mode behavior) lives in `_lib/approval_gate.md` (canonical; read that file — this section deliberately does not restate it).
 
 
 KEY PHILOSOPHIES:

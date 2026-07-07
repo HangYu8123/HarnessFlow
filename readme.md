@@ -18,14 +18,14 @@ HarnessFlow is a drop-in set of workflow and agent-instruction files: copy it in
 
 HarnessFlow is a portable **Markdown instruction pack** — there is no runtime, no `npm install`, and no build step. It is designed for Claude Code CLI, Codex CLI, GitHub Copilot in VS Code, Aider, and other AI coding assistants that benefit from structured operating instructions. Instead of letting your assistant one-shot changes from a single prompt, this pack gives every request a disciplined, multi-agent workflow with real planning, self-review, QA, and persistent memory:
 
-- **Classifies** your prompt into one of 8 request types and loads the matching workflow file.
+- **Classifies** your prompt into one of 9 request types and loads the matching workflow file.
 - **Analyzes in parallel** — Focus, Broad, and Free analyst subagents read the codebase from different angles, then a Senior Engineer synthesizes one plan.
 - **Challenges itself** — a Devil's Advocate pass stress-tests the plan for regressions and bad assumptions before any code is written.
 - **Validates** — a QA Engineer checks the implementation; an opt-in approval gate lets you sign off on the plan first.
 - **Remembers** — results are written to `repo_info/` so later requests start with real context instead of re-deriving it.
 - **Three modes** — every workflow ships in a `general` (thorough), a `fast` (token-efficient), and a `skill` (community-skill-backed) variant.
 
-Use HarnessFlow for code implementation, refactors, debugging, codebase Q&A, correctness checks, command/skill execution, stacked-PR creation, and first-time repo initialization — eight request types, each backed by its own workflow file and available in `general`, `fast`, and `skill` modes. The rest of this README is a high-signal landing page: see what it does, install the entry point for your tool, pick a workflow mode, and dive into the deeper docs and benchmarks only when you need them.
+Use HarnessFlow for code implementation, refactors, debugging, codebase Q&A, correctness checks, command/skill execution, stacked-PR creation, first-time repo initialization, and recurring loops — nine request types, each backed by its own workflow file and available in `general`, `fast`, and `skill` modes. The rest of this README is a high-signal landing page: see what it does, install the entry point for your tool, pick a workflow mode, and dive into the deeper docs and benchmarks only when you need them.
 
 
 ## How it performs
@@ -246,6 +246,7 @@ correctness_check.instructions.md
 debug.instructions.md
 exec.instructions.md
 initialize.instructions.md
+loop.instructions.md
 pr.instructions.md
 query.instructions.md
 refactor.instructions.md
@@ -259,7 +260,7 @@ The three workflow families are:
 | `workflow/token_effective_workflow/` | `mode: fast` | Streamlined token-efficient workflows — one platform-adaptive set shared by all three tools. |
 | `workflow/skill_workflow/` | `mode: skill` | Skill-backed variant of the fast family — selected step instructions are replaced by confirmed ≥1000-star community skills (catalogued in `skills/skill_workflow_skills.md`), each with an inline fallback. Shared by all three tools. |
 
-The root routers classify all eight categories: code implementation, refactor, debug, query, correctness check, exec, PR creation, and initialize. Each maps to a `*.instructions.md` file present in every workflow family, with a matching fill-in prompt in `request_template/`. The single `general_workflow` set adapts its behavior to the active agent (subagent mechanism, context passing, and native-skill steps) via `_lib/workflow_contract.md`.
+The root routers classify all nine categories: code implementation, refactor, debug, query, correctness check, exec, PR creation, initialize, and loop. Each maps to a `*.instructions.md` file present in every workflow family, with a matching fill-in prompt in `request_template/`. The single `general_workflow` set adapts its behavior to the active agent (subagent mechanism, context passing, and native-skill steps) via `_lib/workflow_contract.md`.
 
 ## Setup Scripts
 
@@ -348,7 +349,7 @@ python3 harness_gui.py
 
 Or just double-click **`harness_gui.html`** to open it directly. Either way you can:
 
-- pick any of the 8 templates and copy the finished prompt in one click (or download it as `.md`);
+- pick any of the 9 templates and copy the finished prompt in one click (or download it as `.md`);
 - flip parameters with buttons — `mode` (fast/general/skill), `agent type` (claude/codex/copilot), `subagent_model`, `reproduce` (debug), and the opt-in review skills `simplify` + `code_review` (same line, default off; code/debug/refactor/exec/pr/loop) — which rewrite only the copied text, never the source files;
 - fill the template's input fields inline, and see the exact `workflow/...` instructions file the selection resolves to.
 
@@ -370,14 +371,16 @@ See `agents/INDEX.md` for the complete registry.
 
 The skill-backed workflow swaps selected step instructions for confirmed community skills. Each is referenced by `owner/repo:path` (not vendored into HarnessFlow), and every replaced step keeps an inline fallback so the workflow never blocks if a skill is missing:
 
-| Step it backs | Community skill | Source (stars verified 2026-06-16) |
+| Step it backs | Community skill | Source |
 |---|---|---|
-| Planning | `writing-plans` (+ optional `brainstorming`) | `obra/superpowers` (229,665★) |
-| Implementation | `executing-plans` + `test-driven-development` | `obra/superpowers` (229,665★) |
-| Debug reproduction & diagnosis | `systematic-debugging` | `obra/superpowers` (229,665★) |
-| Challenge / devil's advocate | `the-fool` | `Jeffallan/claude-skills` (9,938★) |
-| Online research report | `deep-research` | `davila7/claude-code-templates` (28,103★) |
-| Correctness analysis | `code-reviewer` | `Jeffallan/claude-skills` (9,938★) |
+| Planning | `writing-plans` (+ optional `brainstorming`) | `obra/superpowers` |
+| Implementation | `executing-plans` + `test-driven-development` | `obra/superpowers` |
+| Debug reproduction & diagnosis | `systematic-debugging` | `obra/superpowers` |
+| Challenge / devil's advocate | `the-fool` | `Jeffallan/claude-skills` |
+| Online research report | `deep-research` | `davila7/claude-code-templates` |
+| Correctness analysis | `code-reviewer` | `Jeffallan/claude-skills` |
+
+Verified star counts and verification dates live only in `skills/skill_workflow_skills.md` (single source — re-verify there).
 
 A step is replaced **only** when a skill was found with ≥1000 verified stars *and* genuinely fits that step; otherwise the original token-efficient instructions are kept verbatim. See `skills/skill_workflow_skills.md` for the full registry, the alternatives considered, and install/vendor steps.
 

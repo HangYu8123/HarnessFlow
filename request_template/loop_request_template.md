@@ -8,7 +8,20 @@ no_progress_k: 3
 simplify: false
 code_review: false
 
-First, **READ THROUGH THE corresponding loop.instructions.md VERY CAREFULLY**. If the active agent is Codex (CLI or VS Code), use `.github/HarnessFlow/workflow/token_effective_workflow/loop.instructions.md` for `mode: fast` and `.github/HarnessFlow/workflow/general_workflow/loop.instructions.md` for `mode: general`. If the active agent is VS Code Copilot, use `@/.github/HarnessFlow/workflow/token_effective_workflow/loop.instructions.md` for `mode: fast` and `@/.github/HarnessFlow/workflow/general_workflow/loop.instructions.md` for `mode: general`. If the active agent is Claude Code, use `workflow/token_effective_workflow/loop.instructions.md` for `mode: fast` and `workflow/general_workflow/loop.instructions.md` for `mode: general`; the `subagent_model` header selects the model for the loop's own workers (its default `inherit` keeps subagents on the main agent's model with no downgrade — in `mode: fast` the default main model is Sonnet 4.6), when the loop body uses `dispatch:` the optional `dispatch_main_model` / `dispatch_subagent_model` headers select the model for the dispatched family's main agent and that family's own subagents respectively (both default `inherit`), and the `max_iterations` / `no_progress_k` headers set the always-on safety caps (hard iteration cap, default 10; stop after this many no-progress iterations, default 3). Follow the instructions in that file to run the loop described below.
+First, **READ THROUGH THE corresponding loop.instructions.md VERY CAREFULLY**, in its entirety, then follow it step-by-step to run the loop described below.
+
+Hard constraints, in priority order (hardest first) —
+1. Read the entire matched instruction file before doing anything else, and follow its steps in order.
+2. Create every one of the loop's own workers per the `subagent_model` header — the default `inherit` keeps subagents on the main agent's model with **no downgrade** (in `mode: fast` the default main model is Sonnet 4.6); a specific model id overrides it.
+3. When the loop body uses `dispatch:`, the optional `dispatch_main_model` / `dispatch_subagent_model` headers select the model for the dispatched family's main agent and that family's own subagents respectively (both default `inherit`).
+4. The `max_iterations` / `no_progress_k` headers set the always-on safety caps (hard iteration cap, default 10; stop after this many no-progress iterations, default 3).
+5. Resolve the matched instruction file from this table — pick your platform's row and this request's `mode:` column.
+
+| Active agent | `mode: fast` | `mode: general` | `mode: skill` |
+|---|---|---|---|
+| Claude Code | `workflow/token_effective_workflow/loop.instructions.md` | `workflow/general_workflow/loop.instructions.md` | `workflow/skill_workflow/loop.instructions.md` |
+| Codex (CLI or VS Code) | `.github/HarnessFlow/workflow/token_effective_workflow/loop.instructions.md` | `.github/HarnessFlow/workflow/general_workflow/loop.instructions.md` | `.github/HarnessFlow/workflow/skill_workflow/loop.instructions.md` |
+| VS Code Copilot | `@/.github/HarnessFlow/workflow/token_effective_workflow/loop.instructions.md` | `@/.github/HarnessFlow/workflow/general_workflow/loop.instructions.md` | `@/.github/HarnessFlow/workflow/skill_workflow/loop.instructions.md` |
 
 The loop runs a delegated body action each iteration while the main agent controls observation, exit-condition checks, and the ledger. Provide a **goal** and **success criteria + exit conditions** (both required). The loop body and starting state are optional — if you omit the loop body, the controller decides it from your goal; starting state defaults to the current repo/workspace state.
 

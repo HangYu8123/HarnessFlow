@@ -20,17 +20,17 @@ Worker agents are `user-invocable: false` — they are only accessible as subage
 | **Broad Analyst** | Broad Mode (pipeline upstream→downstream) | read, search, listDir | code, debug, query, correctness_check, refactor, initialize | `broad-analyst.agent.md` |
 | **Free Analyst** | Free Mode (own judgment) | read, search, listDir | code, debug, query, correctness_check, refactor, initialize, exec | `free-analyst.agent.md` |
 | **Senior Engineer** | Senior Staff Engineer review | read, search, listDir | code, debug, refactor, exec | `senior-engineer.agent.md` |
-| **Principal Engineer** | Principal Engineer review (refactor authority) | read, search, listDir | refactor | `principal-engineer.agent.md` |
+| **Principal Engineer** | Principal Engineer review (refactor authority) | read, search, listDir | refactor (general only) | `principal-engineer.agent.md` |
 | **Devils Advocate** | Critical challenger (finds risks) | read, search, listDir | code, debug, query, correctness_check, refactor, exec | `devils-advocate.agent.md` |
 | **Online Researcher** | External resource lookup | read, search, listDir, web/fetch | code, debug, query, correctness_check, refactor, exec | `online-researcher.agent.md` |
 | **Implementer** | Code implementation | read, search, listDir, edit, createFile, runInTerminal | code, debug, refactor | `implementer.agent.md` |
 | **Executor** | Cmd/skill execution | read, search, execute | exec | `executor.agent.md` |
 | **QA Engineer** | QA validation and script execution | read, search, listDir, runInTerminal | code, debug, correctness_check, refactor, exec | `qa-engineer.agent.md` |
 | **Bug Reproducer** | Reproduces bug by running target scripts and capturing output | read, search, execute | debug | `bug-reproducer.agent.md` |
-| **Architecture Analyst** | Architecture improvement analysis | read, search, listDir | refactor | `architecture-analyst.agent.md` |
-| **Redundancy Analyst** | Redundancy reduction analysis | read, search, listDir | refactor | `redundancy-analyst.agent.md` |
-| **Robustness Analyst** | Robustness improvement analysis | read, search, listDir | refactor | `robustness-analyst.agent.md` |
-| **Complexity Analyst** | Complexity reduction analysis | read, search, listDir | refactor | `complexity-analyst.agent.md` |
+| **Architecture Analyst** | Architecture improvement analysis | read, search, listDir | refactor (general only) | `architecture-analyst.agent.md` |
+| **Redundancy Analyst** | Redundancy reduction analysis | read, search, listDir | refactor (general only) | `redundancy-analyst.agent.md` |
+| **Robustness Analyst** | Robustness improvement analysis | read, search, listDir | refactor (general only) | `robustness-analyst.agent.md` |
+| **Complexity Analyst** | Complexity reduction analysis | read, search, listDir | refactor (general only) | `complexity-analyst.agent.md` |
 
 ## Orchestration
 

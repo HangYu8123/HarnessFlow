@@ -10,9 +10,13 @@ The gate runs in exactly **one of two modes**. Decide the mode **once, at the st
 - `review first`
 - `dry run` · `dry-run`
 
-**Mode 2 — Autonomous (gate INACTIVE) — DEFAULT.** Any prompt that does not match a Mode 1 trigger runs in this mode.
+**Delimitation rule (deterministic):** a trigger phrase counts only when it is **clearly delimited** — it stands alone (e.g. a `plan:` header line), sits at a clause boundary (start/end of the prompt, a line, or a clause set off by punctuation), or closes its request (followed only by closers such as "first", "for now", "please", or "before implementing / before any changes"). A trigger does **not** count when it is embedded mid-clause with its own object while the same prompt goes on to request implementation, or when it appears only inside quoted/reported text. Examples that activate Mode 1: "Let's do a dry run first", "Can you review first before implementing?", a prompt starting with `plan:`. Examples that do not: "let's review first the auth module, then implement" (mid-clause, prompt continues to implementation); a bug description quoting the words "review first".
+
+**Mode 2 — Autonomous (gate INACTIVE) — DEFAULT.** Any prompt that does not contain a clearly-delimited Mode 1 trigger runs in this mode.
 
 When the signal is genuinely ambiguous, default to **Mode 2** — the gate is opt-in.
+
+> **Hard enforcement (optional):** on every platform these instructions are guidance, not a deterministic guarantee. Teams that need Mode 1 to hold every time can add a platform-level guard — e.g. a Claude Code hook that blocks file-writing tools while the request carries a plan-only trigger (per the official hooks guide, hooks give deterministic control instead of relying on the model to comply).
 
 ## Mode 1 — Plan-Only / No-Changes
 

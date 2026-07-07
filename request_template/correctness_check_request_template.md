@@ -2,7 +2,18 @@ mode: fast
 agent type: claude
 subagent_model: inherit
 
-First, **READ THROUGH THE corresponding correctness_check.instructions.md VERY CAREFULLY**. If the active agent is Codex (CLI or VS Code), use `.github/HarnessFlow/workflow/token_effective_workflow/correctness_check.instructions.md` for `mode: fast` and `.github/HarnessFlow/workflow/general_workflow/correctness_check.instructions.md` for `mode: general`. If the active agent is VS Code Copilot, use `@/.github/HarnessFlow/workflow/token_effective_workflow/correctness_check.instructions.md` for `mode: fast` and `@/.github/HarnessFlow/workflow/general_workflow/correctness_check.instructions.md` for `mode: general`. If the active agent is Claude Code, use `workflow/token_effective_workflow/correctness_check.instructions.md` for `mode: fast` and `workflow/general_workflow/correctness_check.instructions.md` for `mode: general`; the optional `subagent_model` header selects the model for all subagents — its default `inherit` keeps subagents on the main agent's model with no downgrade (in `mode: fast` the default main model is Sonnet 4.6), or set a specific model id to override. Follow the instructions in that file to check the correctness of the following.
+First, **READ THROUGH THE corresponding correctness_check.instructions.md VERY CAREFULLY**, in its entirety, then follow it step-by-step to check the correctness of the following.
+
+Hard constraints, in priority order (hardest first) —
+1. Read the entire matched instruction file before doing anything else, and follow its steps in order.
+2. Create every subagent per the `subagent_model` header — the default `inherit` keeps subagents on the main agent's model with **no downgrade** (in `mode: fast` the default main model is Sonnet 4.6); a specific model id overrides it for all subagents.
+3. Resolve the matched instruction file from this table — pick your platform's row and this request's `mode:` column.
+
+| Active agent | `mode: fast` | `mode: general` | `mode: skill` |
+|---|---|---|---|
+| Claude Code | `workflow/token_effective_workflow/correctness_check.instructions.md` | `workflow/general_workflow/correctness_check.instructions.md` | `workflow/skill_workflow/correctness_check.instructions.md` |
+| Codex (CLI or VS Code) | `.github/HarnessFlow/workflow/token_effective_workflow/correctness_check.instructions.md` | `.github/HarnessFlow/workflow/general_workflow/correctness_check.instructions.md` | `.github/HarnessFlow/workflow/skill_workflow/correctness_check.instructions.md` |
+| VS Code Copilot | `@/.github/HarnessFlow/workflow/token_effective_workflow/correctness_check.instructions.md` | `@/.github/HarnessFlow/workflow/general_workflow/correctness_check.instructions.md` | `@/.github/HarnessFlow/workflow/skill_workflow/correctness_check.instructions.md` |
 
 Follow the instructions in the selected correctness_check.instructions.md to check the correctness of:
 

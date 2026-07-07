@@ -22,19 +22,19 @@ Apply this rule to every path referenced in this file, workflow files, and agent
 
 Analyze the user's prompt and determine which **one** category best matches.
 Use the trigger phrases as soft signals, not strict rules. Classify based on primary intent.
-If the prompt explicitly includes `mode: fast`, use the matching file under `workflow/token_effective_workflow/`. If the prompt explicitly includes `mode: skill`, use the matching file (same category filename) under `workflow/skill_workflow/` — the unified skill-backed variant (one shared family for all tools) that replaces selected step instructions with confirmed ≥1000-star community skills (catalogued in `skills/skill_workflow_skills.md`), each with an inline fallback. If the prompt includes `mode: general` or does not specify a mode, use `workflow/general_workflow/`.
+If the prompt explicitly includes `mode: fast`, use the matching file under `workflow/token_effective_workflow/`. If the prompt explicitly includes `mode: skill`, use the matching file (same category filename) under `workflow/skill_workflow/` (the Skill column) — the unified skill-backed variant (one shared family for all tools) that replaces selected step instructions with confirmed ≥1000-star community skills (catalogued in `skills/skill_workflow_skills.md`), each with an inline fallback. If the prompt includes `mode: general` or does not specify a mode, use `workflow/general_workflow/`.
 
-| Category | Trigger Keywords / Intent | General Instruction File | Fast Instruction File |
-|---|---|---|---|
-| **Code Implementation** | implement, add, create, build, update, modify, write code, new feature | `workflow/general_workflow/code.instructions.md` | `workflow/token_effective_workflow/code.instructions.md` |
-| **Refactor** | refactor, restructure, reorganize, redesign, reduce redundancy, improve architecture | `workflow/general_workflow/refactor.instructions.md` | `workflow/token_effective_workflow/refactor.instructions.md` |
-| **Debug** | debug, fix, error, bug, crash, broken, failing, not working, traceback, exception | `workflow/general_workflow/debug.instructions.md` | `workflow/token_effective_workflow/debug.instructions.md` |
-| **Query / Q&A** | explain, what is, how does, where is, why, describe, summarize, document | `workflow/general_workflow/query.instructions.md` | `workflow/token_effective_workflow/query.instructions.md` |
-| **Correctness Check** | test, verify, check, validate, review, audit, examine, ensure correctness | `workflow/general_workflow/correctness_check.instructions.md` | `workflow/token_effective_workflow/correctness_check.instructions.md` |
-| **Exec (Cmd/Skill Execution)** | execute, run, exec, invoke, launch command, run skill, run script, trigger | `workflow/general_workflow/exec.instructions.md` | `workflow/token_effective_workflow/exec.instructions.md` |
-| **PR Creation** | pull request, PR, stacked PR, break down branch, split PR, create PR | `workflow/general_workflow/pr.instructions.md` | `workflow/token_effective_workflow/pr.instructions.md` |
-| **Initialize Repo** | initialize, init, setup repo, create overview, bootstrap, first-time setup | `workflow/general_workflow/initialize.instructions.md` | `workflow/token_effective_workflow/initialize.instructions.md` |
-| **Loop** | loop, iterate, repeat, keep going until, until <condition>, poll, recurring, converge, run until done, autonomous until | `workflow/general_workflow/loop.instructions.md` | `workflow/token_effective_workflow/loop.instructions.md` |
+| Category | Trigger Keywords / Intent | General Instruction File | Fast Instruction File | Skill Instruction File |
+|---|---|---|---|---|
+| **Code Implementation** | implement, add, create, build, update, modify, write code, new feature | `workflow/general_workflow/code.instructions.md` | `workflow/token_effective_workflow/code.instructions.md` | `workflow/skill_workflow/code.instructions.md` |
+| **Refactor** | refactor, restructure, reorganize, redesign, reduce redundancy, improve architecture | `workflow/general_workflow/refactor.instructions.md` | `workflow/token_effective_workflow/refactor.instructions.md` | `workflow/skill_workflow/refactor.instructions.md` |
+| **Debug** | debug, fix, error, bug, crash, broken, failing, not working, traceback, exception | `workflow/general_workflow/debug.instructions.md` | `workflow/token_effective_workflow/debug.instructions.md` | `workflow/skill_workflow/debug.instructions.md` |
+| **Query / Q&A** | explain, what is, how does, where is, why, describe, summarize, document | `workflow/general_workflow/query.instructions.md` | `workflow/token_effective_workflow/query.instructions.md` | `workflow/skill_workflow/query.instructions.md` |
+| **Correctness Check** | test, verify, check, validate, review, audit, examine, ensure correctness | `workflow/general_workflow/correctness_check.instructions.md` | `workflow/token_effective_workflow/correctness_check.instructions.md` | `workflow/skill_workflow/correctness_check.instructions.md` |
+| **Exec (Cmd/Skill Execution)** | execute, run, exec, invoke, launch command, run skill, run script, trigger | `workflow/general_workflow/exec.instructions.md` | `workflow/token_effective_workflow/exec.instructions.md` | `workflow/skill_workflow/exec.instructions.md` |
+| **PR Creation** | pull request, PR, stacked PR, break down branch, split PR, create PR | `workflow/general_workflow/pr.instructions.md` | `workflow/token_effective_workflow/pr.instructions.md` | `workflow/skill_workflow/pr.instructions.md` |
+| **Initialize Repo** | initialize, init, setup repo, create overview, bootstrap, first-time setup | `workflow/general_workflow/initialize.instructions.md` | `workflow/token_effective_workflow/initialize.instructions.md` | `workflow/skill_workflow/initialize.instructions.md` |
+| **Loop** | loop, iterate, repeat, keep going until, until <condition>, poll, recurring, converge, run until done, autonomous until | `workflow/general_workflow/loop.instructions.md` | `workflow/token_effective_workflow/loop.instructions.md` | `workflow/skill_workflow/loop.instructions.md` |
 
 All instruction files are resolved via Pack Path Resolution.
 

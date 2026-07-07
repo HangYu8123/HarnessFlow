@@ -8,6 +8,7 @@ description: 'Instructions for creating necessary repo_info memory files to guid
   - philosophy/philosophy.instructions.md
   - _lib/safety_rules.md
   - _lib/workflow_contract.md
+  - _lib/absolutize_pack_paths.md
   - repo_info/ (created by this workflow)
 -->
 
@@ -55,13 +56,13 @@ Create a subagent, read through all the files in the repo, understand them, and 
 create/update the files in Procedure 2 with the **following specifications**.
 under the repo_info folder.
 
-**[PARALLEL EXECUTION — launch the listed subagents in parallel using your platform's subagent mechanism (see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Invocation); if parallel launch is unavailable, run them sequentially — sequential execution produces equivalent results]** — §4.1 (codebase_overview.md) and §4.2 (scripts_overview.md) are independent. Launch both section workflows in parallel.
+**[PARALLEL EXECUTION — launch all listed subagents in parallel; see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]** — §4.1 (codebase_overview.md) and §4.2 (scripts_overview.md) are independent. Launch both section workflows in parallel.
 
 ### 4.1 codebase_overview.md:
 If the file does not exist, create an empty file.
 If the file exists, the main agent must read through the file and keep it inside the memory, and set [pipeline] to be the diagram pipeline in the file.
 Then:
-1. **[PARALLEL EXECUTION — launch the listed subagents in parallel using your platform's subagent mechanism (see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Invocation); if parallel launch is unavailable, run them sequentially — sequential execution produces equivalent results]**:
+1. **[PARALLEL EXECUTION — launch all listed subagents in parallel; see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]**:
 a. create a subagent (code agent, order mode), follow [file structure] in order, go through all files by folders, understand what each file is, how they work in the repo, and what they do. Then based on the results of reading and understanding all the files, construct [codebase_overview 1] and return [codebase_overview 1] to the main agent.
 b. create a subagent (code agent, expand mode), follow [file structure], based on file name, decide what file to go first (usually main.py or any main scripts of the repo), and start reading and understanding the script. then go through the imported files one by one, for each imported file, read through the file and understand it, then go through the imports of the imported file, and so on. every time, when it finishes reading a file, add that file into [read files]. Once the subagent finishes reading, validate if there are any files that have not been read by comparing [read files] with [file structure]. If there are files that have not been read, repeat the previous steps and read those files until all files have been read. Then based on the results of reading and understanding all the files, construct [codebase_overview 2] and return [codebase_overview 2] to the main agent.
 c. create a subagent (code agent, free mode), follow [file structure], the agent must decide what order to use for all files and how to understand what each file is, how they work in the repo, and what their positions are in [pipeline]. Then based on the results of reading and understanding all the files, construct [codebase_overview 3] and return [codebase_overview 3] to the main agent.
@@ -76,7 +77,7 @@ c. create a subagent (code agent, free mode), follow [file structure], the agent
 ### 4.2 scripts_overview.md
 If the file does not exist, create an empty file.
 Then:
-1. **[PARALLEL EXECUTION — launch the listed subagents in parallel using your platform's subagent mechanism (see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Invocation); if parallel launch is unavailable, run them sequentially — sequential execution produces equivalent results]**:
+1. **[PARALLEL EXECUTION — launch all listed subagents in parallel; see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]**:
 a. create a subagent (code agent, folder mode), pass [file structure] to the subagent. the subagent must go through all files in the repo from folder to folder, and read through files in folders one by one. for each file, if it is a code script, summarize each module (function, method, class, code blocks) with two sentences: one sentence of function name, parameters, and outputs, and one short sentence that describes the functionality. organize the summarization by files: give each file a high-level summarization, and give out a list of dependencies of that file. then report [scripts overview 1] to the main agent.
 b. create a subagent (code agent, guided mode), ask the agent to read through scripts_overview.md. then the subagent must read through codebase_overview.md, understand [pipeline] and the codebase structure, then based on that, read through files according to [pipeline] (from upstream to downstream). for each file, if it is a code script, summarize each module (function, method, class, code blocks) with two sentences: one sentence of function name, parameters, and outputs, and one short sentence that describes the functionality. organize the summarization by files: give each file a high-level summarization, and give out a list of dependencies of that file. then report [scripts overview 2] to the main agent.
 c. create a subagent (code agent, file mode), the subagent must go through all files in the repo, then read through files one by one. for each file, if it is a code script, summarize each module (function, method, class, code blocks) with two sentences: one sentence of function name, parameters, and outputs, and one short sentence that describes the functionality. organize the summarization by files: give each file a high-level summarization, and give out a list of dependencies of that file. then report [scripts overview 3] to the main agent.
@@ -92,7 +93,7 @@ then:
 
 **IMPORTANT: §4.3 depends on §4.1 and §4.2 being complete. Do NOT start §4.3 until codebase_overview.md and scripts_overview.md have been written to disk.**
 
-**[PARALLEL EXECUTION — launch the listed subagents in parallel using your platform's subagent mechanism (see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Invocation); if parallel launch is unavailable, run them sequentially — sequential execution produces equivalent results]** — launch steps 1 and 2 in parallel. The main agent may pass the contents of codebase_overview.md and scripts_overview.md inline to reduce redundant file reads.
+**[PARALLEL EXECUTION — launch all listed subagents in parallel; see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]** — launch steps 1 and 2 in parallel. The main agent may pass the contents of codebase_overview.md and scripts_overview.md inline to reduce redundant file reads.
 1. create a subagent (plan agent), go through codebase_overview.md and scripts_overview.md, point out the weaknesses of the code architecture and all possible issues. report back to the main agent.
 2. create a subagent (code agent), go through codebase_overview.md and scripts_overview.md, and then go through all scripts one by one, find any potential issues or code that could lead to problems, errors, and bugs. find anything that could affect the code being fully correct. find anything that prevents code from running correctly or functioning as expected. report back to main agent.
 3. the main agent uses the information from steps 1 and 2 to perform a lightweight correctness assessment of the repo — identifying potential problems, issues, and weaknesses of the codebase. Do NOT invoke the full correctness_check workflow (`workflow/general_workflow/correctness_check.instructions.md`) here, as repo_info files may not all be finalized yet. Instead, use the subagent reports from steps 1 and 2, combined with the main agent's own reading of the codebase, to produce the assessment.
@@ -139,36 +140,8 @@ After completing all file creation in Procedure 4, check whether internal path r
 
 ## Procedure 6: Absolutize Claude Code & Codex Pack Paths (Idempotent)
 
-After completing Procedure 5, rewrite the **Claude Code** and **Codex** pack-relative path references to **absolute filesystem paths**, anchored to **this pack's own root**. This is what makes nested or multiple packs work: one repo may contain more than one pack — e.g., a parent pack at the repo root and a child pack in a subfolder, each with its own `request_template/`, `workflow/`, `repo_info/`, `_lib/`, and `philosophy/`. Paths that resolve against the working directory — pasted-in request templates, and Pack Path Resolution references such as `repo_info/…` — are ambiguous across packs; an absolute path anchored to the pack that owns the file is not.
-
-**Scope of this rewrite:** request templates, `repo_info/` references, and the always-read shared files `_lib/workflow_contract.md` and `philosophy/philosophy.instructions.md`. (Do not absolutize `agents/`, `skills/`, or narrative prose.)
-
-**Platform rule — rewrite Claude Code and Codex forms only; leave VS Code Copilot untouched:**
-- **Claude Code** forms are bare Pack-Path-Resolution paths: `workflow/…`, `repo_info/…`, `_lib/…`, `philosophy/…`.
-- **Codex** forms are `.github/HarnessFlow/`-prefixed paths: `.github/HarnessFlow/workflow/…`, `.github/HarnessFlow/repo_info/…`, etc.
-- Both forms → `[PACK_ROOT_ABS]/<tail>`.
-- **Leave unchanged:** every VS Code Copilot `@/…` path, every `#file:…` reference, and every relative-to-file markdown-link href written as `(../…)` / `(../../…)`. Copilot keeps its native `@/[repo folder name]/` multi-root scheme from Procedure 5; absolute paths are not part of Copilot's `@/`/`#file:` syntax, and relative-to-file hrefs are already pack-local. When a reference is a markdown link `` [`code`](href) ``, rewrite **only the backticked code-span** (which Claude Code/Codex follow) and leave the `(href)` intact.
-
-1. **Determine `[PACK_ROOT_ABS]` — the absolute path of THIS pack's root.** It is the directory containing the `request_template/`, `workflow/`, `repo_info/`, `_lib/`, and `philosophy/` siblings being initialized — the parent of the `request_template/` directory you are editing. Resolve it from the files' own location, **not** from `git rev-parse --show-toplevel` (the git toplevel returns the outermost repo, which is wrong for a nested child pack). You already address these files by absolute path when editing them. Examples: `/Users/me/project/.github/HarnessFlow` (installed), `/Users/me/project` (source layout), `/Users/me/project/child/.github/HarnessFlow` (nested child pack).
-
-2. **Idempotency guard:** Inspect the in-scope Claude Code/Codex references in the files listed in step 4. If they already begin with `[PACK_ROOT_ABS]/`, this procedure has already run for this pack — skip to Procedure 7.
-
-3. **Stale-root repair (moved / renamed / cloned tree):** If an in-scope Claude Code/Codex reference is already absolute (begins with `/`) but under a different root — `[old_root]/{workflow|repo_info|_lib|philosophy}/…` — replace `[old_root]` with `[PACK_ROOT_ABS]`, then skip to step 5 (verify).
-
-4. **Apply the rewrite** (substitute the real absolute path for `[PACK_ROOT_ABS]`; never leave the literal token in any file):
-
-   **4a. Request templates** — for every `.md` under `request_template/`:
-   - Claude Code section (after "If the active agent is Claude Code, use"): `` `workflow/{family}/{name}.instructions.md` `` → `` `[PACK_ROOT_ABS]/workflow/{family}/{name}.instructions.md` `` for families `token_effective_workflow`, `general_workflow`, and `skill_workflow` (if present). A prior install may show `` `.github/HarnessFlow/workflow/{family}/{name}.instructions.md` `` instead — map it to the same absolute target.
-   - Codex section (after "If the active agent is Codex"): `` `.github/HarnessFlow/workflow/{family}/{name}.instructions.md` `` → `` `[PACK_ROOT_ABS]/workflow/{family}/{name}.instructions.md` ``.
-   - Leave the VS Code Copilot section (`@/…`) unchanged.
-
-   **4b. Root entry points** — in `CLAUDE.md` (Claude Code) rewrite the code-span references `` `_lib/workflow_contract.md` ``, `` `philosophy/philosophy.instructions.md` ``, and `` `repo_info/…` `` to absolute. In `AGENTS.md` (Codex) rewrite `` `.github/HarnessFlow/_lib/workflow_contract.md` ``, `` `.github/HarnessFlow/philosophy/philosophy.instructions.md` ``, and `` `.github/HarnessFlow/repo_info/…` `` to absolute. Leave `copilot-instructions.md` unchanged. (Procedure 6 runs before Procedure 7, so the absolutized copies are what Procedure 7 propagates to the repo root.)
-
-   **4c. Shared workflow + contract files** — in every `.md` under `workflow/general_workflow/`, `workflow/token_effective_workflow/`, and `workflow/skill_workflow/`, and in `_lib/workflow_contract.md`, rewrite the **backticked code-span** references to `_lib/workflow_contract.md`, `philosophy/philosophy.instructions.md`, and `repo_info/…` (the bare Pack-Path-Resolution forms Claude Code/Codex follow) to absolute under `[PACK_ROOT_ABS]`. Leave every `(../…)` / `(../../…)` markdown-link href, `@/…`, and `#file:…` untouched.
-
-5. **Verify:** Confirm that a rewritten absolute path resolves to a real file on disk in at least one request template, one entry point, and one shared workflow file.
-
-> **Note:** Absolute paths are machine-specific. If the pack is later moved or cloned, re-run initialization — step 3's stale-root repair refreshes them. Avoid committing these machine-local paths into shared source control (keep the rewritten files out of version control, or restore the relative form before committing).
+After completing Procedure 5, follow the canonical procedure in [`_lib/absolutize_pack_paths.md`](../../_lib/absolutize_pack_paths.md): determine `[PACK_ROOT_ABS]`, record it in the git-ignored `.pack_root`, rewrite the in-scope Claude Code/Codex references, and regenerate the `harness_gui.html` template snapshots via `sync_gui_templates.py`.
+If its idempotency guard triggers (this pack is already absolutized), skip to Procedure 7.
 
 
 ## Procedure 7: Copy Entry-Point Files for Cross-Tool Compatibility

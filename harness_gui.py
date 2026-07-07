@@ -32,6 +32,31 @@ import webbrowser
 PAGE = "harness_gui.html"
 
 
+def _repo_name(root):
+    """Best-effort name of the repo enclosing this pack (for the page header).
+
+    Prefers ``git rev-parse --show-toplevel`` (handles submodules / odd layouts);
+    falls back to path inference — an installed pack lives at
+    ``<repo>/.github/HarnessFlow``, so the repo is two levels up; otherwise the
+    pack root's own folder name. Resolved once at startup, never per-request.
+    """
+    try:
+        top = subprocess.run(
+            ["git", "rev-parse", "--show-toplevel"],
+            cwd=root, capture_output=True, text=True, timeout=5,
+        )
+        name = os.path.basename((top.stdout or "").strip())
+        if top.returncode == 0 and name:
+            return name
+    except Exception:  # noqa: BLE001 - git missing / not a repo -> path fallback
+        pass
+    parent = os.path.dirname(root)
+    # Installed layout: <repo>/.github/HarnessFlow -> repo name is two levels up.
+    if os.path.basename(root) == "HarnessFlow" and os.path.basename(parent) == ".github":
+        return os.path.basename(os.path.dirname(parent))
+    return os.path.basename(root)
+
+
 def _pick_paths(mode, root):
     """Open a native file/folder dialog and return the chosen paths.
 
@@ -77,15 +102,31 @@ def main():
     if not os.path.exists(PAGE):
         raise SystemExit("{} not found next to this script ({}).".format(PAGE, root))
 
+    repo_name = _repo_name(root)
+
     class Handler(http.server.SimpleHTTPRequestHandler):
         def log_message(self, *args):
             pass  # keep the console quiet
 
         def do_GET(self):
-            if urllib.parse.urlparse(self.path).path == "/__pick__":
+            path = urllib.parse.urlparse(self.path).path
+            if path == "/__pick__":
                 self._serve_pick()
                 return
+            # GET /__repo__ -> {"name": ...}: the page shows it as "HarnessFlow · <name>".
+            if path == "/__repo__":
+                self._serve_json({"name": repo_name})
+                return
             super().do_GET()
+
+        def _serve_json(self, obj):
+            data = json.dumps(obj).encode("utf-8")
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Content-Length", str(len(data)))
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
+            self.wfile.write(data)
 
         # GET /__pick__?mode=files|dir -> {"paths": [...]} from a native dialog.
         # We shell out to ``this_file --pick <mode>`` so Tk gets a clean main

@@ -47,10 +47,12 @@ Begin your result with:
 ```
 [subagent result]
 role: Complexity Analyst
-output_label: [plan 5] and [comparison statement 4]
+output_label: [plan 5] and [comparison statement 5]
 status: completed
 model: <your model>
 result:
 ```
+
+(There is no [comparison statement 4] — by design: the Free Analyst returns [plan 4] with no comparison statement.)
 
 Then provide your complexity reduction plan and comparison statement.
