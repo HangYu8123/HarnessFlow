@@ -105,7 +105,7 @@ Record [execution report] containing branches created, commits made, PRs submitt
 1. Write to update_logs.md (one entry per PR in the stack):
 ```md
 {=============================PR Creation Update===============================}
-{PR Title and PR number in stack (e.g., PR 1/5)}
+{PR Title, Timestamp (current time, YYYY-MM-DD HH:MM), and PR number in stack (e.g., PR 1/5)}
 {Request (what was requested)}
 {PR description (one or two sentences of what the PR contains)}
 {Branch name}

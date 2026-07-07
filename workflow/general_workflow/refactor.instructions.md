@@ -101,7 +101,7 @@ The main agent reads through [final plan], [implementation report], [refactor co
 The main agent summarizes the refactor changes in the following format:
 ```md
 {=============================Refactor Update===============================}
-{Refactor Summary (very high level description of the refactor target) and refactor Id (assign a number in order, i.e., plus 1 to the last refactor id)}
+{Refactor Summary (very high level description of the refactor target), Timestamp (fill the current time here, YYYY-MM-DD HH:MM), and refactor Id (assign a number in order, i.e., plus 1 to the last refactor id)}
 {Refactor description (one or two sentences of description of what the refactor is)}
 {Repo involved (what local repos are involved)}
 {Implementation (what has been implemented to achieve the refactor)}

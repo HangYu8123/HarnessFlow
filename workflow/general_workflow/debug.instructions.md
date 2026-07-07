@@ -127,7 +127,7 @@ The main agent reads through [final bug fix plan], [bug fix implementation repor
 The main agent summarizes the bug fix in the following format:
 ```md
 {=============================BUG FIX===============================}
-{BUG Name (very high level description of the bug) and Bug Id (assign a number in order, i.e., plus 1 to the last bug id)}
+{BUG Name (very high level description of the bug), Timestamp (fill the current time here, YYYY-MM-DD HH:MM), and Bug Id (assign a number in order, i.e., plus 1 to the last bug id)}
 {Bug description (one or two sentences of description of what the bug is)}
 {Repo involved (what local repos are involved)}
 {Implementation (what has been changed to fix the bug)}

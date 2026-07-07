@@ -70,7 +70,7 @@ The main agent incorporates [challenge report] and [online resource] (when produ
 ### Step 5 - Documentation
 1. Append to past_Correctness_Check.md, using the existing contents to determine the last CC ID (create if missing):
 ```md
-{=============================Correctness Check: (last CC ID + 1)===============================}
+{=============================Correctness Check: (current time, YYYY-MM-DD HH:MM) — (last CC ID + 1)===============================}
 Incorrect: (one sentence summary)
 Potential Cause: (brief precise bullet points)
 ```

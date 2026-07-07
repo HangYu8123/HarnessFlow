@@ -65,7 +65,7 @@ The main agent incorporates [challenge report] and [online resource] (when produ
 ### Step 5 - Documentation
 Append to past_Q&A.md, using the existing contents to determine the last Q&A ID:
 ```md
-{=============================Q&A: (last ID + 1)===============================}
+{=============================Q&A: (current time, YYYY-MM-DD HH:MM) — (last ID + 1)===============================}
 Question: (one sentence summary)
 Answer: (brief precise summary in bullet points)
 ```

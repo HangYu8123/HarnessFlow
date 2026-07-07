@@ -82,7 +82,7 @@ The main agent incorporates [valid criticisms] and [online resource], and update
 ### Step 8 - Record the Correctness Check
 The main agent summarizes the correctness check report in the following format, for each incorrectness:
 ```md
-{=============================Correctness Check: (fill a CC ID here, simply use last CC ID + 1)===============================}
+{=============================Correctness Check: (fill the current time here, YYYY-MM-DD HH:MM) — (fill a CC ID here, simply use last CC ID + 1)===============================}
 Incorrect: (fill a one sentence summary of the Incorrect here.)
 Potential Cause: (fill a brief but precise summary of the Potential Cause in bullet points here.)
 ```

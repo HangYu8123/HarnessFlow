@@ -76,7 +76,7 @@ Based on whichever of [simplify] + [code-review] + [devils-advocate review] + [d
 2. Write to update_logs.md:
 ```md
 {=============================Refactor Update===============================}
-{Refactor Summary + ID (last ID + 1)}
+{Refactor Summary + Timestamp (current time, YYYY-MM-DD HH:MM) + ID (last ID + 1)}
 {Description (1-2 sentences)}
 {Repos involved}
 {Request (what was requested)}

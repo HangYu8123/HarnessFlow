@@ -85,7 +85,7 @@ The main agent validates preconditions (environment, dependencies, required file
 2. Write to update_logs.md:
 ```md
 {=============================Execution Update===============================}
-{Cmd/Skill Name + Execution ID (last ID + 1)}
+{Cmd/Skill Name + Timestamp (current time, YYYY-MM-DD HH:MM) + Execution ID (last ID + 1)}
 {Description (1-2 sentences)}
 {Repos involved}
 {Request (what was requested)}

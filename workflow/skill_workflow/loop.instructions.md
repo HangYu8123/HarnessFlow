@@ -119,7 +119,7 @@ The main agent is the **controller**; the act is **always delegated**. Initializ
 2. Write to update_logs.md:
 ```md
 {=============================Loop Update===============================}
-{Loop Name + Loop ID (last ID + 1)}
+{Loop Name + Timestamp (current time, YYYY-MM-DD HH:MM) + Loop ID (last ID + 1)}
 {Description (1-2 sentences)}
 {Repos involved}
 {Goal / success criteria}

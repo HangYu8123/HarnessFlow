@@ -72,7 +72,7 @@ The main agent incorporates [valid criticisms] and [online resource], prioritize
 ### Step 7 - Record the Q&A
 The main agent summarizes the questions and answers in the following format, for each question and answer pair:
 ```md
-{=============================Q&A: (fill an Q&A ID here, simply use last Q&A ID + 1)===============================}
+{=============================Q&A: (fill the current time here, YYYY-MM-DD HH:MM) — (fill an Q&A ID here, simply use last Q&A ID + 1)===============================}
 Question: (fill a one sentence summary of the question here.)
 Answer: (fill a brief but precise summary of the answer in bullet points here.)
 ```

@@ -92,7 +92,7 @@ The main agent reads through [final plan], [execution report], [execution review
 The main agent summarizes the execution in the following format, for each cmd/skill executed:
 ```md
 {=============================Execution Update===============================}
-{Cmd/Skill Name (very high level description) and Execution Id (assign a number in order, i.e., plus 1 to the last functionality id in update_logs.md)}
+{Cmd/Skill Name (very high level description), Timestamp (fill the current time here, YYYY-MM-DD HH:MM), and Execution Id (assign a number in order, i.e., plus 1 to the last functionality id in update_logs.md)}
 {Execution description (one or two sentences of what was executed)}
 {Repo involved (what local repos are involved)}
 {Commands/Skills executed (what cmds/skills were run and with what parameters)}

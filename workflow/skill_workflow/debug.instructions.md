@@ -93,7 +93,7 @@ Based on whichever of [simplify] + [code-review] + [post-impl challenge report] 
 2. Write to update_logs.md:
 ```md
 {=============================BUG FIX===============================}
-{Bug Name + ID (last ID + 1)}
+{Bug Name + Timestamp (current time, YYYY-MM-DD HH:MM) + ID (last ID + 1)}
 {Description (1-2 sentences)}
 {Repos involved}
 {Request (what was requested)}

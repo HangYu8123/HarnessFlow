@@ -117,7 +117,7 @@ After finishing the execution, the subagent must generate an [execution report] 
 The main agent reads through [final pr plan], [execution report], [pr stack review report], and [pr stack QA report], then understands the PR stack creation results. The main agent summarizes the PR creation in the following format, for each PR in the stack:
 ```md
 {=============================PR Creation Update===============================}
-{PR Title and PR number in stack (e.g., PR 1/5)}
+{PR Title, Timestamp (current time, YYYY-MM-DD HH:MM), and PR number in stack (e.g., PR 1/5)}
 {PR description (one or two sentences of what the PR contains)}
 {Branch name}
 {Files changed}

@@ -96,7 +96,7 @@ The main agent reads through [final plan], [implementation report], [implementat
 The main agent summarizes the implementation in the following format, for each new functionality:
 ```md
 {=============================Function Update===============================}
-{functionality Name (very high level description of the functionality) and functionality Id (assign a number in order, i.e., plus 1 to the last functionality id)}
+{functionality Name (very high level description of the functionality), Timestamp (fill the current time here, YYYY-MM-DD HH:MM), and functionality Id (assign a number in order, i.e., plus 1 to the last functionality id)}
 {functionality description (one or two sentences of description of what the functionality is)}
 {Repo involved (what local repos are involved)}
 {Implementation (what has been implemented to achieve the functionality)}

@@ -137,6 +137,16 @@ When any workflow instruction tells you to read context files (`[key md files]`)
 
 ---
 
+## Log Entry Timestamps
+
+Every documentation entry template (update_logs.md, past_Q&A.md, past_Correctness_Check.md) carries a timestamp element immediately before its ID/number element, format `YYYY-MM-DD HH:MM` (24-hour, local time).
+
+- Obtain it from the system clock at write time — `date '+%Y-%m-%d %H:%M'` (POSIX-portable) or your platform shell's equivalent. Never write a guessed time.
+- If no shell/clock is available, use the environment-provided current date and write the date only (`YYYY-MM-DD`) — never invent the time of day. If no reliable current date is available either, omit the timestamp element entirely.
+- The timestamp is never an ID. Determine the "last ID" per the workflow's own ID rule, reading prior entries' IDs at their labeled position (in banner-style Q&A / Correctness Check entries: the number after the em-dash, or after the colon in older entries without timestamps); ignore timestamp digits and positional numbers such as "PR 1/5". Entries written before this convention (no timestamp) remain valid.
+
+---
+
 ## Context Passing for Subagents
 
 The unified workflows (`workflow/general_workflow/` and `workflow/token_effective_workflow/`) are platform-adaptive; how repo context reaches subagents depends on the **active agent**, not the directory:
