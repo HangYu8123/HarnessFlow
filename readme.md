@@ -349,7 +349,7 @@ python3 harness_gui.py
 Or just double-click **`harness_gui.html`** to open it directly. Either way you can:
 
 - pick any of the 8 templates and copy the finished prompt in one click (or download it as `.md`);
-- flip parameters with buttons — `mode` (fast/general/skill), `agent type` (claude/codex/copilot), `subagent_model`, `reproduce` (debug), and `code_review` (opt-in, default off; code/debug/refactor/exec/pr/loop) — which rewrite only the copied text, never the source files;
+- flip parameters with buttons — `mode` (fast/general/skill), `agent type` (claude/codex/copilot), `subagent_model`, `reproduce` (debug), and the opt-in review skills `simplify` + `code_review` (same line, default off; code/debug/refactor/exec/pr/loop) — which rewrite only the copied text, never the source files;
 - fill the template's input fields inline, and see the exact `workflow/...` instructions file the selection resolves to.
 
 The launcher serves over http so the templates stay live-synced from `request_template/`; double-clicking the HTML works fully offline from the bundled snapshots.
