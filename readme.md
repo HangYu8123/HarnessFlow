@@ -6,7 +6,7 @@
 
 **Portable AI-coding workflow pack for Claude Code, Codex CLI, and VS Code + Copilot.**
 
-HarnessFlow is a drop-in set of workflow and agent-instruction files: copy it into any repository and your AI coding assistant stops one-shotting changes. It is designed for Claude Code, Codex CLI, and VS Code with GitHub Copilot — tools that can read instructions straight from the repository they're working in. Instead of taking your prompt straight to a diff, this pack gives your assistant a real pipeline: a classifier that reads the request, a router that sends it to the matching workflow, parallel analysis agents that investigate before any code is touched, and a self-challenge pass that pressure-tests the plan before a single line changes. Once the work is done, a QA pass validates the result and what your assistant learned gets written to persistent repo memory. Every change gets the right process, a second opinion before it ships, and a paper trail once it lands and the next request starts a little smarter than the last.
+HarnessFlow is a drop-in set of workflow and agent-instruction files: copy it into any repository and your AI coding assistant stops one-shotting changes. It is designed for Claude Code, Codex CLI, and VS Code with GitHub Copilot — tools that can read instructions straight from the repository they're working in. Instead of taking your prompt straight to a diff, this pack gives your assistant a real pipeline: a request template that names the workflow you want, parallel analysis agents that investigate before any code is touched, and a self-challenge pass that pressure-tests the plan before a single line changes. Once the work is done, a QA pass validates the result and what your assistant learned gets written to persistent repo memory. Every change gets the right process, a second opinion before it ships, and a paper trail once it lands and the next request starts a little smarter than the last.
 
 [What it does](#what-it-does) · [Benchmarks](#benchmarks-fast-vs-general) · [Install](#install) · [Get started](#get-started) · [Platforms](#platforms) · [Architecture](#architecture)
 
@@ -16,7 +16,7 @@ HarnessFlow is a drop-in set of workflow and agent-instruction files: copy it in
 
 HarnessFlow is a portable **Markdown instruction pack** — there is no runtime, no `npm install`, and no build step. It is designed for Claude Code CLI, Codex CLI, GitHub Copilot in VS Code, Aider, and other AI coding assistants that benefit from structured operating instructions. Instead of letting your assistant one-shot changes from a single prompt, this pack gives every request a disciplined, multi-agent workflow with real planning, self-review, QA, and persistent memory:
 
-- **Classifies** your prompt into one of 9 request types and loads the matching workflow file.
+- **Runs on request** — a filled-in template from `request_template/` names one of 9 request types and loads that workflow file; nothing fires on a bare prompt.
 - **Analyzes in parallel** — Focus, Broad, and Free analyst subagents read the codebase from different angles, then a Senior Engineer synthesizes one plan.
 - **Challenges itself** — a Devil's Advocate pass stress-tests the plan for regressions and bad assumptions before any code is written.
 - **Validates** — a QA Engineer checks the implementation; an opt-in approval gate lets you sign off on the plan first.
@@ -136,58 +136,30 @@ bash .github/HarnessFlow/setup.sh
 
 ## Get Started
 
+A workflow runs when a filled-in request template names its instruction file. A bare, plain-language prompt is answered normally, without the pack.
+
 ### Step 1 — Initialize repo memory (once per repo)
 
 This populates `repo_info/` with an overview of your codebase that every later request reuses.
 
-**Claude Code CLI** — from your repo root, run `claude`, then type:
-```text
-Initialize this repo.
-```
+Copy `request_template/initialize_request_template.md`, fill it in, and paste it into Claude Code CLI, Codex CLI, or the Copilot Chat panel.
 
-**Codex CLI** — run `codex`, then type:
-```text
-Initialize this repo.
-```
+### Step 2 — Send a request template
 
-**VS Code + Copilot** — in the Copilot Chat panel:
-```text
-Following the instructions in @/.github/HarnessFlow/workflow/general_workflow/initialize.instructions.md, initialize this repo.
-```
+Pick the template for what you want — `code_request_template.md`, `debug_request_template.md`, `pr_request_template.md`, and so on — fill in your task, and paste the whole file in. Each template already carries the workflow category, the `mode:`, and the exact instruction file for your tool.
 
-### Step 2 — Just ask
-
-Once initialized, describe what you want in plain language — the router picks the workflow automatically:
-```text
-Add input validation to the user registration endpoint.
-```
-```text
-Why does the nightly export job drop the last row? Debug it.
-```
-
-### Optional — force fast mode or use a template
-
-Prepend `mode: fast` for the token-efficient path:
-```text
-mode: fast
-
-Refactor the database layer to remove the duplicate query builders.
-```
-
-Or copy a ready-made prompt from `request_template/` (for example `code_request_template.md` or `pr_request_template.md`), fill in your task, and paste it in. Templates let you force a specific workflow and mode.
+The `mode:` header picks the workflow family — `fast` for the token-efficient path, `general` for the thorough one, `skill` for the community-skill-backed variant. Templates ship with `mode: fast` prefilled.
 
 ## Platforms
 
-| Environment | Entry point | Workflow directory |
+| Environment | Auto-discovered router (shared rules) | How a workflow starts |
 |---|---|---|
-| Claude Code CLI | root `CLAUDE.md` | `workflow/general_workflow/` |
-| Claude Code CLI (fast) | `CLAUDE.md` + `mode: fast` | `workflow/token_effective_workflow/` |
-| Codex CLI / Codex in VS Code | root `AGENTS.md` | `workflow/general_workflow/` |
-| Codex CLI (fast) | `AGENTS.md` + `mode: fast` | `workflow/token_effective_workflow/` |
-| VS Code + Copilot | `.github/copilot-instructions.md` | `workflow/general_workflow/` |
-| VS Code + Copilot (fast) | request templates + `mode: fast` | `workflow/token_effective_workflow/` |
-| Claude Code / Codex / VS Code + Copilot (skill) | `mode: skill` | `workflow/skill_workflow/` |
-| Aider / generic LLMs | manual file references | any workflow file |
+| Claude Code CLI | root `CLAUDE.md` | a filled-in `request_template/` prompt |
+| Codex CLI / Codex in VS Code | root `AGENTS.md` | a filled-in `request_template/` prompt |
+| VS Code + Copilot | `.github/copilot-instructions.md` | a filled-in `request_template/` prompt |
+| Aider / generic LLMs | — | manual file references |
+
+The template's `mode:` header picks the family: `general` → `workflow/general_workflow/`, `fast` → `workflow/token_effective_workflow/`, `skill` → `workflow/skill_workflow/`.
 
 ## Architecture
 
@@ -260,7 +232,7 @@ The three workflow families are:
 | `workflow/token_effective_workflow/` | `mode: fast` | Streamlined token-efficient workflows — one platform-adaptive set shared by all three tools. |
 | `workflow/skill_workflow/` | `mode: skill` | Skill-backed variant of the fast family — selected step instructions are replaced by confirmed ≥1000-star community skills (catalogued in `skills/skill_workflow_skills.md`), each with an inline fallback. Shared by all three tools. |
 
-The root routers classify all nine categories: code implementation, refactor, debug, query, correctness check, exec, PR creation, initialize, and loop. Each maps to a `*.instructions.md` file present in every workflow family, with a matching fill-in prompt in `request_template/`. The single `general_workflow` set adapts its behavior to the active agent (subagent mechanism, context passing, and native-skill steps) via `_lib/workflow_contract.md`.
+The pack covers nine categories: code implementation, refactor, debug, query, correctness check, exec, PR creation, initialize, and loop. Each maps to a `*.instructions.md` file present in every workflow family, and each is reached through its fill-in prompt in `request_template/`; the root routers hold only the shared rules a workflow needs once its template has named it. The single `general_workflow` set adapts its behavior to the active agent (subagent mechanism, context passing, and native-skill steps) via `_lib/workflow_contract.md`.
 
 ## Setup Scripts
 

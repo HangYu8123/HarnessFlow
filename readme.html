@@ -413,7 +413,7 @@
           <div class="fig-frame">
             <svg viewBox="0 0 1160 430" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="plf-t plf-d">
               <title id="plf-t">HarnessFlow routing pipeline</title>
-              <desc id="plf-d">A user request enters through one of three tool routers (VS Code Copilot, Claude Code, or Codex), is classified into one of nine task categories, dispatched to a general, fast, or skill workflow family, executed against shared rules and worker agents, and reads and writes persistent repo memory.</desc>
+              <desc id="plf-d">A filled-in request template enters through one of three tool routers (VS Code Copilot, Claude Code, or Codex), names one of nine task categories, is dispatched to a general, fast, or skill workflow family, is executed against shared rules and worker agents, and reads and writes persistent repo memory.</desc>
               <defs>
                 <marker id="plfArr" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9 Z" fill="#9aa6b2"/></marker>
                 <marker id="plfArrT" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9 Z" fill="#0d7d8a"/></marker>
@@ -451,7 +451,7 @@
               <rect class="plf-card" x="214" y="92" width="150" height="130" rx="11"/>
               <rect class="plf-bar-blue" x="214" y="92" width="150" height="5" rx="2.5"/>
               <text class="plf-ttl" x="289" y="124" text-anchor="middle">Router</text>
-              <text class="plf-sub" x="289" y="146" text-anchor="middle">classify request into</text>
+              <text class="plf-sub" x="289" y="146" text-anchor="middle">template names 1 of</text>
               <text class="plf-sub" x="289" y="162" text-anchor="middle">9 task categories</text>
               <text class="plf-sub" x="289" y="186" text-anchor="middle" style="font-size:10.5px">code · debug · refactor</text>
               <text class="plf-sub" x="289" y="200" text-anchor="middle" style="font-size:10.5px">query · check · exec</text>
@@ -502,9 +502,9 @@
             </svg>
           </div>
           <figcaption>
-            <b>Figure 1. The HarnessFlow pipeline.</b> Every request from any supported tool is classified, routed to one
-            shared <code>general</code>, <code>fast</code>, or <code>skill</code> family, executed against shared
-            contracts and worker agents, and persisted to <code>repo_info/</code> memory that feeds the next request.
+            <b>Figure 1. The HarnessFlow pipeline.</b> A templated request from any supported tool names one
+            shared <code>general</code>, <code>fast</code>, or <code>skill</code> family, is executed against shared
+            contracts and worker agents, and is persisted to <code>repo_info/</code> memory that feeds the next request.
           </figcaption>
         </figure>
       </div>
@@ -517,8 +517,8 @@
         <h2 class="head">An instruction pack, not an application</h2>
         <p class="lead justify">
           Without a harness, a coding agent answers in a single ad-hoc pass: read some files, guess a plan, write
-          changes, and stop. HarnessFlow replaces that with a formalized pipeline. Each request is classified and
-          routed to a detailed workflow, decomposed into parallel subagents with distinct cognitive perspectives,
+          changes, and stop. HarnessFlow replaces that with a formalized pipeline. A request template names a
+          detailed workflow, which decomposes into parallel subagents with distinct cognitive perspectives,
           challenged by an adversarial reviewer, validated by a QA pass, and recorded in persistent repo memory.
           It is pure Markdown plus two Bash setup scripts — copy it into any repo under
           <code>.github/HarnessFlow/</code> and it works with Claude Code, Codex, and VS Code Copilot.
@@ -648,11 +648,11 @@
         <h2 class="head">How a request moves through the pack</h2>
         <p class="lead">
           The pack is source-controlled at this repo root, then installed into target repos under
-          <code>.github/HarnessFlow/</code>. Tool-specific entry points classify the request, load shared rules,
-          and hand off to the matching workflow family.
+          <code>.github/HarnessFlow/</code>. Tool-specific entry points load shared rules and hand off to the
+          workflow family the request template names.
         </p>
         <div class="pipeline" aria-label="Execution pipeline">
-          <div class="stage accent-teal"><b>User request</b><span>Natural language or a structured request template.</span></div>
+          <div class="stage accent-teal"><b>User request</b><span>A filled-in request template names a workflow.</span></div>
           <div class="stage accent-blue"><b>Tool router</b><span>Copilot, Claude Code, or Codex discovers the entry point.</span></div>
           <div class="stage accent-green"><b>Shared context</b><span>Workflow contract, safety rules, and philosophy load first.</span></div>
           <div class="stage accent-amber"><b>Workflow family</b><span>The selected instruction file drives the task.</span></div>
