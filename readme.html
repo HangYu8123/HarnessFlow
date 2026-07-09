@@ -525,9 +525,9 @@
         </p>
         <div class="stat-grid">
           <div class="stat"><strong>3</strong><span>workflow families</span></div>
-          <div class="stat"><strong>24</strong><span>workflow files</span></div>
+          <div class="stat"><strong>27</strong><span>workflow files</span></div>
           <div class="stat"><strong>15</strong><span>worker agents</span></div>
-          <div class="stat"><strong>8</strong><span>request templates</span></div>
+          <div class="stat"><strong>9</strong><span>request templates</span></div>
           <div class="stat"><strong>0</strong><span>runtime deps</span></div>
         </div>
       </div>
@@ -704,6 +704,7 @@
               <tr><td>Refactor</td><td><code>general_workflow/refactor.instructions.md</code></td><td><code>token_effective_workflow/refactor.instructions.md</code></td><td><code>skill_workflow/refactor.instructions.md</code></td></tr>
               <tr><td>Exec</td><td><code>general_workflow/exec.instructions.md</code></td><td><code>token_effective_workflow/exec.instructions.md</code></td><td><code>skill_workflow/exec.instructions.md</code></td></tr>
               <tr><td>PR breakdown</td><td><code>general_workflow/pr.instructions.md</code></td><td><code>token_effective_workflow/pr.instructions.md</code></td><td><code>skill_workflow/pr.instructions.md</code></td></tr>
+              <tr><td>Loop</td><td><code>general_workflow/loop.instructions.md</code></td><td><code>token_effective_workflow/loop.instructions.md</code></td><td><code>skill_workflow/loop.instructions.md</code></td></tr>
             </tbody>
           </table>
         </div>
@@ -826,7 +827,8 @@ bash .github/HarnessFlow/cli_setup.sh</code></pre>
         </div>
         <div class="grid cols-3" style="margin-top:14px;">
           <div class="tile accent-teal"><h3>breakdown-pr</h3><p><code>skills/breakdown-pr/SKILL.md</code> decomposes large branches into stacked, reviewable PRs.</p></div>
-          <div class="tile accent-amber"><h3>claude-native-skills</h3><p><code>skills/claude-native-skills-subagents/SKILL.md</code> runs Claude Code-only post-implementation checks.</p></div>
+          <div class="tile accent-amber"><h3>claude-native-skills</h3><p><code>skills/claude-native-skills-subagents/SKILL.md</code> runs Claude Code-only post-implementation checks — the <code>simplify: true</code> / <code>code_review: true</code> path.</p></div>
+          <div class="tile accent-teal"><h3>local review skills</h3><p><code>skills/code-simplification/</code> and <code>skills/code-review-and-quality/</code> back <code>simplify: local</code> / <code>code_review: local</code> — the platform-independent alternative to the native skills. Resolution lives in <code>_lib/review_skills.md</code>.</p></div>
           <div class="tile accent-violet"><h3>community registry</h3><p><code>skills/skill_workflow_skills.md</code> powers <code>mode: skill</code> — <code>writing-plans</code>, <code>the-fool</code>, <code>deep-research</code>, <code>code-reviewer</code>, and more, each with an inline fallback.</p></div>
         </div>
       </div>

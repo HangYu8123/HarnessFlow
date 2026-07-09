@@ -10,8 +10,6 @@ HarnessFlow is a drop-in set of workflow and agent-instruction files: copy it in
 
 [What it does](#what-it-does) · [Benchmarks](#benchmarks-fast-vs-general) · [Install](#install) · [Get started](#get-started) · [Platforms](#platforms) · [Architecture](#architecture)
 
-**English** | **简体中文**
-
 </div>
 
 ## What It Does
@@ -69,8 +67,9 @@ Every supported platform is a first-class citizen — pick the one you already u
 | **Exec** | Run a command or skill and capture the results |
 | **PR** | Break a large branch into reviewable, stacked PRs |
 | **Initialize** | Bootstrap repo memory for first-time setup |
+| **Loop** | Repeat a task or check iteratively until a condition is met |
 
-Each category is backed by workflow files under `workflow/` — one shared `general` set (used by all platforms) plus per-tool `fast` sets — with a matching fill-in prompt in `request_template/`.
+Each category is backed by workflow files under `workflow/` — shared `general`, `fast`, and `skill` sets, each platform-adaptive and used by all platforms — with a matching fill-in prompt in `request_template/`.
 
 
 
@@ -100,7 +99,7 @@ The `fast` workflow is the efficiency–quality sweet spot. Across two independe
 
 The model is held constant (Claude Sonnet 4.6 subagents, Opus 4.8 orchestrator) so the comparison isolates the *harness*, not the model. Full methodology, per-role token breakdowns, and caveats live in the benchmark run logs `experiment/results/COMPARISON_LOG.md` and `experiment_swe/results/SWE_COMPARISON_LOG.md`.
 
-> The raw benchmark runs under `experiment/` and `experiment_swe/` are git-ignored, so a fresh clone of this repo does not include them.
+> The raw benchmark runs under `experiment/`, `experiment_swe/`, and `experiment_ponytail/` (including `experiment_ponytail/REPORT.md` referenced above) are git-ignored, so a fresh clone of this repo does not include them.
 
 ## Install
 
@@ -117,10 +116,11 @@ cd /path/to/your-repo
 mkdir -p .github/HarnessFlow
 rsync -a --exclude .git --exclude .DS_Store --exclude .github \
   --exclude repo_info --exclude experiment --exclude experiment_swe \
+  --exclude experiment_ponytail \
   /path/to/HarnessFlow/ .github/HarnessFlow/
 ```
 
-Replace `/path/to/HarnessFlow/` with wherever you cloned it. The excludes keep the source repo's own local-only files out of your repo — its `repo_info/` memory (which is *about HarnessFlow itself*), the `experiment*/` benchmark runs, `.DS_Store`, and `.git`; `cli_setup.sh` then recreates empty `repo_info/` files for *your* codebase. No `rsync`? Use `cp -r /path/to/HarnessFlow/. .github/HarnessFlow/`, then delete the copied `.github/HarnessFlow/.git`, `repo_info/`, `experiment/`, `experiment_swe/`, and any `.DS_Store` files. The pack must end up at **`.github/HarnessFlow/`** — both setup scripts validate this path.
+Replace `/path/to/HarnessFlow/` with wherever you cloned it. The excludes keep the source repo's own local-only files out of your repo — its `repo_info/` memory (which is *about HarnessFlow itself*), the `experiment*/` benchmark runs, `.DS_Store`, and `.git`; `cli_setup.sh` then recreates empty `repo_info/` files for *your* codebase. No `rsync`? Use `cp -r /path/to/HarnessFlow/. .github/HarnessFlow/`, then delete the copied `.github/HarnessFlow/.git`, `repo_info/`, `experiment/`, `experiment_swe/`, `experiment_ponytail/`, and any `.DS_Store` files. The pack must end up at **`.github/HarnessFlow/`** — both setup scripts validate this path.
 
 ### 2. Run the setup script for your platform
 
@@ -225,12 +225,12 @@ The source repo stores the pack at the repo root. The installed layout expected 
 | `copilot-instructions.md` | VS Code Copilot router template. |
 | `CLAUDE.md` | Claude Code CLI router template copied to the target repo root by `cli_setup.sh`. |
 | `AGENTS.md` | Codex CLI router template copied to the target repo root by `cli_setup.sh`. |
-| `_lib/` | Shared workflow contract, safety rules, and approval-gate rules. |
+| `_lib/` | Shared workflow contract, safety rules, approval-gate rules, and the `simplify` / `code_review` review-skill resolution. |
 | `philosophy/` | Shared behavioral guidance used by workflows and subagents. |
 | `workflow/` | Tool-specific workflow instruction families. |
 | `agents/` | Custom agent definitions plus `agents/INDEX.md`. |
 | `request_template/` | Fill-in request templates, including `mode: general` and `mode: fast` selection. |
-| `skills/` | Vendored skill definitions (PR breakdown, Claude-native post-implementation orchestration) plus `skill_workflow_skills.md`, the community-skill registry that powers `mode: skill`. |
+| `skills/` | Vendored skill definitions plus `skill_workflow_skills.md`, the community-skill registry that powers `mode: skill`. |
 | `.claude/rules/` | Claude Code path-scoped rules copied to target repos by `cli_setup.sh`. |
 | `setup.sh` | Configures VS Code workspace settings and generated Copilot instructions in a target repo. |
 | `cli_setup.sh` | Generates CLI entry points and ensures target `repo_info/` files exist. |
@@ -311,6 +311,7 @@ correctness_check_request_template.md
 debug_request_template.md
 exec_request_template.md
 initialize_request_template.md
+loop_request_template.md
 pr_request_template.md
 query_request_template.md
 refactor_request_template.md
@@ -350,7 +351,7 @@ python3 harness_gui.py
 Or just double-click **`harness_gui.html`** to open it directly. Either way you can:
 
 - pick any of the 9 templates and copy the finished prompt in one click (or download it as `.md`);
-- flip parameters with buttons — `mode` (fast/general/skill), `agent type` (claude/codex/copilot), `subagent_model`, `reproduce` (debug), and the opt-in review skills `simplify` + `code_review` (same line, default off; code/debug/refactor/exec/pr/loop) — which rewrite only the copied text, never the source files;
+- flip parameters with buttons — `mode` (fast/general/skill), `agent type` (claude/codex/copilot), `subagent_model`, `reproduce` (debug), and the opt-in review skills `simplify` + `code_review` (same line, default off; code/debug/refactor/exec/pr/loop; each `false` / `true` = Claude Code's native `/simplify` · `/code-review` / `local` = the pack's vendored review skills, which run on any platform) — which rewrite only the copied text, never the source files;
 - fill the template's input fields inline, and see the exact `workflow/...` instructions file the selection resolves to.
 
 The launcher serves over http so the templates stay live-synced from `request_template/`; double-clicking the HTML works fully offline from the bundled snapshots.
@@ -361,10 +362,14 @@ The launcher serves over http so the templates stay live-synced from `request_te
 
 See `agents/INDEX.md` for the complete registry.
 
-`skills/` contains two **vendored** skills plus a registry of **external community skills**:
+`skills/` contains six **vendored** skills plus a registry of **external community skills**:
 
 - `breakdown-pr`: analyzes a large branch or PR and proposes a stacked PR breakdown.
-- `claude-native-skills-subagents`: Claude Code-only post-implementation orchestration for native skills such as `/simplify`, `/code-review`, `/batch`, and `/claude-api`.
+- `claude-native-skills-subagents`: Claude Code-only post-implementation orchestration for native skills such as `/simplify`, `/code-review`, `/batch`, and `/claude-api`. Runs only for `simplify: true` / `code_review: true`.
+- `code-simplification`: the `simplify: local` alternative to Claude Code's native `/simplify` — reduces complexity in the diff while preserving behavior, on any platform. Vendored from `addyosmani/agent-skills` (MIT).
+- `code-review-and-quality`: the `code_review: local` alternative to Claude Code's native `/code-review` — a review-only pass over correctness, readability, architecture, security, and performance, on any platform. Vendored from `addyosmani/agent-skills` (MIT).
+- `weekly-update-report`: summarizes the last 7 days of git commit history into a "what I shipped last week" update report (explicit request only).
+- `write-readme`: generates a structured, pipeline-and-component-oriented `README.md` grounded in the repo's actual source and `repo_info/` context.
 - `skill_workflow_skills.md`: the registry that powers `mode: skill` — it catalogs the popular community skills (each verified at ≥1000 GitHub stars) that replace selected step instructions in `workflow/skill_workflow/`, with sources, verified star counts, exact paths, and a per-step inline fallback.
 
 ### Community skills behind `mode: skill`

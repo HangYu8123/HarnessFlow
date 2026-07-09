@@ -23,6 +23,8 @@ Hard constraints, in priority order (hardest first) —
 | Codex (CLI or VS Code) | `.github/HarnessFlow/workflow/token_effective_workflow/loop.instructions.md` | `.github/HarnessFlow/workflow/general_workflow/loop.instructions.md` | `.github/HarnessFlow/workflow/skill_workflow/loop.instructions.md` |
 | VS Code Copilot | `@/.github/HarnessFlow/workflow/token_effective_workflow/loop.instructions.md` | `@/.github/HarnessFlow/workflow/general_workflow/loop.instructions.md` | `@/.github/HarnessFlow/workflow/skill_workflow/loop.instructions.md` |
 
+`simplify` / `code_review` each accept `false` (skip — the default), `true` (Claude Code's native `/simplify` · `/code-review`), or `local` (the pack's vendored `skills/code-simplification` · `skills/code-review-and-quality`, which work on every platform). See `_lib/review_skills.md`.
+
 The loop runs a delegated body action each iteration while the main agent controls observation, exit-condition checks, and the ledger. Provide a **goal** and **success criteria + exit conditions** (both required). The loop body and starting state are optional — if you omit the loop body, the controller decides it from your goal; starting state defaults to the current repo/workspace state.
 
 Goal (required):

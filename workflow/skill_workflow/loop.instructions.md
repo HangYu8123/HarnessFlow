@@ -17,6 +17,7 @@ description: 'Unified skill-backed (skill mode) loop meta-workflow for Claude Co
   - _lib/safety_rules.md
   - _lib/workflow_contract.md
   - _lib/approval_gate.md
+  - _lib/review_skills.md
   - _lib/local_skill_discovery.md
   - skills/skill_workflow_skills.md
   - repo_info/codebase_overview.md
@@ -108,9 +109,8 @@ The main agent is the **controller**; the act is **always delegated**. Initializ
 
 ### Step 5 - Post-loop Review and Validation
 1. Summarize the outcome from the [loop ledger]: goal met (yes/no), which exit condition fired, final state vs success criteria, and — aggregated across iterations — the **net code changes**, the **metric trajectory** (baseline → final + total improvement), and the collected **noteworthy items**.
-2. **Native review (platform-conditional):**
-   - **If the main agent is Claude Code (or another Claude agent with Claude Code skills available):** if any iteration edited source files, run the native review skills **once** via [`skills/claude-native-skills-subagents/SKILL.md`](../../skills/claude-native-skills-subagents/SKILL.md) — that skill is the only caller: it runs `/simplify` **only when the request's `simplify` header is `true`** (default `false` → skip `/simplify`), then — **only when the request's `code_review` header is `true` (default `false` → skip `/code-review`)** — `/code-review` on the net diff (recorded as [simplify] when `/simplify` runs, and [code-review] when `/code-review` runs). Do not run `/simplify` or `/code-review` yourself in addition to the skill. Skip when the loop only ran commands without editing source, or when the native skills are unavailable.
-   - **Otherwise (Codex, or VS Code Copilot without Claude Code skills):** skip the native skills; when iterations edited source, review the net diff directly.
+2. **Review skills** (`true` = Claude Code native · `local` = vendored pack skills; see [`_lib/review_skills.md`](../../_lib/review_skills.md)):
+   - **Review skills (opt-in; both headers default to `false`):** only when some iteration edited source files, resolve the request's `simplify` and `code_review` headers per [`_lib/review_skills.md`](../../_lib/review_skills.md). `false` skips that skill entirely. When a header is **`true`** and the main agent is Claude Code (or another Claude agent with Claude Code skills available), run the native review **once** via [`skills/claude-native-skills-subagents/SKILL.md`](../../skills/claude-native-skills-subagents/SKILL.md) — that skill is the only caller of `/simplify` and `/code-review`; do not run either yourself in addition to it. When a header is **`local`**, skip that wrapper and spawn the vendored-skill subagent directly (`skills/code-simplification/SKILL.md`, resp. `skills/code-review-and-quality/SKILL.md`) — this works on every platform. Record [simplify] and/or [code-review] for whichever ran. If a `true` header's native skill is unavailable, skip it. Skip the whole sub-step when the loop only ran commands without editing source; in that case the main agent reviews the net diff directly.
 3. **Skill-backed self-challenge:** run **`the-fool`** (`Jeffallan/claude-skills:skills/the-fool/SKILL.md`) over the loop outcome — claim the goal is NOT genuinely met (gamed metric? regressions? vacuous pass?), explain why, then reconcile. **Fallback if unavailable:** the main agent performs this self-challenge inline.
 4. If the outcome did not meet the goal, summarize the gaps and lessons learned in bullet points to chat (no more than 3 sentences), then go to Step 6. If it met the goal, go to Step 6.
 

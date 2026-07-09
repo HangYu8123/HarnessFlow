@@ -9,6 +9,7 @@ description: 'Instructions for breaking down and creating pull requests from fea
   - _lib/safety_rules.md
   - _lib/workflow_contract.md
   - _lib/approval_gate.md
+  - _lib/review_skills.md
   - repo_info/codebase_overview.md
   - repo_info/scripts_overview.md
   - repo_info/update_logs.md
@@ -102,8 +103,10 @@ The main agent creates an **Implementer** subagent (`agents/implementer.agent.md
 After finishing the execution, the subagent must generate an [execution report] (just what has been done — branches created, commits made, PRs submitted — **no explanation**), and report [execution report] back to the main agent.
 
 ### Step 10 - Post-Implementation Review (platform-conditional)
-- **If the main agent is Claude Code (or another Claude agent with Claude Code skills available):** search `skills/index.md` for `claude-native-skills-subagents`, then use the skill at [`skills/claude-native-skills-subagents/SKILL.md`](../../skills/claude-native-skills-subagents/SKILL.md) after Step 9. (That skill runs `/simplify` **only when the request's `simplify` header is `true`** — default `false` → skip `/simplify`; then `/code-review` **only when the request's `code_review` header is `true` and the implementation changed code files** — default `false` → skip `/code-review`; do not invoke either separately.)
-- **Otherwise (Codex, or VS Code Copilot without Claude Code skills):** skip the skill; instead, the main agent performs a manual review of all created branches for correctness and consistency before proceeding.
+- **Review skills (opt-in; both headers default to `false`):** resolve the request's `simplify` and `code_review` headers per [`_lib/review_skills.md`](../../_lib/review_skills.md). `false` skips that skill entirely.
+- **When a header is `true` and the main agent is Claude Code (or another Claude agent with Claude Code skills available):** search `skills/index.md` for `claude-native-skills-subagents`, then use the skill at [`skills/claude-native-skills-subagents/SKILL.md`](../../skills/claude-native-skills-subagents/SKILL.md) — it is the only caller of the native `/simplify` and `/code-review`; do not invoke either separately. (`/code-review` additionally requires that the implementation changed code files.)
+- **When a header is `local` (any platform, no Claude Code dependency):** skip that wrapper skill and spawn the vendored-skill subagent directly per [`_lib/review_skills.md`](../../_lib/review_skills.md) — `skills/code-simplification/SKILL.md` for `simplify`, `skills/code-review-and-quality/SKILL.md` for `code_review`.
+- **Otherwise (`true` on Codex, or VS Code Copilot without Claude Code skills):** the native skills do not exist — skip them; instead, the main agent performs a manual review of all created branches for correctness and consistency before proceeding.
 
 ### Step 11 - Stack Review and QA
 **[PARALLEL EXECUTION — launch all listed subagents in parallel; see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]** Pass [final pr plan], [inputs], [execution report], and the repo context (per §Context Passing) to both subagents.

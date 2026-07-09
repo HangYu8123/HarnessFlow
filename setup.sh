@@ -35,6 +35,25 @@ done
 # ---------------------------------------------------------------------------
 # 1. Add chat.instructionsFilesLocations to .vscode/settings.json
 # ---------------------------------------------------------------------------
+print_manual_settings_help() {
+    echo "Please manually add this to $SETTINGS_FILE:"
+    echo '  "chat.instructionsFilesLocations": {'
+    echo '    ".github/HarnessFlow": true,'
+    echo '    ".claude/rules": true'
+    echo '  },'
+    echo '  "chat.agentFilesLocations": {'
+    echo '    ".github/HarnessFlow/agents": true'
+    echo '  },'
+    echo '  "chat.includeReferencedInstructions": true'
+}
+
+# Merge failures must not abort the script (set -e) — the copilot-instructions
+# install below still has to run. Warn, leave settings.json unchanged, continue.
+settings_merge_failed() {
+    echo "WARNING: could not update $SETTINGS_FILE (parse or write failed) — leaving it unchanged." >&2
+    print_manual_settings_help
+}
+
 mkdir -p "$VSCODE_DIR"
 
 if [ ! -f "$SETTINGS_FILE" ]; then
@@ -54,7 +73,7 @@ EOF
 else
     # Try Python3 first, fall back to Node.js, then to manual instructions
     if command -v python3 >/dev/null 2>&1; then
-        python3 - << 'PYEOF'
+        python3 - << 'PYEOF' || settings_merge_failed
 import json
 import re
 
@@ -94,10 +113,18 @@ with open(path, "w") as f:
 print("Updated .vscode/settings.json")
 PYEOF
     elif command -v node >/dev/null 2>&1; then
-        node -e "
+        node << 'NODEEOF' || settings_merge_failed
 const fs = require('fs');
 const path = '.vscode/settings.json';
-const settings = JSON.parse(fs.readFileSync(path, 'utf8'));
+
+// settings.json is JSONC — strip comments and trailing commas before the
+// strict JSON.parse (mirrors strip_jsonc in the python3 branch above).
+const stripJsonc = (text) => text
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/(^|[^:])\/\/.*/gm, '$1')
+    .replace(/,(\s*[}\]])/g, '$1');
+
+const settings = JSON.parse(stripJsonc(fs.readFileSync(path, 'utf8')));
 if (!settings['chat.instructionsFilesLocations'] || typeof settings['chat.instructionsFilesLocations'] !== 'object') {
     settings['chat.instructionsFilesLocations'] = {};
 }
@@ -111,22 +138,19 @@ settings['chat.agentFilesLocations']['.github/HarnessFlow/agents'] = true;
 settings['chat.includeReferencedInstructions'] = true;
 fs.writeFileSync(path, JSON.stringify(settings, null, 2) + '\n');
 console.log('Updated .vscode/settings.json');
-"
+NODEEOF
     elif command -v jq >/dev/null 2>&1; then
         tmp=$(mktemp)
-        jq '.["chat.instructionsFilesLocations"] = ((.["chat.instructionsFilesLocations"] // {}) | del(.[".github/agentic_coding_instructions"]) | .[".github/HarnessFlow"] = true | .[".claude/rules"] = true) | .["chat.agentFilesLocations"] = ((.["chat.agentFilesLocations"] // {}) | .[".github/HarnessFlow/agents"] = true) | .["chat.includeReferencedInstructions"] = true' "$SETTINGS_FILE" > "$tmp" && mv "$tmp" "$SETTINGS_FILE"
-        echo "Updated .vscode/settings.json"
+        if jq '.["chat.instructionsFilesLocations"] = ((.["chat.instructionsFilesLocations"] // {}) | del(.[".github/agentic_coding_instructions"]) | .[".github/HarnessFlow"] = true | .[".claude/rules"] = true) | .["chat.agentFilesLocations"] = ((.["chat.agentFilesLocations"] // {}) | .[".github/HarnessFlow/agents"] = true) | .["chat.includeReferencedInstructions"] = true' "$SETTINGS_FILE" > "$tmp"; then
+            mv "$tmp" "$SETTINGS_FILE"
+            echo "Updated .vscode/settings.json"
+        else
+            rm -f "$tmp"
+            settings_merge_failed
+        fi
     else
         echo "WARNING: python3, node, and jq not found."
-        echo "Please manually add this to $SETTINGS_FILE:"
-        echo '  "chat.instructionsFilesLocations": {'
-        echo '    ".github/HarnessFlow": true,'
-        echo '    ".claude/rules": true'
-        echo '  },'
-        echo '  "chat.agentFilesLocations": {'
-        echo '    ".github/HarnessFlow/agents": true'
-        echo '  },'
-        echo '  "chat.includeReferencedInstructions": true'
+        print_manual_settings_help
     fi
 fi
 

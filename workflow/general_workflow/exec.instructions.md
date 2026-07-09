@@ -11,6 +11,7 @@ description: 'Instructions for executing commands and skills with structured pla
   - _lib/safety_rules.md
   - _lib/workflow_contract.md
   - _lib/approval_gate.md
+  - _lib/review_skills.md
   - repo_info/codebase_overview.md
   - repo_info/scripts_overview.md
   - repo_info/update_logs.md
@@ -74,8 +75,12 @@ The main agent prints the updated [final plan], so the user can review it. **App
 The main agent creates an **Executor** subagent (`agents/executor.agent.md`), passing [final plan] and the target cmds/skills. **Executor Model Verification:** See `_lib/workflow_contract.md` §Implementer Model Verification Fallback. The subagent (or the main agent, if falling back) must also receive the repo context (per §Context Passing). Then based on [final plan] and the target cmds/skills, validate pre-conditions (environment, dependencies, required files). Then the subagent executes the cmds/skills per [final plan], capturing stdout, stderr, and exit codes. If a command fails, the subagent records the failure and continues to the next command unless [final plan] specifies otherwise. After finishing the execution, the subagent must generate an [execution report] (commands run, outputs, exit codes, pass/fail — **no explanation**), and report [execution report] back to the main agent.
 
 ### Step 8 - Post-Execution Review (platform-conditional)
-- **If the main agent is Claude Code (or another Claude agent with Claude Code skills available):** if the execution produced or modified files, search `skills/index.md` for `claude-native-skills-subagents`, then use the skill at [`skills/claude-native-skills-subagents/SKILL.md`](../../skills/claude-native-skills-subagents/SKILL.md) after Step 7. (That skill runs `/simplify` **only when the request's `simplify` header is `true`** — default `false` → skip `/simplify`; then `/code-review` **only when the request's `code_review` header is `true` and the implementation changed code files** — default `false` → skip `/code-review`; do not invoke either separately.) If no files were modified, skip this step.
-- **Otherwise (Codex, or VS Code Copilot without Claude Code skills):** skip the skill; instead, the main agent performs a manual review of execution output for any anomalies before proceeding.
+**This whole step runs only if the execution produced or modified files. If no files were modified, skip it.**
+
+- **Review skills (opt-in; both headers default to `false`):** resolve the request's `simplify` and `code_review` headers per [`_lib/review_skills.md`](../../_lib/review_skills.md). `false` skips that skill entirely.
+- **When a header is `true` and the main agent is Claude Code (or another Claude agent with Claude Code skills available):** search `skills/index.md` for `claude-native-skills-subagents`, then use the skill at [`skills/claude-native-skills-subagents/SKILL.md`](../../skills/claude-native-skills-subagents/SKILL.md) — it is the only caller of the native `/simplify` and `/code-review`; do not invoke either separately. (`/code-review` additionally requires that the execution changed code files.)
+- **When a header is `local` (any platform, no Claude Code dependency):** skip that wrapper skill and spawn the vendored-skill subagent directly per [`_lib/review_skills.md`](../../_lib/review_skills.md) — `skills/code-simplification/SKILL.md` for `simplify`, `skills/code-review-and-quality/SKILL.md` for `code_review`.
+- **Otherwise (`true` on Codex, or VS Code Copilot without Claude Code skills):** the native skills do not exist — skip them; instead, the main agent performs a manual review of execution output for any anomalies before proceeding.
 
 ### Step 9 - Execution Review and QA
 **[PARALLEL EXECUTION — launch all listed subagents in parallel; see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]** Pass [final plan], target cmds/skills, [execution report], and the repo context (per §Context Passing) to both subagents.

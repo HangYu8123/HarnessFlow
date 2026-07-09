@@ -66,7 +66,7 @@ install_generated_file "$PACK_DIR/CLAUDE.md" "CLAUDE.md" "Claude Code CLI Entry 
 # ---------------------------------------------------------------------------
 # 3. Generate AGENTS.md at repo root (for Codex CLI)
 # ---------------------------------------------------------------------------
-install_generated_file "$PACK_DIR/AGENTS.md" "AGENTS.md" "Codex CLI Entry Point" "Codex entry point"
+install_generated_file "$PACK_DIR/AGENTS.md" "AGENTS.md" "AGENTS.md — Codex" "Codex entry point"
 
 # ---------------------------------------------------------------------------
 # 4. Copy copilot-instructions.md to .github/ (standard Copilot discovery path)

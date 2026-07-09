@@ -15,6 +15,7 @@ description: 'Unified skill-backed (skill mode) code-implementation workflow for
   - _lib/safety_rules.md
   - _lib/workflow_contract.md
   - _lib/approval_gate.md
+  - _lib/review_skills.md
   - _lib/local_skill_discovery.md
   - skills/skill_workflow_skills.md
   - repo_info/codebase_overview.md
@@ -71,9 +72,8 @@ The main agent incorporates [challenge report] and [online resource] (when produ
 **Fallback if the skills are unavailable:** the main agent implements [final plan] directly and records [implementation report] (changes only, no explanations).
 
 ### Step 6 - Code Review and Validation
-1. **Native review skills (platform-conditional):**
-   - **If the main agent is Claude Code (or another Claude agent with Claude Code skills available):** run the native review skills **once** via [`skills/claude-native-skills-subagents/SKILL.md`](../../skills/claude-native-skills-subagents/SKILL.md) — that skill is the only caller: it runs `/simplify` **only when the request's `simplify` header is `true`** (default `false` → skip `/simplify`, leaving [simplify] unproduced; recorded as [simplify] when it runs), then — **only when the request's `code_review` header is `true` (default `false` → skip `/code-review`, leaving [code-review] unproduced)** — `/code-review` (recorded as [code-review] when it runs). Do not run `/simplify` or `/code-review` yourself in addition to the skill. If the native skills are unavailable, skip this sub-step.
-   - **Otherwise (Codex, or VS Code Copilot without Claude Code skills):** skip the native skills.
+1. **Review skills** (`true` = Claude Code native · `local` = vendored pack skills; see [`_lib/review_skills.md`](../../_lib/review_skills.md)):
+   - **Review skills (opt-in; both headers default to `false`):** resolve the request's `simplify` and `code_review` headers per [`_lib/review_skills.md`](../../_lib/review_skills.md). `false` skips that skill entirely. When a header is **`true`** and the main agent is Claude Code (or another Claude agent with Claude Code skills available), run the native review **once** via [`skills/claude-native-skills-subagents/SKILL.md`](../../skills/claude-native-skills-subagents/SKILL.md) — that skill is the only caller of `/simplify` and `/code-review`; do not run either yourself in addition to it. When a header is **`local`**, skip that wrapper and spawn the vendored-skill subagent directly (`skills/code-simplification/SKILL.md`, resp. `skills/code-review-and-quality/SKILL.md`) — this works on every platform. Record [simplify] and/or [code-review] for whichever ran. If a `true` header's native skill is unavailable, skip it.
 2. **Skill-backed self-challenge:** run **`the-fool`** (`Jeffallan/claude-skills:skills/the-fool/SKILL.md`) over the [implementation report] — claim every item is wrong, explain why, then draft a [post-impl challenge report]. **Fallback if unavailable:** the main agent performs this self-challenge inline.
 3. The main agent reviews the changes directly, save the conclusion as [direct review].
 

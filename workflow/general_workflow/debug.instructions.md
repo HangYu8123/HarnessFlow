@@ -9,6 +9,7 @@ description: 'Instructions for debugging and fixing bugs'
   - _lib/safety_rules.md
   - _lib/workflow_contract.md
   - _lib/approval_gate.md
+  - _lib/review_skills.md
   - repo_info/codebase_overview.md
   - repo_info/scripts_overview.md
   - repo_info/update_logs.md
@@ -109,8 +110,10 @@ The main agent prints the updated [final bug fix plan], so the user can review i
 The main agent creates an **Implementer** subagent (`agents/implementer.agent.md`), passing [final bug fix plan], [bug info], and the repo context (per §Context Passing). **Implementer Model Verification:** See [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Implementer Model Verification Fallback (on Claude Code the main agent launches the Implementer on the specified `subagent_model` — a specific id even if smaller, else the inherited session model; no retry loop). The subagent (or the main agent, if falling back) receives the repo context (per §Context Passing). Then based on [bug info], [final bug fix plan], and the repo structure from the repo context, read all scripts that could be associated with the bug and the plan. Then implement [final bug fix plan] and fix the bug accordingly. Feed an implementation report (just what has been changed, no explanation why it would fix the bug) to the main agent as [bug fix implementation report].
 
 ### Step 15 - Post-Implementation Review (platform-conditional)
-- **If the main agent is Claude Code (or another Claude agent with Claude Code skills available):** search `skills/index.md` for `claude-native-skills-subagents`, then use the skill at [`skills/claude-native-skills-subagents/SKILL.md`](../../skills/claude-native-skills-subagents/SKILL.md) after Step 14. (That skill runs `/simplify` **only when the request's `simplify` header is `true`** — default `false` → skip `/simplify`; then `/code-review` **only when the request's `code_review` header is `true` and the implementation changed code files** — default `false` → skip `/code-review`; do not invoke either separately.)
-- **Otherwise (Codex, or VS Code Copilot without Claude Code skills):** skip the skill; instead, the main agent performs a manual complexity review of all changed files before proceeding.
+- **Review skills (opt-in; both headers default to `false`):** resolve the request's `simplify` and `code_review` headers per [`_lib/review_skills.md`](../../_lib/review_skills.md). `false` skips that skill entirely.
+- **When a header is `true` and the main agent is Claude Code (or another Claude agent with Claude Code skills available):** search `skills/index.md` for `claude-native-skills-subagents`, then use the skill at [`skills/claude-native-skills-subagents/SKILL.md`](../../skills/claude-native-skills-subagents/SKILL.md) — it is the only caller of the native `/simplify` and `/code-review`; do not invoke either separately. (`/code-review` additionally requires that the implementation changed code files.)
+- **When a header is `local` (any platform, no Claude Code dependency):** skip that wrapper skill and spawn the vendored-skill subagent directly per [`_lib/review_skills.md`](../../_lib/review_skills.md) — `skills/code-simplification/SKILL.md` for `simplify`, `skills/code-review-and-quality/SKILL.md` for `code_review`.
+- **Otherwise (`true` on Codex, or VS Code Copilot without Claude Code skills):** the native skills do not exist — skip them; instead, the main agent performs a manual review of all changed files for unnecessary complexity and redundancy before proceeding.
 
 ### Step 16 - Implementation Review and QA
 **[PARALLEL EXECUTION — launch all listed subagents in parallel; see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]** Pass [final bug fix plan], [bug fix implementation report], [bug info], [inputs], and the repo context (per §Context Passing) to both subagents.

@@ -6,6 +6,8 @@ It is the Claude Code CLI equivalent of `copilot-instructions.md`.
 Read and follow `_lib/workflow_contract.md` (resolved via Pack Path Resolution) before proceeding.
 Read and follow `philosophy/philosophy.instructions.md` (resolved via Pack Path Resolution) for general guidelines.
 
+**This is unconditional.** Read both files **in their entirety** before any tool call that reads or writes code — for **every** request, whether or not it arrived through a file in `request_template/`. A bare, ad-hoc prompt (e.g. "add a retry to the fetch call") carries no template scaffolding to remind you; the obligation is identical.
+
 ---
 
 ## Pack Path Resolution
@@ -41,11 +43,12 @@ All instruction files are resolved via Pack Path Resolution.
 ## Routing Procedure
 
 1. **Read** the user's prompt carefully.
-2. **Classify** it into exactly one category from the table above.
-3. **Select general, fast, or skill mode**, then read the matched instruction file in its entirety.
-4. **Require** every subagent to read and follow `_lib/workflow_contract.md` and `philosophy/philosophy.instructions.md` (resolved via Pack Path Resolution) before doing workflow-specific work.
-5. **Subagent model:** Create every subagent on the model the instructions specify — the `subagent_model` header (see `_lib/workflow_contract.md` §Subagent Launch Contract). In Claude Code the main agent sets the subagent's model when spawning it: a specific `subagent_model` id runs the subagent on that exact id (a deliberate override — honor it even if smaller), while `inherit` or unset uses the main agent's model with no downgrade. On other platforms, follow the Subagent Launch Contract's model-selection steps in `_lib/workflow_contract.md`.
-6. **Follow** the matched instruction file step-by-step to complete the request.
+2. **Read and follow**, as the main agent and in their entirety, `_lib/workflow_contract.md` and `philosophy/philosophy.instructions.md` (resolved via Pack Path Resolution). Do this **before** classifying and before any tool call that reads or writes code. **Applies to every request, templated or not** — the request templates in `request_template/` do not carry this instruction, so an ad-hoc prompt that skips them must not skip this step. Never delegate this read to a subagent in place of doing it yourself.
+3. **Classify** it into exactly one category from the table above.
+4. **Select general, fast, or skill mode**, then read the matched instruction file in its entirety.
+5. **Require** every subagent to read and follow `_lib/workflow_contract.md` and `philosophy/philosophy.instructions.md` (resolved via Pack Path Resolution) before doing workflow-specific work.
+6. **Subagent model:** Create every subagent on the model the instructions specify — the `subagent_model` header (see `_lib/workflow_contract.md` §Subagent Launch Contract). In Claude Code the main agent sets the subagent's model when spawning it: a specific `subagent_model` id runs the subagent on that exact id (a deliberate override — honor it even if smaller), while `inherit` or unset uses the main agent's model with no downgrade. On other platforms, follow the Subagent Launch Contract's model-selection steps in `_lib/workflow_contract.md`.
+7. **Follow** the matched instruction file step-by-step to complete the request.
 
 ## If multiple intents are present
 Handle sequentially — complete one workflow type before starting the next.
