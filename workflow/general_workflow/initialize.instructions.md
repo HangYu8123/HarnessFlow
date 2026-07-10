@@ -159,3 +159,13 @@ For each file:
 - If the destination file **already exists** and contains custom user content that differs from the pack version, **do not overwrite** — warn the user that manual reconciliation is needed.
 
 This step ensures the repo works with all supported tools (VS Code Copilot, Copilot CLI, Claude Code CLI, Codex CLI) after any single initialization workflow runs.
+
+
+## Procedure 8: Record the Initialized Repo Name for the GUI (Idempotent, all tools)
+The Request Builder GUI (`harness_gui.py`) renders its header as `HarnessFlow · <repo name>`. Record the initialized repo's name explicitly so the GUI shows the repo that was **actually initialized** — not an ancestor/parent folder that `git rev-parse --show-toplevel` may resolve to when the initialized folder is not itself a git repository.
+
+1. Determine `[initialized repo name]`:
+   - If the initialize request supplied a non-empty `repo name:` value, use it verbatim.
+   - Otherwise use the repo's root folder name — the folder that **contains** `.github/HarnessFlow/` in the installed layout, or the pack root's own folder in the source/pack-root layout. This is the same `[repo folder name]` used in Procedure 5, and it is the repo being initialized (never its parent folder).
+2. Write `[initialized repo name]` as a single line (no surrounding quotes, no extra content) to `.repo_name` at the pack root — the same folder as `harness_gui.py` (i.e., `.github/HarnessFlow/.repo_name` when installed). Create or overwrite it so a later rename stays correct.
+3. Ensure `.repo_name` is git-ignored (like `.pack_root`): add a `.repo_name` line to the enclosing repo's `.gitignore` if it is not already there (create `.gitignore` if missing). Do not commit `.repo_name`; it is machine-local state. `harness_gui.py` reads it first when building the header, so after initialization the GUI shows the initialized repo's name.

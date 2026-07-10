@@ -31,7 +31,7 @@ This workflow is read-only — it inspects and reports, and does not modify code
 - input 2: target functionalities (optional)
 - input 3: important files (optional)
 
-[key md files]: codebase_overview.md, scripts_overview.md, update_logs.md, known_issues.md, past_Correctness_Check.md (under `repo_info/`, resolved by Pack Path Resolution). Use `past_Correctness_Check.md` as the canonical correctness-check history file; do not create alternate correctness history filenames.
+[key md files]: codebase_overview.md, scripts_overview.md, update_logs.md, known_issues.md, past_Correctness_Check.md (under `repo_info/`, resolved by Pack Path Resolution). Use `past_Correctness_Check.md` as the canonical correctness-check history file; do not create alternate correctness history filenames. In multi-layer repos, also read the `codebase_overview.md` + `scripts_overview.md` of each discovered layer per `_lib/workflow_contract.md` §Key Context Files → Multi-Layer / Nested Repos.
 
 **read through this entire file and follow the instructions carefully**.
 Before doing any workflow-specific work, the main agent must read and follow [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) and [`philosophy/philosophy.instructions.md`](../../philosophy/philosophy.instructions.md) before proceeding.

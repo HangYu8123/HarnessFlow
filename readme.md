@@ -378,6 +378,8 @@ update_logs_auto_generated.md
 
 In this source repo, `repo_info/` is ignored by git. In a target repo, initialize or refresh it for that specific codebase before relying on later workflows.
 
+Multi-layer repos are supported: when the target repo contains sub-repos — or is itself a sub-repo beside adjacent repos — each carrying its own `repo_info/`, workflows also read those layers' `codebase_overview.md` and `scripts_overview.md` as labeled cross-layer context (see `_lib/workflow_contract.md` §Key Context Files → Multi-Layer / Nested Repos).
+
 ## Path Rules
 
 - In this source repo, paths are root-relative, for example `workflow/general_workflow/code.instructions.md`, `workflow/token_effective_workflow/code.instructions.md`, or `workflow/skill_workflow/code.instructions.md`.

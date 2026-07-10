@@ -126,3 +126,12 @@ Copy the entry-point files from the pack to their standard discoverable location
   1. Copy `.github/HarnessFlow/copilot-instructions.md` to `.github/copilot-instructions.md`.
      - In the destination copy, rewrite all `#file:` references by prepending `HarnessFlow/` to their paths. For example, `#file:_lib/workflow_contract.md` becomes `#file:HarnessFlow/_lib/workflow_contract.md`. This is necessary because `#file:` paths resolve relative to `.github/copilot-instructions.md`.
   - Create `.github/copilot-instructions.md` if absent. Overwrite it only if it contains the standard marker text `"Master Orchestrator"`. If custom content is detected, warn and skip.
+
+### Step 11 - Record the Initialized Repo Name for the GUI
+The Request Builder GUI (`harness_gui.py`) renders its header as `HarnessFlow · <repo name>`. Record the initialized repo's name explicitly so the GUI shows the repo that was **actually initialized** — not an ancestor/parent folder that `git rev-parse --show-toplevel` may resolve to when the initialized folder is not itself a git repository.
+
+1. Determine `[initialized repo name]`:
+   - If the initialize request supplied a non-empty `repo name:` value, use it verbatim.
+   - Otherwise use the repo's root folder name — the folder that **contains** `.github/HarnessFlow/` in the installed layout, or the pack root's own folder in the source/pack-root layout (the same `[repo folder name]` referenced in Step 8). This is the repo being initialized, never its parent folder.
+2. Write `[initialized repo name]` as a single line (no quotes, no extra content) to `.repo_name` at the pack root — the same folder as `harness_gui.py` and `.pack_root` (`.github/HarnessFlow/.repo_name` when installed). Create or overwrite it so a later rename stays correct.
+3. Ensure `.repo_name` is git-ignored (like `.pack_root`): add a `.repo_name` line to the enclosing repo's `.gitignore` if it is not already there. Do not commit `.repo_name`; it is machine-local state. `harness_gui.py` reads it first when building the header, so after initialization the GUI shows the initialized repo's name.

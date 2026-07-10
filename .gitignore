@@ -35,6 +35,10 @@ node_modules/
 .claude/settings.local.json
 .claude/scheduled_tasks.lock
 
+# ── HarnessFlow machine-local pack state (written at initialization) ──
+.pack_root
+.repo_name
+
 # ── Logs ──
 *.log
 

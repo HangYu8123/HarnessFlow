@@ -28,4 +28,4 @@ A filled-in prompt from `request_template/` names the matched instruction file f
 Handle multiple templated requests sequentially — complete one workflow before starting the next.
 
 ## Repo context files
-Look for context files (`codebase_overview.md`, `scripts_overview.md`, `update_logs.md`, etc.) under `repo_info/` (resolved via Pack Path Resolution).
+Look for context files (`codebase_overview.md`, `scripts_overview.md`, `update_logs.md`, etc.) under `repo_info/` (resolved via Pack Path Resolution). In multi-layer repos — sub-repos or an enclosing repo carrying their own `repo_info/` — also read those layers' `codebase_overview.md` and `scripts_overview.md` per `_lib/workflow_contract.md` §Key Context Files → Multi-Layer / Nested Repos.

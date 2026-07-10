@@ -35,31 +35,39 @@ PAGE = "harness_gui.html"
 def _repo_name(root):
     """Best-effort name of the repo enclosing this pack (for the page header).
 
-    Prefers ``git rev-parse --show-toplevel`` (handles submodules / odd layouts);
-    falls back to path inference — an installed pack lives at
-    ``<repo>/.github/<pack>``, so the repo is two levels up; otherwise the
-    pack root's own folder name. Resolved once at startup, never per-request.
-
-    Ask git from ``<repo>/.github`` rather than from the pack itself: a pack
-    installed by clone or submodule carries its own ``.git``, so asking from
-    inside it resolves that nested repo and reports the pack's name instead of
-    the enclosing repo's.
+    Resolution order (first hit wins, resolved once at startup):
+    1. ``.repo_name`` written next to this script by the initialize workflow —
+       the exact folder that was initialized. Authoritative and deterministic.
+    2. Installed layout ``<repo>/.github/<pack>``: the initialized repo is the
+       folder that *contains* ``.github`` (two levels up). Taken from the path,
+       not from git — ``git rev-parse --show-toplevel`` here can walk *up* into
+       an ancestor repo when the initialized folder is not itself a git repo,
+       which would show the repo's parent folder instead of the repo.
+    3. Source / pack-root layout: ``git rev-parse --show-toplevel``.
+    4. Last resort: the pack root's own folder name.
     """
+    try:
+        with open(os.path.join(root, ".repo_name"), encoding="utf-8") as fh:
+            name = fh.read().strip()
+        if name:
+            return name
+    except OSError:  # no override file -> fall through to inference
+        pass
+
     parent = os.path.dirname(root)
-    installed = os.path.basename(parent) == ".github"   # <repo>/.github/<pack>
+    if os.path.basename(parent) == ".github":   # <repo>/.github/<pack>
+        return os.path.basename(os.path.dirname(parent))
+
     try:
         top = subprocess.run(
             ["git", "rev-parse", "--show-toplevel"],
-            cwd=(parent if installed else root),
-            capture_output=True, text=True, timeout=5,
+            cwd=root, capture_output=True, text=True, timeout=5,
         )
         name = os.path.basename((top.stdout or "").strip())
         if top.returncode == 0 and name:
             return name
     except Exception:  # noqa: BLE001 - git missing / not a repo -> path fallback
         pass
-    if installed:
-        return os.path.basename(os.path.dirname(parent))
     return os.path.basename(root)
 
 

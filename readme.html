@@ -841,7 +841,9 @@ bash .github/HarnessFlow/cli_setup.sh</code></pre>
         <h2 class="head">Persistent cross-session memory</h2>
         <p class="lead">
           Workflows use <code>repo_info/</code> as persistent memory. This source repo ignores that folder, but target
-          repos should initialize and maintain it for their own codebase.
+          repos should initialize and maintain it for their own codebase. In multi-layer repos, workflows also read each
+          sub-repo's or adjacent repo's <code>codebase_overview.md</code> and <code>scripts_overview.md</code> as labeled
+          cross-layer context.
         </p>
         <div class="grid">
           <div class="tile accent-teal"><h3>Overview</h3><p><code>codebase_overview.md</code> and <code>scripts_overview.md</code>.</p></div>

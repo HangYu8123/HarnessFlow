@@ -30,7 +30,7 @@ This workflow is read-only — it answers questions and does not modify code, so
 - input 1: target repo, questions
 - input 2: important files (optional)
 
-[key md files]: codebase_overview.md, scripts_overview.md, update_logs.md, known_issues.md, past_Q&A.md (under `repo_info/`, resolved by Pack Path Resolution). Read existing past_Q&A.md before drafting or writing a new answer.
+[key md files]: codebase_overview.md, scripts_overview.md, update_logs.md, known_issues.md, past_Q&A.md (under `repo_info/`, resolved by Pack Path Resolution). Read existing past_Q&A.md before drafting or writing a new answer. In multi-layer repos, also read the `codebase_overview.md` + `scripts_overview.md` of each discovered layer per `_lib/workflow_contract.md` §Key Context Files → Multi-Layer / Nested Repos.
 
 **read through this entire file and follow the instructions carefully**.
 Before doing any workflow-specific work, the main agent must read and follow [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) and [`philosophy/philosophy.instructions.md`](../../philosophy/philosophy.instructions.md) before proceeding.
