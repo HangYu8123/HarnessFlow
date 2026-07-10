@@ -9,6 +9,7 @@ description: 'Instructions for executing commands and skills with structured pla
 <!-- Required Context Files (CLI-resolvable paths):
   - philosophy/philosophy.instructions.md
   - _lib/safety_rules.md
+  - _lib/stay_active.md
   - _lib/workflow_contract.md
   - _lib/approval_gate.md
   - _lib/review_skills.md
@@ -19,6 +20,8 @@ description: 'Instructions for executing commands and skills with structured pla
 -->
 
 **Safety: follow `_lib/safety_rules.md`.**
+
+**Stay active: follow `_lib/stay_active.md`.** The main agent never stands by while a command or subagent is in flight, and any unavoidable wait must arm **two wake triggers through two different mechanisms** before it begins.
 
 [inputs]:
 - input 1: target cmds/skills to execute
@@ -73,6 +76,8 @@ The main agent prints the updated [final plan], so the user can review it. **App
 
 ### Step 7 - Execution
 The main agent creates an **Executor** subagent (`agents/executor.agent.md`), passing [final plan] and the target cmds/skills. **Executor Model Verification:** See `_lib/workflow_contract.md` §Implementer Model Verification Fallback. The subagent (or the main agent, if falling back) must also receive the repo context (per §Context Passing). Then based on [final plan] and the target cmds/skills, validate pre-conditions (environment, dependencies, required files). Then the subagent executes the cmds/skills per [final plan], capturing stdout, stderr, and exit codes. If a command fails, the subagent records the failure and continues to the next command unless [final plan] specifies otherwise. After finishing the execution, the subagent must generate an [execution report] (commands run, outputs, exit codes, pass/fail — **no explanation**), and report [execution report] back to the main agent.
+
+**Stay active through execution (`_lib/stay_active.md`).** The main agent stays engaged from the first command to the last: it does not end its turn, idle, or hand back to the user while the Executor or any command is still running, and it never asks the user to report when something finishes. Any command that blocks on a background process, a long build, or an external event must be **bounded** and must have **two wake triggers armed through two different mechanisms before the wait begins** — one event-driven (completion notification / condition watch) and one time-driven fallback (bounded timer or bounded polling re-check). Whichever fires first, re-verify the real state (exit code, output, files) rather than trusting the trigger. If the bounded fallback expires, record it as a hard blocker in [execution report] and escalate — never wait indefinitely. Record each wait (what was awaited, both triggers, which fired, duration) in [execution report].
 
 ### Step 8 - Post-Execution Review (platform-conditional)
 **This whole step runs only if the execution produced or modified files. If no files were modified, skip it.**

@@ -6,11 +6,14 @@ description: 'Unified token-effective (fast) Cmd/Skill execution workflow for Cl
 
 **Safety: follow `_lib/safety_rules.md`.**
 
+**Stay active: follow `_lib/stay_active.md`.** The main agent never stands by while a command or subagent is in flight, and any unavoidable wait must arm **two wake triggers through two different mechanisms** before it begins.
+
 > **Unified workflow (platform-adaptive).** This single file serves Claude Code, Codex, and VS Code Copilot. Resolve all paths via Pack Path Resolution (`.github/HarnessFlow/<path>` when installed, or `<path>` from the repo root). Launch subagents using your platform's mechanism per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Invocation. Handle repo-context handoff per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents: on **Claude Code** the main agent builds a condensed **[repo context digest]** and passes it inline to subagents; on **Codex** and **VS Code Copilot**, subagents read **[key md files]** directly.
 
 <!-- Required Context Files (CLI-resolvable paths):
   - philosophy/philosophy.instructions.md
   - _lib/safety_rules.md
+  - _lib/stay_active.md
   - _lib/workflow_contract.md
   - _lib/approval_gate.md
   - _lib/review_skills.md
@@ -65,6 +68,8 @@ The main agent incorporates [challenge report] and [online resource] (when produ
 
 ### Step 5 - Execution
 The main agent validates preconditions (environment, dependencies, required files), executes the commands or skills per [final plan] directly, and captures stdout, stderr, exit codes, and pass/fail state into [execution report] with no explanations.
+
+**Stay active through execution (`_lib/stay_active.md`).** The main agent stays engaged from the first command to the last: it does not end its turn, idle, or hand back to the user while a command is still running, and it never asks the user to report when something finishes. Any command that blocks on a background process, a long build, or an external event must be **bounded** and must have **two wake triggers armed through two different mechanisms before the wait begins** — one event-driven (completion notification / condition watch) and one time-driven fallback (bounded timer or bounded polling re-check). Whichever fires first, re-verify the real state (exit code, output, files) rather than trusting the trigger. If the bounded fallback expires, record it as a hard blocker and escalate — never wait indefinitely. Record each wait (what was awaited, both triggers, which fired, duration) in [execution report].
 
 ### Step 6 - Review and Validation
 1. **Review skills (opt-in; both headers default to `false`):** only when the execution edited source files, resolve the request's `simplify` and `code_review` headers per [`_lib/review_skills.md`](../../_lib/review_skills.md) — `false` skips, `true` runs Claude Code's native `/simplify` / `/code-review medium`, `local` runs the pack's vendored `code-simplification` / `code-review-and-quality` skills (portable to every platform). Spawn one subagent per enabled skill, **sequentially, simplify first**, following the Subagent Launch Contract in [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) (subagents use the `subagent_model` header; keep an activity log and record fallbacks). Pass each the edited source files (the current diff) + [final plan] + [execution report] plus the relevant repo context. Record [simplify] and/or [code-review] for whichever ran; leave a skipped skill's label unproduced. Skip entirely when the execution only ran commands without editing source.

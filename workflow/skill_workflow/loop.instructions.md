@@ -6,6 +6,8 @@ description: 'Unified skill-backed (skill mode) loop meta-workflow for Claude Co
 
 **Safety: follow `_lib/safety_rules.md`.**
 
+**Stay active: follow `_lib/stay_active.md`.** The controller never stands by while work is in flight, and any unavoidable wait must arm **two wake triggers through two different mechanisms** before it begins.
+
 > **Unified workflow (platform-adaptive).** This single file serves Claude Code, Codex, and VS Code Copilot. Resolve all paths via Pack Path Resolution (`.github/HarnessFlow/<path>` when installed, or `<path>` from the repo root). Launch subagents using your platform's mechanism per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Invocation. Handle repo-context handoff per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents: on **Claude Code** the main agent builds a condensed **[repo context digest]** and passes it inline to subagents; on **Codex** and **VS Code Copilot**, subagents read **[key md files]** directly.
 
 > **Loop meta-workflow.** The main agent is a **controller**, not a doer. It parses the spec; then for each iteration it **observes** the delegated result, **checks** the exit conditions, and **reflects & ledgers** — it never performs the body work itself. The *act* is **always delegated**. Exit conditions form an **OR-set** ("stop when ANY fires") with **always-on safety caps**, so the loop can never run away.
@@ -15,6 +17,7 @@ description: 'Unified skill-backed (skill mode) loop meta-workflow for Claude Co
 <!-- Required Context Files (CLI-resolvable paths):
   - philosophy/philosophy.instructions.md
   - _lib/safety_rules.md
+  - _lib/stay_active.md
   - _lib/workflow_contract.md
   - _lib/approval_gate.md
   - _lib/review_skills.md
@@ -100,12 +103,13 @@ The main agent is the **controller**; the act is **always delegated**. Initializ
 
 1. **Pre-iteration exit check.** Evaluate the OR-set *before* acting. If any condition fires, stop and record the reason.
 2. **Act (delegated) — the controller never edits/fixes/runs the body itself.**
+   - **Stay active while delegating (`_lib/stay_active.md`).** Delegating is not standing down: the controller does not end its turn, idle, or hand back to the user while the body-worker or dispatched sub-main agent is in flight — it watches the delegation through to its compact result. If this pass must wait on a background process or external event, **arm two wake triggers through two different mechanisms before the wait starts** (event-driven + a bounded time-driven fallback), and treat fallback expiry as a hard blocker.
    - **Free-form (skill-backed):** spawn a body-worker (model = `subagent_model`) that performs the action and returns a **compact result** (files changed + one-line diff, progress-metric value before → after, blocker, noteworthy). When the action is **code/feature** work, the worker follows **`executing-plans`** (`obra/superpowers:skills/executing-plans/SKILL.md`) reinforced by **`test-driven-development`** (`obra/superpowers:skills/test-driven-development/SKILL.md`) for the red→green→refactor loop; when the action is **debugging**, it follows **`systematic-debugging`** (`obra/superpowers:skills/systematic-debugging/SKILL.md`) — reproduce → isolate → root-cause before fixing. **Fallback if the skills are unavailable:** the body-worker performs the action directly (as in the fast loop), still returning only the compact result.
    - **Dispatch:** spawn one depth-1 **sub-main agent** (model = `dispatch_main_model`) to run `workflow/<mode dir>/<family>.instructions.md` (`<mode dir>`: `general` → `general_workflow`, `fast` → `token_effective_workflow`, `skill` → `skill_workflow`) **as that family's main agent** (prefer `mode: skill` for the dispatched family unless [input 3] says otherwise), spawning that family's subagents at the next level with model = `dispatch_subagent_model`, returning only a **compact iteration summary**. **Platform-conditional:** on Claude Code nested subagents are supported; on Codex / VS Code Copilot (limited nesting) the controller runs the family inline — sequential, equivalent.
 3. **Observe & measure.** Read the worker's compact result; re-run the verifiable check (capturing its own exit status) and compute the progress metric. **When the verifier is a test/script suite, run the write-guard first:** assert verifier/test files unchanged vs. baseline hash and collected-item count invariant; if either moved, **reject/revert this iteration** and record it as blocked.
 4. **Post-iteration exit check.** Re-evaluate the OR-set in priority order (goal-met? hard-blocker? budget/max-iter? no-progress? divergence?). Record which condition fired.
 5. **Reflect & ledger.** Append a [loop ledger] entry for iteration N: action (free-form, or dispatched family+mode); code changes (files + one-line diff, or "none"); metric (`before → after`); observation + blocker; noteworthy; exit-check result. Carry one short lesson forward.
-6. **Continue or stop.** If no exit fired, start iteration N+1 with **fresh minimal context** (reload [loop spec] + persisted [loop ledger] tail; discard verbose intermediate output). **The loop MUST terminate at the max-iterations cap regardless.**
+6. **Continue or stop.** If no exit fired, start iteration N+1 **immediately** with **fresh minimal context** (reload [loop spec] + persisted [loop ledger] tail; discard verbose intermediate output). The end of an iteration is **never** a reason to yield the turn — only a fired exit condition, a recorded escalation, or a declared human checkpoint is (`_lib/stay_active.md`). **The loop MUST terminate at the max-iterations cap regardless.**
 
 ### Step 5 - Post-loop Review and Validation
 1. Summarize the outcome from the [loop ledger]: goal met (yes/no), which exit condition fired, final state vs success criteria, and — aggregated across iterations — the **net code changes**, the **metric trajectory** (baseline → final + total improvement), and the collected **noteworthy items**.

@@ -37,22 +37,28 @@ def _repo_name(root):
 
     Prefers ``git rev-parse --show-toplevel`` (handles submodules / odd layouts);
     falls back to path inference — an installed pack lives at
-    ``<repo>/.github/HarnessFlow``, so the repo is two levels up; otherwise the
+    ``<repo>/.github/<pack>``, so the repo is two levels up; otherwise the
     pack root's own folder name. Resolved once at startup, never per-request.
+
+    Ask git from ``<repo>/.github`` rather than from the pack itself: a pack
+    installed by clone or submodule carries its own ``.git``, so asking from
+    inside it resolves that nested repo and reports the pack's name instead of
+    the enclosing repo's.
     """
+    parent = os.path.dirname(root)
+    installed = os.path.basename(parent) == ".github"   # <repo>/.github/<pack>
     try:
         top = subprocess.run(
             ["git", "rev-parse", "--show-toplevel"],
-            cwd=root, capture_output=True, text=True, timeout=5,
+            cwd=(parent if installed else root),
+            capture_output=True, text=True, timeout=5,
         )
         name = os.path.basename((top.stdout or "").strip())
         if top.returncode == 0 and name:
             return name
     except Exception:  # noqa: BLE001 - git missing / not a repo -> path fallback
         pass
-    parent = os.path.dirname(root)
-    # Installed layout: <repo>/.github/HarnessFlow -> repo name is two levels up.
-    if os.path.basename(root) == "HarnessFlow" and os.path.basename(parent) == ".github":
+    if installed:
         return os.path.basename(os.path.dirname(parent))
     return os.path.basename(root)
 

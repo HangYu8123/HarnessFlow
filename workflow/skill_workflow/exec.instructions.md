@@ -6,6 +6,8 @@ description: 'Unified skill-backed (skill mode) Cmd/Skill execution workflow for
 
 **Safety: follow `_lib/safety_rules.md`.**
 
+**Stay active: follow `_lib/stay_active.md`.** The main agent never stands by while a command or subagent is in flight, and any unavoidable wait must arm **two wake triggers through two different mechanisms** before it begins.
+
 > **Unified workflow (platform-adaptive).** This single file serves Claude Code, Codex, and VS Code Copilot. Resolve all paths via Pack Path Resolution (`.github/HarnessFlow/<path>` when installed, or `<path>` from the repo root). Launch subagents using your platform's mechanism per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Invocation. Handle repo-context handoff per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents: on **Claude Code** the main agent builds a condensed **[repo context digest]** and passes it inline to subagents; on **Codex** and **VS Code Copilot**, subagents read **[key md files]** directly.
 
 > **Skill-backed variant (skill mode).** The challenge, research, and post-execution self-challenge step *instructions* below are replaced by a confirmed ≥1000-star community skill, cited as `owner/repo:path` (resolve it from that GitHub repo or install it — **not** via Pack Path Resolution; see [`skills/skill_workflow_skills.md`](../../skills/skill_workflow_skills.md)). The execution-planning and execution steps have no qualifying skill (command execution is not a code-implementation plan) and are unchanged. Every replaced step keeps an inline **fallback**; if the skill is not installed, perform the fallback and continue. Verified star counts and verification dates live **only** in that registry (single source — re-verify there); do not restate them in this file.
@@ -13,6 +15,7 @@ description: 'Unified skill-backed (skill mode) Cmd/Skill execution workflow for
 <!-- Required Context Files (CLI-resolvable paths):
   - philosophy/philosophy.instructions.md
   - _lib/safety_rules.md
+  - _lib/stay_active.md
   - _lib/workflow_contract.md
   - _lib/approval_gate.md
   - _lib/review_skills.md
@@ -72,6 +75,8 @@ The main agent incorporates [challenge report] and [online resource] (when produ
 ### Step 5 - Execution
 *(Unchanged — command/skill execution with captured output, not a code-implementation plan.)*
 The main agent validates preconditions (environment, dependencies, required files), executes the commands or skills per [final plan] directly, and captures stdout, stderr, exit codes, and pass/fail state into [execution report] with no explanations.
+
+**Stay active through execution (`_lib/stay_active.md`).** The main agent stays engaged from the first command to the last: it does not end its turn, idle, or hand back to the user while a command is still running, and it never asks the user to report when something finishes. Any command that blocks on a background process, a long build, or an external event must be **bounded** and must have **two wake triggers armed through two different mechanisms before the wait begins** — one event-driven (completion notification / condition watch) and one time-driven fallback (bounded timer or bounded polling re-check). Whichever fires first, re-verify the real state (exit code, output, files) rather than trusting the trigger. If the bounded fallback expires, record it as a hard blocker and escalate — never wait indefinitely. Record each wait (what was awaited, both triggers, which fired, duration) in [execution report].
 
 ### Step 6 - Review and Validation
 1. **Review skills** (`true` = Claude Code native · `local` = vendored pack skills; see [`_lib/review_skills.md`](../../_lib/review_skills.md)):
