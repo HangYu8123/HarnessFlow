@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>HarnessFlow — Portable workflows for coding agents</title>
-  <meta name="description" content="HarnessFlow is a portable Markdown instruction pack that routes coding-agent requests through structured, multi-agent workflows for implementation, debugging, refactors, and more.">
+  <meta name="description" content="HarnessFlow is a portable Markdown instruction pack that routes templated requests through structured, multi-agent workflows for implementation, debugging, refactors, and more.">
   <style>
     :root {
       color-scheme: light;
@@ -376,7 +376,7 @@
         <p class="eyebrow">Portable workflow instructions for coding agents</p>
         <h1>HarnessFlow</h1>
         <p class="tagline">
-          A portable Markdown pack that routes coding-agent requests through structured, multi-agent
+          A portable Markdown pack that routes templated requests through structured, multi-agent
           workflows&nbsp;— planning, adversarial challenge, implementation, QA, and persistent repo memory&nbsp;—
           for one shared <code>general</code>, <code>fast</code>, and <code>skill</code> pipeline.
         </p>
@@ -463,7 +463,7 @@
               <rect class="plf-bar-violet" x="404" y="92" width="150" height="5" rx="2.5"/>
               <text class="plf-ttl" x="479" y="122" text-anchor="middle">Mode</text>
               <rect class="plf-pill" x="419" y="134" width="120" height="24" rx="12"/>
-              <text class="plf-pillt" x="479" y="150" text-anchor="middle">general · default</text>
+              <text class="plf-pillt" x="479" y="150" text-anchor="middle">general</text>
               <rect class="plf-pill" x="419" y="162" width="120" height="24" rx="12"/>
               <text class="plf-pillt" x="479" y="178" text-anchor="middle">fast · token-lean</text>
               <rect class="plf-pill" x="419" y="190" width="120" height="24" rx="12"/>
@@ -520,6 +520,7 @@
           changes, and stop. HarnessFlow replaces that with a formalized pipeline. A request template names a
           detailed workflow, which decomposes into parallel subagents with distinct cognitive perspectives,
           challenged by an adversarial reviewer, validated by a QA pass, and recorded in persistent repo memory.
+          A bare, plain-language prompt is answered normally, without the pack.
           It is pure Markdown plus two Bash setup scripts — copy it into any repo under
           <code>.github/HarnessFlow/</code> and it works with Claude Code, Codex, and VS Code Copilot.
         </p>
@@ -672,7 +673,7 @@
         </p>
         <div class="grid cols-3">
           <div class="tile accent-teal">
-            <h3>General <span style="color:var(--faint);font-weight:400">· default</span></h3>
+            <h3>General</h3>
             <p><code>workflow/general_workflow/</code> — the thorough multi-agent pipeline shared by all three tools (<code>mode: general</code>).</p>
           </div>
           <div class="tile accent-green">
@@ -873,7 +874,7 @@ bash .github/HarnessFlow/cli_setup.sh   # Claude Code / Codex
 bash .github/HarnessFlow/setup.sh       # VS Code + Copilot</code></pre>
         </div>
         <p class="lead" style="margin-top:22px;">
-          Then ask your agent to <code>initialize</code> the repo, and start sending requests — add
+          Then paste the filled-in <code>initialize</code> request template, and keep sending templates — add
           <code>mode: fast</code> or <code>mode: skill</code> to switch pipelines.
         </p>
       </div>

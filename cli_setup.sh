@@ -77,7 +77,7 @@ if [ -f "$PACK_DIR/copilot-instructions.md" ]; then
     if [ ! -f "$COPILOT_DEST" ]; then
         sed 's|#file:|#file:HarnessFlow/|g' "$PACK_DIR/copilot-instructions.md" > "$COPILOT_DEST"
         echo "Created $COPILOT_DEST (GitHub Copilot instructions)"
-    elif grep -Fq "Master Orchestrator — Instruction Router" "$COPILOT_DEST"; then
+    elif grep -Fq "Master Orchestrator" "$COPILOT_DEST"; then
         sed 's|#file:|#file:HarnessFlow/|g' "$PACK_DIR/copilot-instructions.md" > "$COPILOT_DEST"
         echo "Refreshed $COPILOT_DEST (GitHub Copilot instructions)"
     else

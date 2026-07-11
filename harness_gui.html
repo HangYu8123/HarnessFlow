@@ -277,7 +277,7 @@
 <script>
 "use strict";
 
-// --- Per-category metadata: display label, instructions stem, routing keywords,
+// --- Per-category metadata: display label, instructions stem, example-request keywords,
 //     debug reproduce flag, and the simplify / code_review opt-in flags (each false|true|local,
 //     see _lib/review_skills.md). Input-field boxes are NOT listed here — they are
 //     derived from each template's "<label>:" slots (see deriveFields), so the
@@ -476,7 +476,7 @@ function renderRef(){
   b.textContent = cat.label;
   var kw = document.createElement("span");
   kw.className = "kw";
-  kw.textContent = "triggers: " + cat.kw;
+  kw.textContent = "e.g. " + cat.kw;
   ref.appendChild(b);
   ref.appendChild(document.createTextNode(" — " + cat.desc));
   ref.appendChild(kw);

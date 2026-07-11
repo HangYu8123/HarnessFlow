@@ -155,7 +155,7 @@ Copy the entry-point files from the pack to their standard discoverable location
 
 For each file:
 - If the destination file does **not** exist, copy it.
-- If the destination file **already exists** and appears to be a previously generated copy (contains the same header/marker text as the source, e.g., `"Master Orchestrator — Instruction Router"` for copilot-instructions.md), overwrite it with the updated version.
+- If the destination file **already exists** and appears to be a previously generated copy (contains the same header/marker text as the source, e.g., `"Master Orchestrator"` for copilot-instructions.md), overwrite it with the updated version.
 - If the destination file **already exists** and contains custom user content that differs from the pack version, **do not overwrite** — warn the user that manual reconciliation is needed.
 
 This step ensures the repo works with all supported tools (VS Code Copilot, Copilot CLI, Claude Code CLI, Codex CLI) after any single initialization workflow runs.

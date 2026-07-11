@@ -14,7 +14,7 @@ HarnessFlow is a drop-in set of workflow and agent-instruction files: copy it in
 
 ## What It Does
 
-HarnessFlow is a portable **Markdown instruction pack** — there is no runtime, no `npm install`, and no build step. It is designed for Claude Code CLI, Codex CLI, GitHub Copilot in VS Code, Aider, and other AI coding assistants that benefit from structured operating instructions. Instead of letting your assistant one-shot changes from a single prompt, this pack gives every request a disciplined, multi-agent workflow with real planning, self-review, QA, and persistent memory:
+HarnessFlow is a portable **Markdown instruction pack** — there is no runtime, no `npm install`, and no build step. It is designed for Claude Code CLI, Codex CLI, GitHub Copilot in VS Code, Aider, and other AI coding assistants that benefit from structured operating instructions. Instead of letting your assistant one-shot changes from a single prompt, this pack gives every templated request a disciplined, multi-agent workflow with real planning, self-review, QA, and persistent memory:
 
 - **Runs on request** — a filled-in template from `request_template/` names one of 9 request types and loads that workflow file; nothing fires on a bare prompt.
 - **Analyzes in parallel** — Focus, Broad, and Free analyst subagents read the codebase from different angles, then a Senior Engineer synthesizes one plan.

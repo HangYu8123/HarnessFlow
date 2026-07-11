@@ -17,7 +17,7 @@ Apply this rule to every path referenced in this file, workflow files, and agent
 
 ## Workflow Execution
 
-A filled-in prompt from `request_template/` names the matched instruction file for its category and `mode:`.
+A filled-in prompt from `request_template/` names the matched instruction file for its category and `mode:`. A prompt that is not a filled-in template gets a normal answer — no classification, no workflow.
 
 1. **Read and follow** `_lib/workflow_contract.md` and `philosophy/philosophy.instructions.md` (resolved via Pack Path Resolution) before any workflow-specific work.
 2. **Read** the matched instruction file in its entirety.
@@ -28,4 +28,4 @@ A filled-in prompt from `request_template/` names the matched instruction file f
 Handle multiple templated requests sequentially — complete one workflow before starting the next.
 
 ## Repo context files
-Look for context files (`codebase_overview.md`, `scripts_overview.md`, `update_logs.md`, etc.) under `repo_info/` (resolved via Pack Path Resolution). In multi-layer repos — sub-repos or an enclosing repo carrying their own `repo_info/` — also read those layers' `codebase_overview.md` and `scripts_overview.md` per `_lib/workflow_contract.md` §Key Context Files → Multi-Layer / Nested Repos.
+When running a workflow, look for context files (`codebase_overview.md`, `scripts_overview.md`, `update_logs.md`, etc.) under `repo_info/` (resolved via Pack Path Resolution). In multi-layer repos — sub-repos or an enclosing repo carrying their own `repo_info/` — also read those layers' `codebase_overview.md` and `scripts_overview.md` per `_lib/workflow_contract.md` §Key Context Files → Multi-Layer / Nested Repos.

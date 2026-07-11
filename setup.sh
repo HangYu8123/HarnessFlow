@@ -165,7 +165,7 @@ if [ -f "$COPILOT_SRC" ]; then
     if [ ! -f "$COPILOT_DEST" ]; then
         sed 's|#file:|#file:HarnessFlow/|g' "$COPILOT_SRC" > "$COPILOT_DEST"
         echo "Created $COPILOT_DEST"
-    elif grep -Fq "Master Orchestrator — Instruction Router" "$COPILOT_DEST"; then
+    elif grep -Fq "Master Orchestrator" "$COPILOT_DEST"; then
         sed 's|#file:|#file:HarnessFlow/|g' "$COPILOT_SRC" > "$COPILOT_DEST"
         echo "Refreshed $COPILOT_DEST"
     else
