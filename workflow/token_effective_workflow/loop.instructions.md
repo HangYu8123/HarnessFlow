@@ -10,7 +10,7 @@ description: 'Unified token-effective (fast) loop meta-workflow for Claude Code,
 
 **Loop control: follow `_lib/loop_control.md`.** Progress accounting (`raw_score` / `direction` / `total_delta` / `step_delta` / `best_delta`), the durable goal record, and the opt-in native-goal bridge are canonical there — this file deliberately does not restate them.
 
-> **Unified workflow (platform-adaptive).** This single file serves Claude Code, Codex, and VS Code Copilot. Resolve all paths via Pack Path Resolution (`.github/HarnessFlow/<path>` when installed, or `<path>` from the repo root). Launch subagents using your platform's mechanism per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Invocation. Handle repo-context handoff per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents: on **Claude Code** the main agent builds a condensed **[repo context digest]** and passes it inline to subagents; on **Codex** and **VS Code Copilot**, subagents read **[key md files]** directly.
+> **Unified workflow (platform-adaptive).** This single file serves Claude Code, Codex, and VS Code Copilot. Resolve all paths via Pack Path Resolution (`.github/HarnessFlow/<path>` when installed, or `<path>` from the repo root). Launch subagents using your platform's mechanism per [`/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Invocation. Handle repo-context handoff per [`/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents: on **Claude Code** the main agent builds a condensed **[repo context digest]** and passes it inline to subagents; on **Codex** and **VS Code Copilot**, subagents read **[key md files]** directly.
 
 > **Loop meta-workflow.** The main agent is a **controller**, not a doer. It parses the spec; then for each iteration it **observes** the delegated result, **checks** the exit conditions, and **reflects & ledgers** — it never performs the body work itself. The *act* is **always delegated** to a spawned worker, which keeps the controller's context clean across many iterations. Exit conditions form an **OR-set** ("stop when ANY fires") with **always-on safety caps**, so the loop can never run away.
 
@@ -41,9 +41,9 @@ description: 'Unified token-effective (fast) loop meta-workflow for Claude Code,
 - input 3: **[loop body]** — *optional*; a free-form action to perform each iteration, **or** `dispatch: family=<code|debug|exec|refactor|query|correctness_check|pr|initialize> mode=<fast|general|skill>`. **If omitted, the controller decides the body from [goal] + [success criteria]** (see Step 1).
 - input 4: **[starting state]** — *optional*; files / target repo / baseline notes. **Defaults to the current repo/workspace state** if omitted.
 
-[key md files]: codebase_overview.md, scripts_overview.md, update_logs.md, known_issues.md (under `repo_info/`, resolved via Pack Path Resolution). In multi-layer repos, also read the `codebase_overview.md` + `scripts_overview.md` of each discovered layer per `_lib/workflow_contract.md` §Key Context Files → Multi-Layer / Nested Repos.
+[key md files]: codebase_overview.md, scripts_overview.md, update_logs.md, known_issues.md (under `/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/repo_info/`, resolved via Pack Path Resolution). In multi-layer repos, also read the `codebase_overview.md` + `scripts_overview.md` of each discovered layer per `/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/_lib/workflow_contract.md` §Key Context Files → Multi-Layer / Nested Repos.
 
-**Model headers** (read from the request header; governed by [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Launch Contract — default `inherit`, never downgrade):
+**Model headers** (read from the request header; governed by [`/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Launch Contract — default `inherit`, never downgrade):
 - `subagent_model` — model for the loop's own workers (the free-form body-worker, Devils Advocate, Online Researcher).
 - `dispatch_main_model` — *dispatch only:* model for the sub-main agent that runs the dispatched family.
 - `dispatch_subagent_model` — *dispatch only:* model for that family's own subagents.
@@ -53,19 +53,19 @@ description: 'Unified token-effective (fast) loop meta-workflow for Claude Code,
 - `no_progress_k` — stop after this many consecutive iterations with no measurable progress (default **3** if absent).
 
 **Read this file fully and follow each step.**
-Before doing any workflow-specific work, the main agent must read and follow [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) and [`philosophy/philosophy.instructions.md`](../../philosophy/philosophy.instructions.md) before proceeding.
+Before doing any workflow-specific work, the main agent must read and follow [`/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/_lib/workflow_contract.md`](../../_lib/workflow_contract.md) and [`/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/philosophy/philosophy.instructions.md`](../../philosophy/philosophy.instructions.md) before proceeding.
 Every subagent created by this workflow must also read and follow those two files before reading [key md files] or performing task-specific work.
 
-Subagent launch rule: Follow the Subagent Launch Contract in [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md). After each subagent returns, the main agent must check that the result is complete, task-specific, grounded in the requested files, and uses the expected output label.
+Subagent launch rule: Follow the Subagent Launch Contract in [`/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/_lib/workflow_contract.md`](../../_lib/workflow_contract.md). After each subagent returns, the main agent must check that the result is complete, task-specific, grounded in the requested files, and uses the expected output label.
 
-> **Subagent invocation:** See `_lib/workflow_contract.md` §Subagent Invocation.
+> **Subagent invocation:** See `/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/_lib/workflow_contract.md` §Subagent Invocation.
 
 ---
 
 ## CREATE ONE TODO PER STEP
 
 ### Step 1 - Context Gathering & Loop-Spec Parsing
-Read [key md files]. If important files are specified in [inputs], read them. Then, per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents: on **Claude Code**, condense the understanding into a **[repo context digest]** (codebase structure/pipeline, key scripts, recent changes, active known issues) to pass inline to subagents; on **Codex** and **VS Code Copilot**, keep [key md files] for subagents to read directly.
+Read [key md files]. If important files are specified in [inputs], read them. Then, per [`/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents: on **Claude Code**, condense the understanding into a **[repo context digest]** (codebase structure/pipeline, key scripts, recent changes, active known issues) to pass inline to subagents; on **Codex** and **VS Code Copilot**, keep [key md files] for subagents to read directly.
 
 **Parse [inputs] into a draft [loop spec] — decompose, then formalize. Step 2 validates it.**
 
@@ -90,7 +90,7 @@ The main agent drafts an **[iteration plan]**: what one pass does, what the work
 
 **The draft [loop spec] is validated here (not in Step 1), by the two subagents below — each runs the pre-flight guardrail checklist:** (a) the **goal** is concrete (a specific term/quantity, not a vague "improve"); (b) every **success criterion has an objective verifier** (tool-based, not model judgment alone); (c) the **baseline** is captured before the loop; (d) the **progress metric is hard to game** (composite or tied to real progress, not fakeable by comments/blank lines); (e) every **exit predicate is boolean-evaluable**; (f) the **loop body** (specified or controller-decided) fits the goal.
 
-**[PARALLEL EXECUTION — launch all listed subagents in parallel; see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]** This is the only pre-loop step that spawns subagents.
+**[PARALLEL EXECUTION — launch all listed subagents in parallel; see [`/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]** This is the only pre-loop step that spawns subagents.
 
 | Subagent | Agent | When to spawn | Task |
 |----------|-------|---------------|------|
@@ -124,7 +124,7 @@ For iteration N = 1, 2, …:
 
 ### Step 5 - Post-loop Review and Validation
 1. Summarize the outcome from the [loop ledger]: goal met (yes/no), which exit condition fired, final state vs success criteria, and — **aggregated across all iterations** — the **net code changes** (cumulative files touched + net diff summary), the **metric trajectory** (baseline → final `raw_score`; `total_delta` = total improvement), and the collected **noteworthy items** (key decisions, surprises, regressions, lessons).
-2. **Review skills (opt-in; both headers default to `false`):** only when some iteration edited source files, resolve the request's `simplify` and `code_review` headers per [`_lib/review_skills.md`](../../_lib/review_skills.md) — `false` skips, `true` runs Claude Code's native `/simplify` / `/code-review medium`, `local` runs the pack's vendored `code-simplification` / `code-review-and-quality` skills (portable to every platform). Spawn one subagent per enabled skill, **sequentially, simplify first**, following the Subagent Launch Contract in [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) (subagents use the `subagent_model` header; keep an activity log and record fallbacks). Pass each the net diff + [loop spec] + [loop ledger] plus the relevant repo context. Record [simplify] and/or [code-review] for whichever ran; leave a skipped skill's label unproduced. Skip entirely when the loop only ran commands without editing source.
+2. **Review skills (opt-in; both headers default to `false`):** only when some iteration edited source files, resolve the request's `simplify` and `code_review` headers per [`_lib/review_skills.md`](../../_lib/review_skills.md) — `false` skips, `true` runs Claude Code's native `/simplify` / `/code-review medium`, `local` runs the pack's vendored `code-simplification` / `code-review-and-quality` skills (portable to every platform). Spawn one subagent per enabled skill, **sequentially, simplify first**, following the Subagent Launch Contract in [`/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/_lib/workflow_contract.md`](../../_lib/workflow_contract.md) (subagents use the `subagent_model` header; keep an activity log and record fallbacks). Pass each the net diff + [loop spec] + [loop ledger] plus the relevant repo context. Record [simplify] and/or [code-review] for whichever ran; leave a skipped skill's label unproduced. Skip entirely when the loop only ran commands without editing source.
 3. The main agent reviews the net changes directly, validates them against [loop spec] + [loop ledger], and reports the conclusion as [direct review].
 4. Based on whichever of [simplify] + [code-review] + [direct review] were produced, the main agent analyzes and validates them all, and consolidates them with the Step 5 outcome summary into a [final report], recording any remaining gaps. Then the main agent applies the clearly-correct, low-risk findings (do not auto-apply uncertain or behavior-changing ones). If the outcome did not meet the goal, summarize the gaps and lessons learned in bullet points to chat (no more than 3 sentences), and pass to step 6 for documentation and summary. If the outcome met the goal, pass to step 6 for documentation and summary.
 
