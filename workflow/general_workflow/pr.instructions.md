@@ -22,7 +22,7 @@ description: 'Instructions for breaking down and creating pull requests from fea
 **DO NOT WRITE SPAM FILES INTO THE REPO**
 **DO NOT USE SUDO**
 
-> **Unified workflow (platform-adaptive).** This single file serves Claude Code, Codex, and VS Code Copilot. Resolve all paths via Pack Path Resolution (`.github/HarnessFlow/<path>` when installed, or `<path>` from the repo root). Launch subagents using your platform's mechanism per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Invocation. Handle repo-context handoff per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents: on **Claude Code** the main agent builds a condensed **[repo context digest]** and passes it inline to subagents; on **Codex** and **VS Code Copilot**, subagents read **[key md files]** directly.
+> **Unified workflow (platform-adaptive).** This single file serves Claude Code, Codex, and VS Code Copilot. Resolve all paths via Pack Path Resolution (`.github/HarnessFlow/<path>` when installed, or `<path>` from the repo root). Launch subagents using your platform's mechanism per [`/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Invocation. Handle repo-context handoff per [`/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents: on **Claude Code** the main agent builds a condensed **[repo context digest]** and passes it inline to subagents; on **Codex** and **VS Code Copilot**, subagents read **[key md files]** directly.
 
 [inputs]:
 - input 1: target branch (optional, defaults to current branch)
@@ -31,22 +31,22 @@ description: 'Instructions for breaking down and creating pull requests from fea
 - input 4: max lines per PR (optional, defaults to 1000)
 - input 5: stack tool preference (optional, auto-detect)
 
-[key md files]: codebase_overview.md, scripts_overview.md, update_logs.md, known_issues.md (under `repo_info/`, resolved by the Pack Path Resolution rule). In multi-layer repos, also read the `codebase_overview.md` + `scripts_overview.md` of each discovered layer per `_lib/workflow_contract.md` §Key Context Files → Multi-Layer / Nested Repos.
+[key md files]: codebase_overview.md, scripts_overview.md, update_logs.md, known_issues.md (under `/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/repo_info/`, resolved by the Pack Path Resolution rule). In multi-layer repos, also read the `codebase_overview.md` + `scripts_overview.md` of each discovered layer per `/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/_lib/workflow_contract.md` §Key Context Files → Multi-Layer / Nested Repos.
 
 **Read this file fully and follow each step.**
-Before doing any workflow-specific work, the main agent must read and follow [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) and [`philosophy/philosophy.instructions.md`](../../philosophy/philosophy.instructions.md) before proceeding.
+Before doing any workflow-specific work, the main agent must read and follow [`/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/_lib/workflow_contract.md`](../../_lib/workflow_contract.md) and [`/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/philosophy/philosophy.instructions.md`](../../philosophy/philosophy.instructions.md) before proceeding.
 Every subagent created by this workflow must also read and follow those two files before reading [key md files] or performing task-specific work.
 
-Subagent launch rule: Follow the Subagent Launch Contract in [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md).
+Subagent launch rule: Follow the Subagent Launch Contract in [`/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/_lib/workflow_contract.md`](../../_lib/workflow_contract.md).
 
-> **Subagent invocation:** See `_lib/workflow_contract.md` §Subagent Invocation.
+> **Subagent invocation:** See `/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/_lib/workflow_contract.md` §Subagent Invocation.
 
 ---
 
 ## CREATE ONE TODO PER STEP
 
 ### Step 1 - Context Gathering and Local Skill Discovery
-Read [key md files]. Understand them. Then, per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents: on **Claude Code**, create a condensed **[repo context digest]** — a concise bullet-point summary covering: codebase structure/pipeline, key scripts and their roles, recent changes, and active known issues — and pass it inline to every subagent; on **Codex** and **VS Code Copilot**, keep [key md files] for subagents to read directly.
+Read [key md files]. Understand them. Then, per [`/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents: on **Claude Code**, create a condensed **[repo context digest]** — a concise bullet-point summary covering: codebase structure/pipeline, key scripts and their roles, recent changes, and active known issues — and pass it inline to every subagent; on **Codex** and **VS Code Copilot**, keep [key md files] for subagents to read directly.
 
 Also read the breakdown-pr skill at [`skills/breakdown-pr/SKILL.md`](../../skills/breakdown-pr/SKILL.md) and keep it as [breakdown-pr skill].
 
@@ -61,7 +61,7 @@ If a target branch is specified, the main agent must inspect the branch and its 
 - Pass [diff file manifest], [filtered diff manifest], [gitignore patterns], and [auto-generated files] to all subagents in subsequent steps.
 
 ### Step 3 - PR Breakdown Panel
-**[PARALLEL EXECUTION — launch all listed subagents in parallel; see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]** Pass [inputs], [breakdown-pr skill], and the repo context (per §Context Passing) to all three subagents. Every subagent must use [filtered diff manifest] as the authoritative file list, must not include files from [auto-generated files] or matching [gitignore patterns] (unless they are source-generating inputs), and must run a **file completeness check** before finalizing: cross-reference its plan against [filtered diff manifest] and confirm every file in the manifest is assigned to exactly one PR; if any file is unaccounted for, add it.
+**[PARALLEL EXECUTION — launch all listed subagents in parallel; see [`/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]** Pass [inputs], [breakdown-pr skill], and the repo context (per §Context Passing) to all three subagents. Every subagent must use [filtered diff manifest] as the authoritative file list, must not include files from [auto-generated files] or matching [gitignore patterns] (unless they are source-generating inputs), and must run a **file completeness check** before finalizing: cross-reference its plan against [filtered diff manifest] and confirm every file in the manifest is assigned to exactly one PR; if any file is unaccounted for, add it.
 
 | Subagent | Agent | When to spawn | Task |
 |----------|-------|---------------|------|
@@ -78,7 +78,7 @@ The main agent reviews the plans, the dependency graphs from Step 3, [senior sta
 **Mandatory file completeness verification:** After drafting [final pr plan], the main agent must run `git diff --name-only <base>...<branch>` again and cross-reference the output against the files listed in [final pr plan]. Every file in [filtered diff manifest] must appear in exactly one PR. If any file is missing, add it to the most appropriate PR. If any file in the plan matches [gitignore patterns] or is in [auto-generated files], remove it from the plan (unless the user explicitly requested its inclusion). Log any discrepancies found and resolved.
 
 ### Step 6 - Plan Challenge and Research
-**[PARALLEL EXECUTION — launch all listed subagents in parallel; see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]** Pass [final pr plan], [inputs], and the repo context (per §Context Passing) to both subagents.
+**[PARALLEL EXECUTION — launch all listed subagents in parallel; see [`/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]** Pass [final pr plan], [inputs], and the repo context (per §Context Passing) to both subagents.
 
 | Subagent | Agent | When to spawn | Task |
 |----------|-------|---------------|------|
@@ -92,7 +92,7 @@ The main agent incorporates [valid criticisms] and [online resource], and update
 The main agent prints the updated [final pr plan] using the [breakdown-pr skill] output format, so the user can review it. **Approval gate:** See `_lib/approval_gate.md`.
 
 ### Step 9 - Execute the PR Stack
-The main agent creates an **Implementer** subagent (`agents/implementer.agent.md`), passing [final pr plan], [inputs], and the repo context (per §Context Passing). **Implementer Model Verification:** See `_lib/workflow_contract.md` §Implementer Model Verification Fallback. The subagent (or the main agent, if falling back) receives the repo context (per §Context Passing) and [breakdown-pr skill]. Then based on [final pr plan], the subagent executes the PR stack creation following the [breakdown-pr skill] step 6 (Execute Only After Approval). **Nested-skill note:** the skill's "Execute Only After Approval" / "ask before execution" wording maps to the single two-mode gate already evaluated at Step 8 above (`_lib/approval_gate.md` §Nested-skill approval language), not a second stop — in autonomous mode, create local branches/commits without re-asking and resolve ambiguous base/branch/stack-tool/uncommitted-change choices yourself as recorded assumptions; only the submit/push (final bullet) still needs explicit user approval. The execution steps:
+The main agent creates an **Implementer** subagent (`agents/implementer.agent.md`), passing [final pr plan], [inputs], and the repo context (per §Context Passing). **Implementer Model Verification:** See `/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/_lib/workflow_contract.md` §Implementer Model Verification Fallback. The subagent (or the main agent, if falling back) receives the repo context (per §Context Passing) and [breakdown-pr skill]. Then based on [final pr plan], the subagent executes the PR stack creation following the [breakdown-pr skill] step 6 (Execute Only After Approval). **Nested-skill note:** the skill's "Execute Only After Approval" / "ask before execution" wording maps to the single two-mode gate already evaluated at Step 8 above (`_lib/approval_gate.md` §Nested-skill approval language), not a second stop — in autonomous mode, create local branches/commits without re-asking and resolve ambiguous base/branch/stack-tool/uncommitted-change choices yourself as recorded assumptions; only the submit/push (final bullet) still needs explicit user approval. The execution steps:
 - Confirm the working tree policy for uncommitted changes.
 - Record the original source branch and intended final stack top.
 - Create each branch from the base or previous stack branch.
@@ -109,7 +109,7 @@ After finishing the execution, the subagent must generate an [execution report] 
 - **Otherwise (`true` on Codex, or VS Code Copilot without Claude Code skills):** the native skills do not exist — skip them; instead, the main agent performs a manual review of all created branches for correctness and consistency before proceeding.
 
 ### Step 11 - Stack Review and QA
-**[PARALLEL EXECUTION — launch all listed subagents in parallel; see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]** Pass [final pr plan], [inputs], [execution report], and the repo context (per §Context Passing) to both subagents.
+**[PARALLEL EXECUTION — launch all listed subagents in parallel; see [`/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]** Pass [final pr plan], [inputs], [execution report], and the repo context (per §Context Passing) to both subagents.
 
 | Subagent | Agent | When to spawn | Task |
 |----------|-------|---------------|------|
