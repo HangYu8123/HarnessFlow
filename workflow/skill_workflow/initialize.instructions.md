@@ -9,6 +9,7 @@ description: 'Unified skill-backed (skill mode) repo-initialization workflow for
   - _lib/safety_rules.md
   - _lib/workflow_contract.md
   - _lib/absolutize_pack_paths.md
+  - _lib/reinitialize.md
   - skills/skill_workflow_skills.md
   - repo_info/ (created by this workflow)
   - agents/free-analyst.agent.md
@@ -17,7 +18,7 @@ description: 'Unified skill-backed (skill mode) repo-initialization workflow for
 
 **Safety: follow `_lib/safety_rules.md`.**
 
-> **Unified workflow (platform-adaptive).** This single file serves Claude Code, Codex, and VS Code Copilot. Resolve all paths via Pack Path Resolution (`.github/HarnessFlow/<path>` when installed, or `<path>` from the repo root). Launch subagents using your platform's mechanism per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Invocation. Handle repo-context handoff per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents: on **Claude Code** the main agent builds a condensed **[repo context digest]** and passes it inline to subagents; on **Codex** and **VS Code Copilot**, subagents read **[key md files]** directly. This workflow creates the `repo_info/` overviews, so they do not exist yet — subagents read the live repo files instead.
+> **Unified workflow (platform-adaptive).** This single file serves Claude Code, Codex, and VS Code Copilot. Resolve all paths via Pack Path Resolution (`.github/HarnessFlow/<path>` when installed, or `<path>` from the repo root). Launch subagents using your platform's mechanism per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Invocation. Handle repo-context handoff per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents: on **Claude Code** the main agent builds a condensed **[repo context digest]** and passes it inline to subagents; on **Codex** and **VS Code Copilot**, subagents read **[key md files]** directly. On a first run this workflow creates the `repo_info/` overviews, so subagents read the live repo files instead; on re-initialization the existing overviews are the baseline to validate and diff-update per [`_lib/reinitialize.md`](../../_lib/reinitialize.md).
 
 > **Skill-backed variant (skill mode).** No step in this workflow had a confirmed ≥1000-star community skill that genuinely fits — its overviews (codebase_overview.md with a pipeline diagram, scripts_overview.md folder-by-folder) are bespoke `repo_info` artifacts produced by the pack's own Free Analyst and Focus Analyst agents, which no general documentation skill reproduces. Per the selection rule in [`skills/skill_workflow_skills.md`](../../skills/skill_workflow_skills.md), every step is therefore **unchanged** from the fast workflow.
 
@@ -29,7 +30,7 @@ This workflow generates documentation; it does not modify source code, so there 
 
 **read through this entire file and follow the instructions carefully**.
 Before doing any workflow-specific work, the main agent must read and follow [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) and [`philosophy/philosophy.instructions.md`](../../philosophy/philosophy.instructions.md) before proceeding.
-Every subagent created by this workflow must also read and follow those two files before performing task-specific work. The main agent passes repo context to subagents per §Context Passing; subagents do not re-read files already summarized by the main agent (the `repo_info/` overviews do not exist yet — this workflow creates them).
+Every subagent created by this workflow must also read and follow those two files before performing task-specific work. The main agent passes repo context to subagents per §Context Passing; subagents do not re-read files already summarized by the main agent (on a first run the `repo_info/` overviews do not exist yet — this workflow creates them; on re-initialization the existing overviews are passed to subagents as validation baselines per `_lib/reinitialize.md`).
 
 Subagent launch rule: Follow the Subagent Launch Contract in [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md). After each subagent returns, the main agent must check that the result is complete, task-specific, grounded in the requested files, and uses the expected output label.
 
@@ -58,6 +59,7 @@ Then:
    - past_Q&A.md
    - past_Correctness_Check.md
 4. Use `past_Q&A.md` for query history and `past_Correctness_Check.md` for correctness-check history; do not create alternate history filenames.
+5. Determine [init mode] per [`_lib/reinitialize.md`](../../_lib/reinitialize.md) §Mode Detection: an overview file that already has non-empty content is in **re-initialize** mode (validate + diff-update, never regenerate from scratch); a missing or empty one is **fresh**.
 
 ### Step 2 - File Structure
 From the Step 1 scan, the main agent produces [file structure] (the directory/file tree) and validates it for completeness. No subagent is needed — the main agent already holds the listing.
@@ -70,21 +72,28 @@ Generate each overview **once**. **[PARALLEL EXECUTION — launch all listed sub
 | Codebase | **Free Analyst** (`agents/free-analyst.agent.md`) | Free mode | Read [inputs] + [file structure]. Decide the reading order (entry points → imports → pipeline position), read the files, and construct [codebase_overview draft]. |
 | Scripts | **Focus Analyst** (`agents/focus-analyst.agent.md`) | Folder mode | Read [inputs] + [file structure]. Go folder-by-folder and summarize each function/class in code files with their dependencies. Return [scripts overview draft]. |
 
+For an overview in re-initialize mode, additionally pass that analyst the overview's existing content (Free Analyst ← codebase_overview.md, Focus Analyst ← scripts_overview.md): the analyst validates it per [`_lib/reinitialize.md`](../../_lib/reinitialize.md) §Validate Existing Claims, and its draft is the existing overview plus a [validation & diff report] rather than a from-scratch rewrite.
+
 ### Step 4 - Synthesize and Write Codebase Overview
 1. The main agent validates [codebase_overview draft] against the actual files, fixing inaccuracies.
 2. Draft the [pipeline] diagram with associated scripts in each block and validate it against the code.
 3. Write codebase_overview.md with the diagram and repo description.
 
+If codebase_overview.md is in re-initialize mode, apply the [validation & diff report] as targeted edits per [`_lib/reinitialize.md`](../../_lib/reinitialize.md) §Update With Diff — preserve confirmed content, never blank-and-rewrite.
+
 ### Step 5 - Synthesize and Write Scripts Overview
 1. The main agent spot-checks [scripts overview draft] against actual files and fixes inconsistencies.
 2. Write the final scripts_overview.md.
 
+If scripts_overview.md is in re-initialize mode, apply the [validation & diff report] as targeted edits per [`_lib/reinitialize.md`](../../_lib/reinitialize.md) §Update With Diff — preserve confirmed content, never blank-and-rewrite.
+
 ### Step 6 - Issue Scan and History
-1. The main agent scans for issues directly: using scripts_overview.md and the pipeline, read the key scripts and identify architectural weaknesses, potential bugs, error-prone code, and anything preventing correct execution. Record [issues report].
+On a re-initialization run, first run the repo-wide revalidation per [`_lib/reinitialize.md`](../../_lib/reinitialize.md) §Repo-Wide Revalidation and fix any mismatch in the overviews before continuing.
+1. The main agent scans for issues directly: using scripts_overview.md and the pipeline, read the key scripts and identify architectural weaknesses, potential bugs, error-prone code, and anything preventing correct execution. On re-initialization, the scan also validates each existing known_issues_auto_generated.md entry per `_lib/reinitialize.md` §Merge Known Issues. Record [issues report].
 2. The main agent gets the git commit history and writes update_logs_auto_generated.md (faithful to the original commit logs, no interpretation).
 
 ### Step 7 - Finalize Issues
-Write [issues report] to known_issues_auto_generated.md:
+Write [issues report] to known_issues_auto_generated.md. On re-initialization, merge per [`_lib/reinitialize.md`](../../_lib/reinitialize.md) §Merge Known Issues — drop resolved entries, keep valid ones, append new findings — instead of overwriting:
 ```md
 {Problem Title}
 {Problem description}

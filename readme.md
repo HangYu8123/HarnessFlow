@@ -23,7 +23,7 @@ HarnessFlow is a portable **Markdown instruction pack** — there is no runtime,
 - **Remembers** — results are written to `repo_info/` so later requests start with real context instead of re-deriving it.
 - **Three modes** — every workflow ships in a `general` (thorough), a `fast` (token-efficient), and a `skill` (community-skill-backed) variant.
 
-Use HarnessFlow for code implementation, refactors, debugging, codebase Q&A, correctness checks, command/skill execution, stacked-PR creation, first-time repo initialization, and recurring loops — nine request types, each backed by its own workflow file and available in `general`, `fast`, and `skill` modes. The rest of this README is a high-signal landing page: see what it does, install the entry point for your tool, pick a workflow mode, and dive into the deeper docs and benchmarks only when you need them.
+Use HarnessFlow for code implementation, refactors, debugging, codebase Q&A, correctness checks, command/skill execution, stacked-PR creation, repo initialization (first-time or re-initialization), and recurring loops — nine request types, each backed by its own workflow file and available in `general`, `fast`, and `skill` modes. The rest of this README is a high-signal landing page: see what it does, install the entry point for your tool, pick a workflow mode, and dive into the deeper docs and benchmarks only when you need them.
 
 
 ## How it performs
@@ -66,7 +66,7 @@ Every supported platform is a first-class citizen — pick the one you already u
 | **Correctness Check** | Test, verify, validate, or audit existing behavior |
 | **Exec** | Run a command or skill and capture the results |
 | **PR** | Break a large branch into reviewable, stacked PRs |
-| **Initialize** | Bootstrap repo memory for first-time setup |
+| **Initialize** | Bootstrap repo memory for first-time setup, or re-initialize: validate the existing memory against the code and diff-update it |
 | **Loop** | Repeat a task or check iteratively until a condition is met |
 
 Each category is backed by workflow files under `workflow/` — shared `general`, `fast`, and `skill` sets, each platform-adaptive and used by all platforms — with a matching fill-in prompt in `request_template/`.
@@ -138,9 +138,9 @@ bash .github/HarnessFlow/setup.sh
 
 A workflow runs when a filled-in request template names its instruction file. A bare, plain-language prompt is answered normally, without the pack.
 
-### Step 1 — Initialize repo memory (once per repo)
+### Step 1 — Initialize repo memory
 
-This populates `repo_info/` with an overview of your codebase that every later request reuses.
+This populates `repo_info/` with an overview of your codebase that every later request reuses. Re-running it on an already-initialized repo re-initializes instead of starting over: existing overviews are validated against the current code and diff-updated (see `_lib/reinitialize.md`).
 
 Copy `request_template/initialize_request_template.md`, fill it in, and paste it into Claude Code CLI, Codex CLI, or the Copilot Chat panel.
 
@@ -197,7 +197,7 @@ The source repo stores the pack at the repo root. The installed layout expected 
 | `copilot-instructions.md` | VS Code Copilot router template. |
 | `CLAUDE.md` | Claude Code CLI router template copied to the target repo root by `cli_setup.sh`. |
 | `AGENTS.md` | Codex CLI router template copied to the target repo root by `cli_setup.sh`. |
-| `_lib/` | Shared workflow contract, safety rules, approval-gate rules, and the `simplify` / `code_review` review-skill resolution. |
+| `_lib/` | Shared workflow contract, safety rules, approval-gate rules, re-initialization rules, and the `simplify` / `code_review` review-skill resolution. |
 | `philosophy/` | Shared behavioral guidance used by workflows and subagents. |
 | `workflow/` | Tool-specific workflow instruction families. |
 | `agents/` | Custom agent definitions plus `agents/INDEX.md`. |
@@ -376,7 +376,7 @@ update_logs.md
 update_logs_auto_generated.md
 ```
 
-In this source repo, `repo_info/` is ignored by git. In a target repo, initialize or refresh it for that specific codebase before relying on later workflows.
+In this source repo, `repo_info/` is ignored by git. In a target repo, initialize or refresh it for that specific codebase before relying on later workflows. Re-running the initialize workflow never discards existing repo_info: it validates the existing claims against the current code, applies a targeted diff-update, and revalidates the repo as a whole (`_lib/reinitialize.md`).
 
 Multi-layer repos are supported: when the target repo contains sub-repos — or is itself a sub-repo beside adjacent repos — each carrying its own `repo_info/`, workflows also read those layers' `codebase_overview.md` and `scripts_overview.md` as labeled cross-layer context (see `_lib/workflow_contract.md` §Key Context Files → Multi-Layer / Nested Repos).
 

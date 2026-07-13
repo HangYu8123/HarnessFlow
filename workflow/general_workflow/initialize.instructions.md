@@ -9,6 +9,7 @@ description: 'Instructions for creating necessary repo_info memory files to guid
   - _lib/safety_rules.md
   - _lib/workflow_contract.md
   - _lib/absolutize_pack_paths.md
+  - _lib/reinitialize.md
   - repo_info/ (created by this workflow)
 -->
 
@@ -46,6 +47,7 @@ Then, check the existence of the following [repo_info files] under the repo_info
 8. past_Correctness_Check.md
 If the repo_info folder does not exist, create it. Then ensure [repo_info files] exist; create any missing ones as empty files.
 These are the canonical repo memory files. Use `past_Q&A.md` for query history and `past_Correctness_Check.md` for correctness-check history; do not create alternate history filenames.
+Then determine [init mode] per [`_lib/reinitialize.md`](../../_lib/reinitialize.md) §Mode Detection: an overview file that already has non-empty content is in **re-initialize** mode (validate + diff-update, never regenerate from scratch); a missing or empty one is **fresh**.
 
 
 ## Procedure 3: Create File Structure
@@ -57,6 +59,8 @@ create/update the files in Procedure 2 with the **following specifications**.
 under the repo_info folder.
 
 **[PARALLEL EXECUTION — launch all listed subagents in parallel; see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]** — §4.1 (codebase_overview.md) and §4.2 (scripts_overview.md) are independent. Launch both section workflows in parallel.
+
+**Re-initialization** (per [`_lib/reinitialize.md`](../../_lib/reinitialize.md)): when an overview is in re-initialize mode, its section (§4.1 / §4.2) runs as a validate-and-diff update of the existing file rather than from-scratch regeneration — each subagent launched in §4.1 step 1 and §4.2 step 1 additionally receives the existing overview content and validates it per §Validate Existing Claims, returning its overview draft plus a [validation & diff report]; the main agent applies §Update With Diff at each overview's write step (§4.1 step 7, §4.2 step 2) — preserve confirmed content, never blank-and-rewrite. After §4.1 and §4.2 are both written, run §Repo-Wide Revalidation before §4.3.
 
 ### 4.1 codebase_overview.md:
 If the file does not exist, create an empty file.
@@ -72,7 +76,7 @@ c. create a subagent (code agent, free mode), follow [file structure], the agent
 4. the main agent must convert [pipeline] into a code diagram. In each block in the diagram, the associated scripts must also be mentioned.
 5. Then, create a subagent, pass the pipeline diagram to the subagent, the subagent goes through the generated diagram and associated scripts step by step and makes sure the correctness and consistency. Then feed the review back to the main agent.
 6. Then based on the diagram and the review, the main agent checks correctness by itself and updates the diagram accordingly.
-7. Finally, write the diagram into the codebase_overview.md, along with a description of the repo.
+7. Finally, write the diagram into the codebase_overview.md, along with a description of the repo. On re-initialization, write per [`_lib/reinitialize.md`](../../_lib/reinitialize.md) §Update With Diff — targeted edits preserving confirmed content, never blank-and-rewrite.
 
 
 ### 4.2 scripts_overview.md
@@ -88,18 +92,17 @@ c. create a subagent (code agent, file mode),  pass [file structure] to the suba
 
 
 ### 4.3 known_issues_auto_generated.md:
-if the file exists, do nothing.
-if the file does not exist, create an empty file.
+if the file does not exist, create an empty file (Procedure 2 normally has already created it).
 then:
 
-**IMPORTANT: §4.3 depends on §4.1 and §4.2 being complete. Do NOT start §4.3 until codebase_overview.md and scripts_overview.md have been written to disk.**
+**IMPORTANT: §4.3 depends on §4.1 and §4.2 being complete. Do NOT start §4.3 until codebase_overview.md and scripts_overview.md have been written to disk — and, on a re-initialization run, until the §Repo-Wide Revalidation pass ([`_lib/reinitialize.md`](../../_lib/reinitialize.md)) has completed.**
 
-**[PARALLEL EXECUTION — launch all listed subagents in parallel; see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]** — launch steps 1 and 2 in parallel. The main agent may pass the contents of codebase_overview.md and scripts_overview.md inline to reduce redundant file reads.
+**[PARALLEL EXECUTION — launch all listed subagents in parallel; see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]** — launch steps 1 and 2 in parallel. The main agent may pass the contents of codebase_overview.md and scripts_overview.md inline to reduce redundant file reads. On re-initialization, also pass both subagents the existing known_issues_auto_generated.md entries; each subagent additionally validates each entry against the current code per [`_lib/reinitialize.md`](../../_lib/reinitialize.md) §Merge Known Issues and reports which entries are resolved, still valid, or obsolete.
 1. create a subagent (plan agent), go through codebase_overview.md and scripts_overview.md, point out the weaknesses of the code architecture and all possible issues. report back to the main agent.
 2. create a subagent (code agent), go through codebase_overview.md and scripts_overview.md, and then go through all scripts one by one, find any potential issues or code that could lead to problems, errors, and bugs. find anything that could affect the code being fully correct. find anything that prevents code from running correctly or functioning as expected. report back to main agent.
 3. the main agent uses the information from steps 1 and 2 to perform a lightweight correctness assessment of the repo — identifying potential problems, issues, and weaknesses of the codebase. Do NOT invoke the full correctness_check workflow (`workflow/general_workflow/correctness_check.instructions.md`) here, as repo_info files may not all be finalized yet. Instead, use the subagent reports from steps 1 and 2, combined with the main agent's own reading of the codebase, to produce the assessment.
 4. the main agent summarizes the reviews from step 1, step 2, and step 3, based on the information it has, and uses its best ability to combine the reviews with only correct and fair parts.
-5. write the contents to known_issues_auto_generated.md in the format of:
+5. write the contents to known_issues_auto_generated.md. On re-initialization, merge per [`_lib/reinitialize.md`](../../_lib/reinitialize.md) §Merge Known Issues — drop resolved entries, keep valid ones, append new findings — instead of overwriting:
 {Problem Title (very high level summarization)}
 {Problem description ( a short description of the problem)}
 {Root causes (for example, what code/function causes the problem)}
