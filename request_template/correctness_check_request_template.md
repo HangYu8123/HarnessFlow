@@ -11,8 +11,8 @@ Hard constraints, in priority order (hardest first) —
 
 | Active agent | `mode: fast` | `mode: general` | `mode: skill` |
 |---|---|---|---|
-| Claude Code | `/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/workflow/token_effective_workflow/correctness_check.instructions.md` | `/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/workflow/general_workflow/correctness_check.instructions.md` | `/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/workflow/skill_workflow/correctness_check.instructions.md` |
-| Codex (CLI or VS Code) | `/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/workflow/token_effective_workflow/correctness_check.instructions.md` | `/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/workflow/general_workflow/correctness_check.instructions.md` | `/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/workflow/skill_workflow/correctness_check.instructions.md` |
+| Claude Code | `workflow/token_effective_workflow/correctness_check.instructions.md` | `workflow/general_workflow/correctness_check.instructions.md` | `workflow/skill_workflow/correctness_check.instructions.md` |
+| Codex (CLI or VS Code) | `.github/HarnessFlow/workflow/token_effective_workflow/correctness_check.instructions.md` | `.github/HarnessFlow/workflow/general_workflow/correctness_check.instructions.md` | `.github/HarnessFlow/workflow/skill_workflow/correctness_check.instructions.md` |
 | VS Code Copilot | `@/.github/HarnessFlow/workflow/token_effective_workflow/correctness_check.instructions.md` | `@/.github/HarnessFlow/workflow/general_workflow/correctness_check.instructions.md` | `@/.github/HarnessFlow/workflow/skill_workflow/correctness_check.instructions.md` |
 
 Follow the instructions in the selected correctness_check.instructions.md to check the correctness of:

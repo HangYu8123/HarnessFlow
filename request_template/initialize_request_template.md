@@ -11,8 +11,8 @@ Hard constraints, in priority order (hardest first) —
 
 | Active agent | `mode: fast` | `mode: general` | `mode: skill` |
 |---|---|---|---|
-| Claude Code | `/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/workflow/token_effective_workflow/initialize.instructions.md` | `/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/workflow/general_workflow/initialize.instructions.md` | `/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/workflow/skill_workflow/initialize.instructions.md` |
-| Codex (CLI or VS Code) | `/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/workflow/token_effective_workflow/initialize.instructions.md` | `/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/workflow/general_workflow/initialize.instructions.md` | `/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/workflow/skill_workflow/initialize.instructions.md` |
+| Claude Code | `workflow/token_effective_workflow/initialize.instructions.md` | `workflow/general_workflow/initialize.instructions.md` | `workflow/skill_workflow/initialize.instructions.md` |
+| Codex (CLI or VS Code) | `.github/HarnessFlow/workflow/token_effective_workflow/initialize.instructions.md` | `.github/HarnessFlow/workflow/general_workflow/initialize.instructions.md` | `.github/HarnessFlow/workflow/skill_workflow/initialize.instructions.md` |
 | VS Code Copilot | `@/.github/HarnessFlow/workflow/token_effective_workflow/initialize.instructions.md` | `@/.github/HarnessFlow/workflow/general_workflow/initialize.instructions.md` | `@/.github/HarnessFlow/workflow/skill_workflow/initialize.instructions.md` |
 
 Follow the instructions in the selected initialize.instructions.md to initialize:

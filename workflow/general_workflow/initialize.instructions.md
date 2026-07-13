@@ -14,16 +14,16 @@ description: 'Instructions for creating necessary repo_info memory files to guid
 
 **Safety: follow `_lib/safety_rules.md`.**
 
-> **Unified workflow (platform-adaptive).** This single file serves Claude Code, Codex, and VS Code Copilot. Resolve all paths via Pack Path Resolution (`.github/HarnessFlow/<path>` when installed, or `<path>` from the repo root). Launch subagents using your platform's mechanism per [`/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Invocation. Handle repo-context handoff per [`/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents: on **Claude Code** the main agent builds a condensed **[repo context digest]** and passes it inline to subagents; on **Codex** and **VS Code Copilot**, subagents read **[key md files]** directly.
+> **Unified workflow (platform-adaptive).** This single file serves Claude Code, Codex, and VS Code Copilot. Resolve all paths via Pack Path Resolution (`.github/HarnessFlow/<path>` when installed, or `<path>` from the repo root). Launch subagents using your platform's mechanism per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Invocation. Handle repo-context handoff per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents: on **Claude Code** the main agent builds a condensed **[repo context digest]** and passes it inline to subagents; on **Codex** and **VS Code Copilot**, subagents read **[key md files]** directly.
 
 [parameters]:
 
-Before doing any workflow-specific work, the main agent must read and follow [`/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/_lib/workflow_contract.md`](../../_lib/workflow_contract.md) and [`/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/philosophy/philosophy.instructions.md`](../../philosophy/philosophy.instructions.md) before proceeding.
+Before doing any workflow-specific work, the main agent must read and follow [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) and [`philosophy/philosophy.instructions.md`](../../philosophy/philosophy.instructions.md) before proceeding.
 Every subagent created by this workflow must also read and follow those two files before reading the repo or performing task-specific work.
 
-Subagent launch rule: Follow the Subagent Launch Contract in [`/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/_lib/workflow_contract.md`](../../_lib/workflow_contract.md).
+Subagent launch rule: Follow the Subagent Launch Contract in [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md).
 
-> **Subagent invocation:** See [`/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Invocation.
+> **Subagent invocation:** See [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Invocation.
 
 ## Procedure 1: Run Setup & Scan Repo
 First, verify that the repo has been set up for your tool, then scan the repo.
@@ -34,7 +34,7 @@ First, verify that the repo has been set up for your tool, then scan the repo.
 Then go through the entire repo, keep what files exist in this repo in the memory.
 
 ## Procedure 2: Verify repo_info Files
-The `/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/repo_info/` folder must be at the same level as `request_template/` and `workflow/` (i.e., all are siblings under the pack root `.github/HarnessFlow/`).
+The `repo_info/` folder must be at the same level as `request_template/` and `workflow/` (i.e., all are siblings under the pack root `.github/HarnessFlow/`).
 Then, check the existence of the following [repo_info files] under the repo_info folder:
 1. codebase_overview.md
 2. scripts_overview.md
@@ -56,13 +56,13 @@ Create a subagent, read through all the files in the repo, understand them, and 
 create/update the files in Procedure 2 with the **following specifications**.
 under the repo_info folder.
 
-**[PARALLEL EXECUTION — launch all listed subagents in parallel; see [`/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]** — §4.1 (codebase_overview.md) and §4.2 (scripts_overview.md) are independent. Launch both section workflows in parallel.
+**[PARALLEL EXECUTION — launch all listed subagents in parallel; see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]** — §4.1 (codebase_overview.md) and §4.2 (scripts_overview.md) are independent. Launch both section workflows in parallel.
 
 ### 4.1 codebase_overview.md:
 If the file does not exist, create an empty file.
 If the file exists, the main agent must read through the file and keep it inside the memory, and set [pipeline] to be the diagram pipeline in the file.
 Then:
-1. **[PARALLEL EXECUTION — launch all listed subagents in parallel; see [`/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]**:
+1. **[PARALLEL EXECUTION — launch all listed subagents in parallel; see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]**:
 a. create a subagent (code agent, order mode), follow [file structure] in order, go through all files by folders, understand what each file is, how they work in the repo, and what they do. For each file that has been read by the agent, append it into [read file list 1]. Then based on the results of reading and understanding all the files, construct [codebase_overview 1], and return [codebase_overview 1] and [read file list 1] to the main agent.
 b. create a subagent (code agent, expand mode), follow [file structure], based on file name, decide what file to go first (usually main.py or any main scripts of the repo), and start reading and understanding the script. then go through the imported files one by one, for each imported file, read through the file and understand it, then go through the imports of the imported file, and so on. every time, when it finishes reading a file, add that file into [read files]. Once the subagent finishes reading, validate if there are any files that have not been read by comparing [read files] with [file structure]. For each file that has been read by the agent, append it into [read file list 2]. If there are files that have not been read, repeat the previous steps and read those files until all files have been read. Then based on the results of reading and understanding all the files, construct [codebase_overview 2], and return [codebase_overview 2] and [read file list 2] to the main agent.
 c. create a subagent (code agent, free mode), follow [file structure], the agent must decide what order to use for all files and how to understand what each file is, how they work in the repo, and what their positions are in [pipeline]. Then based on the results of reading and understanding all the files, construct [codebase_overview 3], for each file that has been read by the agent, append it into [read file list 3],  and return [codebase_overview 3] and [read file list 3]to the main agent.
@@ -78,7 +78,7 @@ c. create a subagent (code agent, free mode), follow [file structure], the agent
 ### 4.2 scripts_overview.md
 If the file does not exist, create an empty file.
 Then:
-1. **[PARALLEL EXECUTION — launch all listed subagents in parallel; see [`/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]**:
+1. **[PARALLEL EXECUTION — launch all listed subagents in parallel; see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]**:
 a. create a subagent (code agent, folder mode), pass [file structure] to the subagent. the subagent must go through all files in the repo from folder to folder, and read through files in folders one by one. for each file, if it is a code script, summarize each module (function, method, class, code blocks) with two sentences: one sentence of function name, parameters, and outputs, and one short sentence that describes the functionality. organize the summarization by files: give each file a high-level summarization, and give out a list of dependencies of that file. then report [scripts overview 1] to the main agent.
 b. create a subagent (code agent, guided mode), pass [file structure] and ask the agent to read through scripts_overview.md. then the subagent must read through codebase_overview.md, understand [pipeline] and the codebase structure, then based on that, read through files according to [pipeline] (from upstream to downstream). for each file, if it is a code script, summarize each module (function, method, class, code blocks) with two sentences: one sentence of function name, parameters, and outputs, and one short sentence that describes the functionality. organize the summarization by files: give each file a high-level summarization, and give out a list of dependencies of that file. then report [scripts overview 2] to the main agent.
 c. create a subagent (code agent, file mode),  pass [file structure] to the subagent must go through all files in the repo, then read through files one by one. for each file, if it is a code script, summarize each module (function, method, class, code blocks) with two sentences: one sentence of function name, parameters, and outputs, and one short sentence that describes the functionality. organize the summarization by files: give each file a high-level summarization, and give out a list of dependencies of that file. then report [scripts overview 3] to the main agent.
@@ -94,7 +94,7 @@ then:
 
 **IMPORTANT: §4.3 depends on §4.1 and §4.2 being complete. Do NOT start §4.3 until codebase_overview.md and scripts_overview.md have been written to disk.**
 
-**[PARALLEL EXECUTION — launch all listed subagents in parallel; see [`/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]** — launch steps 1 and 2 in parallel. The main agent may pass the contents of codebase_overview.md and scripts_overview.md inline to reduce redundant file reads.
+**[PARALLEL EXECUTION — launch all listed subagents in parallel; see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]** — launch steps 1 and 2 in parallel. The main agent may pass the contents of codebase_overview.md and scripts_overview.md inline to reduce redundant file reads.
 1. create a subagent (plan agent), go through codebase_overview.md and scripts_overview.md, point out the weaknesses of the code architecture and all possible issues. report back to the main agent.
 2. create a subagent (code agent), go through codebase_overview.md and scripts_overview.md, and then go through all scripts one by one, find any potential issues or code that could lead to problems, errors, and bugs. find anything that could affect the code being fully correct. find anything that prevents code from running correctly or functioning as expected. report back to main agent.
 3. the main agent uses the information from steps 1 and 2 to perform a lightweight correctness assessment of the repo — identifying potential problems, issues, and weaknesses of the codebase. Do NOT invoke the full correctness_check workflow (`workflow/general_workflow/correctness_check.instructions.md`) here, as repo_info files may not all be finalized yet. Instead, use the subagent reports from steps 1 and 2, combined with the main agent's own reading of the codebase, to produce the assessment.
@@ -135,7 +135,7 @@ After completing all file creation in Procedure 4, check whether internal path r
 1. Determine `[repo folder name]` — the name of the repo's root folder as it appears in the VS Code workspace (e.g., if the repo lives at `/workspace/my_project/`, then `[repo folder name]` is `my_project`).
 2. **Idempotency guard**: Before performing any replacements, check if any `.md` file under `.github/HarnessFlow/` already contains a path with `[repo folder name]/.github/` (e.g., `my_project/.github/`). If so, Procedure 5 has already been run — **skip all replacements and continue to Procedure 6**.
 3. **Rename detection**: If the idempotency guard did NOT trigger, scan `.md` files under `.github/HarnessFlow/` for any path matching the pattern `[some_prefix]/.github/HarnessFlow/` where `[some_prefix]` is NOT `[repo folder name]`. If found, the repo was previously initialized under a different folder name. In this case, replace all occurrences of `[old_prefix]/.github/HarnessFlow/` with `[repo folder name]/.github/HarnessFlow/` (a rename-aware replacement), then **skip to step 5** (verification).
-4. Go through **all `.md` files** under `.github/HarnessFlow/` (including subfolders: `workflow/general_workflow/`, `workflow/token_effective_workflow/`, `workflow/skill_workflow/`, `request_template/`, `/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/repo_info/`, `_lib/`, and root level) and replace every occurrence of `.github/HarnessFlow/` with `[repo folder name]/.github/HarnessFlow/` **only in path references used by agents** (e.g., in `[key md files]` path descriptions, not in prose descriptions of the pack).
+4. Go through **all `.md` files** under `.github/HarnessFlow/` (including subfolders: `workflow/general_workflow/`, `workflow/token_effective_workflow/`, `workflow/skill_workflow/`, `request_template/`, `repo_info/`, `_lib/`, and root level) and replace every occurrence of `.github/HarnessFlow/` with `[repo folder name]/.github/HarnessFlow/` **only in path references used by agents** (e.g., in `[key md files]` path descriptions, not in prose descriptions of the pack).
 5. Verify that all updated paths now correctly resolve to the right files in the workspace by spot-checking a few key paths (e.g., `[repo folder name]/.github/HarnessFlow/repo_info/codebase_overview.md`).
 
 

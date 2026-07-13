@@ -18,22 +18,22 @@ description: 'Instructions for debugging and fixing bugs'
 
 **Safety: follow `_lib/safety_rules.md`.**
 
-> **Unified workflow (platform-adaptive).** This single file serves Claude Code, Codex, and VS Code Copilot. Resolve all paths via Pack Path Resolution (`.github/HarnessFlow/<path>` when installed, or `<path>` from the repo root). Launch subagents using your platform's mechanism per [`/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Invocation. Handle repo-context handoff per [`/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents: on **Claude Code** the main agent builds a condensed **[repo context digest]** and passes it inline to subagents; on **Codex** and **VS Code Copilot**, subagents read **[key md files]** directly.
+> **Unified workflow (platform-adaptive).** This single file serves Claude Code, Codex, and VS Code Copilot. Resolve all paths via Pack Path Resolution (`.github/HarnessFlow/<path>` when installed, or `<path>` from the repo root). Launch subagents using your platform's mechanism per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Invocation. Handle repo-context handoff per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents: on **Claude Code** the main agent builds a condensed **[repo context digest]** and passes it inline to subagents; on **Codex** and **VS Code Copilot**, subagents read **[key md files]** directly.
 
 [inputs]:
 - input 1: target bug
 - input 2: suspected reasons (optional)
 - input 3: important scripts (optional)
 
-[key md files]: codebase_overview.md, scripts_overview.md, update_logs.md, known_issues.md (under `/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/repo_info/`). In multi-layer repos, also read the `codebase_overview.md` + `scripts_overview.md` of each discovered layer per `/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/_lib/workflow_contract.md` §Key Context Files → Multi-Layer / Nested Repos.
+[key md files]: codebase_overview.md, scripts_overview.md, update_logs.md, known_issues.md (under `repo_info/`). In multi-layer repos, also read the `codebase_overview.md` + `scripts_overview.md` of each discovered layer per `_lib/workflow_contract.md` §Key Context Files → Multi-Layer / Nested Repos.
 
 **Read this file fully and follow each step.**
-Before doing any workflow-specific work, the main agent must read and follow [`/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/_lib/workflow_contract.md`](../../_lib/workflow_contract.md) and [`/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/philosophy/philosophy.instructions.md`](../../philosophy/philosophy.instructions.md) before proceeding.
+Before doing any workflow-specific work, the main agent must read and follow [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) and [`philosophy/philosophy.instructions.md`](../../philosophy/philosophy.instructions.md) before proceeding.
 Every subagent created by this workflow must also read and follow those two files before reading [key md files] or performing task-specific work.
 
-Subagent launch rule: Follow the Subagent Launch Contract in [`/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/_lib/workflow_contract.md`](../../_lib/workflow_contract.md).
+Subagent launch rule: Follow the Subagent Launch Contract in [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md).
 
-> **Subagent invocation:** See [`/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Invocation.
+> **Subagent invocation:** See [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Invocation.
 
 ---
 
@@ -47,7 +47,7 @@ The main agent spawns a **Bug Reproducer** subagent (`agents/bug-reproducer.agen
 ### Step 1 - Context Gathering and Local Skill Discovery
 Read [key md files]. Understand the structure of the repo, functions inside each script, previous updates, and previous bug fix attempts. **KEEP THESE IN THE MEMORY.**
 
-Then, per [`/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents: on **Claude Code**, create a condensed **[repo context digest]** — a concise bullet-point summary covering codebase structure/pipeline, key scripts and their roles, recent changes, and active known issues — and pass it inline to every subagent; on **Codex** and **VS Code Copilot**, keep [key md files] for subagents to read directly.
+Then, per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents: on **Claude Code**, create a condensed **[repo context digest]** — a concise bullet-point summary covering codebase structure/pipeline, key scripts and their roles, recent changes, and active known issues — and pass it inline to every subagent; on **Codex** and **VS Code Copilot**, keep [key md files] for subagents to read directly.
 
 **Local Skill Discovery (before any plan drafting):** Perform Local Skill Discovery per `_lib/local_skill_discovery.md` — scan `skills/index.md` for any local skill whose trigger fits [inputs]/the task; on a confirmed match, read its `SKILL.md`. Keep the result as [local skills], fold it into the repo context (per §Context Passing) so every planning subagent receives it, and integrate it when the main agent drafts its final plan. If nothing matches, record [local skills]: none relevant.
 
@@ -55,7 +55,7 @@ Then, per [`/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/_li
 The main agent creates a **Focus Analyst** subagent (`agents/focus-analyst.agent.md`), passing [inputs] and the repo context (per §Context Passing). The subagent checks if the bug has previously been addressed or fixed based on the repo context. If a previous attempt exists, the subagent follows the codebase diagram from codebase_overview.md and goes through all scripts associated with the previous fix attempts. Then, combining the current bug information, the subagent infers why the bug is not fixed, and reports back to the main agent.
 
 ### Step 3 - Bug Analysis Panel
-**[PARALLEL EXECUTION — launch all listed subagents in parallel; see [`/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]** Pass [inputs] and the repo context (per §Context Passing) to all three subagents.
+**[PARALLEL EXECUTION — launch all listed subagents in parallel; see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]** Pass [inputs] and the repo context (per §Context Passing) to all three subagents.
 
 | Subagent | Agent | When to spawn | Task |
 |----------|-------|---------------|------|
@@ -71,7 +71,7 @@ The main agent creates a **Focus Analyst** subagent (`agents/focus-analyst.agent
 The main agent reads all three reports from Step 3 ([bug reason 1], [bug reason 2], [bug reason 3]), [debug log analysis] from Step 4, and [reproduction report] if it exists. Read necessary files, understand each report, examine all pointed-out potential reasons, combine the insights of each report, reject the redundant or incorrect parts of each report, and draft a precise and verified correct report addressing the potential reasons for the bug as [bug info].
 
 ### Step 6 - Diagnosis Challenge and Research (Round 1)
-**[PARALLEL EXECUTION — launch all listed subagents in parallel; see [`/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]** Pass [bug info], the original bug description, and the repo context (per §Context Passing) to both subagents.
+**[PARALLEL EXECUTION — launch all listed subagents in parallel; see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]** Pass [bug info], the original bug description, and the repo context (per §Context Passing) to both subagents.
 
 | Subagent | Agent | When to spawn | Task |
 |----------|-------|---------------|------|
@@ -91,7 +91,7 @@ The main agent creates a **Senior Engineer** subagent (`agents/senior-engineer.a
 The main agent reviews [bug fix plan] and [bug fix plan review] from Steps 8 and 9. If the plan or the review involves any other repos, go to those repos, read their codebase_overview.md and scripts_overview.md if they exist, and keep those in the memory. Finally, combine all that information and draft a final plan that is feasible, stable, and verified against existing tests and behavior as [final bug fix plan].
 
 ### Step 11 - Plan Challenge and Research (Round 2)
-**[PARALLEL EXECUTION — launch all listed subagents in parallel; see [`/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]** Pass [final bug fix plan], [bug info], [valid criticisms], [criticism dispositions], and the repo context (per §Context Passing) to both subagents.
+**[PARALLEL EXECUTION — launch all listed subagents in parallel; see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]** Pass [final bug fix plan], [bug info], [valid criticisms], [criticism dispositions], and the repo context (per §Context Passing) to both subagents.
 
 > Round 2 deliberately receives round 1's output: it audits how round-1 criticisms were resolved instead of independently re-litigating them, and it challenges a different artifact (the plan, not the diagnosis). Multi-agent-debate results show additional rounds give diminishing returns unless they build on prior output while preserving a fresh perspective — hence the two separate checks below.
 
@@ -107,7 +107,7 @@ The main agent incorporates [valid criticisms round 2] and [online resource], an
 The main agent prints the updated [final bug fix plan], so the user can review it. **Approval gate:** See `_lib/approval_gate.md`.
 
 ### Step 14 - Implementation
-The main agent creates an **Implementer** subagent (`agents/implementer.agent.md`), passing [final bug fix plan], [bug info], and the repo context (per §Context Passing). **Implementer Model Verification:** See [`/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Implementer Model Verification Fallback (on Claude Code the main agent launches the Implementer on the specified `subagent_model` — a specific id even if smaller, else the inherited session model; no retry loop). The subagent (or the main agent, if falling back) receives the repo context (per §Context Passing). Then based on [bug info], [final bug fix plan], and the repo structure from the repo context, read all scripts that could be associated with the bug and the plan. Then implement [final bug fix plan] and fix the bug accordingly. Feed an implementation report (just what has been changed, no explanation why it would fix the bug) to the main agent as [bug fix implementation report].
+The main agent creates an **Implementer** subagent (`agents/implementer.agent.md`), passing [final bug fix plan], [bug info], and the repo context (per §Context Passing). **Implementer Model Verification:** See [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Implementer Model Verification Fallback (on Claude Code the main agent launches the Implementer on the specified `subagent_model` — a specific id even if smaller, else the inherited session model; no retry loop). The subagent (or the main agent, if falling back) receives the repo context (per §Context Passing). Then based on [bug info], [final bug fix plan], and the repo structure from the repo context, read all scripts that could be associated with the bug and the plan. Then implement [final bug fix plan] and fix the bug accordingly. Feed an implementation report (just what has been changed, no explanation why it would fix the bug) to the main agent as [bug fix implementation report].
 
 ### Step 15 - Post-Implementation Review (platform-conditional)
 - **Review skills (opt-in; both headers default to `false`):** resolve the request's `simplify` and `code_review` headers per [`_lib/review_skills.md`](../../_lib/review_skills.md). `false` skips that skill entirely.
@@ -116,7 +116,7 @@ The main agent creates an **Implementer** subagent (`agents/implementer.agent.md
 - **Otherwise (`true` on Codex, or VS Code Copilot without Claude Code skills):** the native skills do not exist — skip them; instead, the main agent performs a manual review of all changed files for unnecessary complexity and redundancy before proceeding.
 
 ### Step 16 - Implementation Review and QA
-**[PARALLEL EXECUTION — launch all listed subagents in parallel; see [`/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]** Pass [final bug fix plan], [bug fix implementation report], [bug info], [inputs], and the repo context (per §Context Passing) to both subagents.
+**[PARALLEL EXECUTION — launch all listed subagents in parallel; see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]** Pass [final bug fix plan], [bug fix implementation report], [bug info], [inputs], and the repo context (per §Context Passing) to both subagents.
 
 | Subagent | Agent | When to spawn | Task |
 |----------|-------|---------------|------|

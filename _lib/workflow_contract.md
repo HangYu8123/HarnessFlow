@@ -23,9 +23,9 @@ The operative rule — the trigger-phrase list, per-mode behavior, and nested-sk
 
 ## Philosophy Reference (Mandatory)
 
-Before doing any workflow-specific work, the main agent must read and follow `/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/philosophy/philosophy.instructions.md`.
+Before doing any workflow-specific work, the main agent must read and follow `philosophy/philosophy.instructions.md`.
 
-Every subagent created by any workflow must also read and follow this contract and `/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/philosophy/philosophy.instructions.md` before reading context files or performing task-specific work.
+Every subagent created by any workflow must also read and follow this contract and `philosophy/philosophy.instructions.md` before reading context files or performing task-specific work.
 
 ---
 
@@ -38,7 +38,7 @@ When a workflow references a pack-relative path such as `workflow/...`, `repo_in
 1. `.github/HarnessFlow/<path>` from the target repo root (installed layout).
 2. `<path>` from the repo root when running in the source repo or when the pack root is the repo root.
 
-In installed repos, do not create `repo_info/` outside `/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/repo_info/`.
+In installed repos, do not create `repo_info/` outside `.github/HarnessFlow/repo_info/`.
 
 ---
 
@@ -50,7 +50,7 @@ In installed repos, do not create `repo_info/` outside `/Users/hangyu/UMI_2026/a
 - **Subagent model (specified by the instructions):** Every subagent uses the model the instructions specify via the `subagent_model` header. When `subagent_model` is a specific model id, all subagents run on that exact id (a deliberate override — honor it even if it is smaller than [main agent model]). When `subagent_model` is `inherit` or unset, [specified subagent model] falls back to [main agent model] — the model the main agent is running — which must not be downgraded: in **fast mode** (`mode: fast`) the default main model is **Sonnet 4.6**, so `inherit` subagents run on Sonnet 4.6; in **general** and **skill** modes `inherit` subagents run on whatever model the main agent is running. (Request templates ship with `subagent_model: inherit`.)
 - **Subagent effort (optional header):** When the request includes a `subagent_effort` header (`low` | `medium` | `high` | `xhigh` | `max` — Claude Code's documented effort scale; available levels depend on the model), resolve it as [specified subagent effort]. Where the platform exposes a reasoning-effort control for the subagent being created — Claude Code custom-agent definitions (`.claude/agents/*.md`) and `--agents` JSON support an `effort:` frontmatter field separate from `model:`, which overrides the session effort and inherits from the session when unset — create the subagent with [specified subagent effort]. Ad-hoc prompt-only spawns (e.g. the Claude Code `Task` tool, Codex workers) have **no per-invocation effort parameter**: record `effort: not-applied` in the activity log and continue — never block or fail a launch over effort. When the header is absent, subagents inherit the session/main-agent effort.
 - A subagent means a separate spawned agent invocation with its own context. Main-agent roleplay, self-simulation, or inline execution must not be labeled as subagent output.
-- Each subagent prompt must include: the role/mode, exact task, required inputs, context files to read, expected output label, this contract path, and `/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/philosophy/philosophy.instructions.md`.
+- Each subagent prompt must include: the role/mode, exact task, required inputs, context files to read, expected output label, this contract path, and `philosophy/philosophy.instructions.md`.
 - For a parallel group, follow §Parallel Execution & Fallback below.
 - If native subagent creation is unavailable, blocked, or cannot use the [specified subagent model], do not hide the failure. Record a fallback result with the same output label and `status: fallback-single-agent` or `status: blocked`, then continue only where the workflow allows fallback.
 - Maintain an in-memory activity log for every subagent group with: role, output label, launch mechanism, requested model, confirmed model when available, requested effort and whether it was applied (see §Subagent effort), context files, start status, completion status, and fallback reason if any.
@@ -97,7 +97,7 @@ When a workflow says to "launch" or "create" a subagent, use the platform's nati
 | Platform | Mechanism | How to invoke |
 |---|---|---|
 | **VS Code + Copilot** | `agent` tool (built-in tool set) | Invoke by agent name (matches `name:` in `.agent.md` frontmatter). Ensure the orchestrating agent's `tools:` includes `agent` and `agents:` lists the target worker-agent names. |
-| **Claude Code CLI** | `Task` tool | Pass a complete prompt including role, task, required context files, output label, and references to `/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/_lib/workflow_contract.md` and `/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/philosophy/philosophy.instructions.md`. |
+| **Claude Code CLI** | `Task` tool | Pass a complete prompt including role, task, required context files, output label, and references to `_lib/workflow_contract.md` and `philosophy/philosophy.instructions.md`. |
 | **Codex CLI** | Agent workers / sequential fallback | Pass same prompt structure. If parallel workers are unavailable, launch sequentially and preserve output labels. |
 
 Before invoking a subagent in VS Code, ensure:
@@ -128,7 +128,7 @@ This fallback applies to every workflow step that creates an **Implementer** or 
 
 ## Key Context Files (repo_info/)
 
-When any workflow instruction tells you to read context files (`[key md files]`), look for them under `/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/repo_info/` (resolved via Pack Path Resolution):
+When any workflow instruction tells you to read context files (`[key md files]`), look for them under `repo_info/` (resolved via Pack Path Resolution):
 
 1. `codebase_overview.md`
 2. `scripts_overview.md`

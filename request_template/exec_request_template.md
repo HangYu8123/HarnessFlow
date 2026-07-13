@@ -13,8 +13,8 @@ Hard constraints, in priority order (hardest first) —
 
 | Active agent | `mode: fast` | `mode: general` | `mode: skill` |
 |---|---|---|---|
-| Claude Code | `/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/workflow/token_effective_workflow/exec.instructions.md` | `/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/workflow/general_workflow/exec.instructions.md` | `/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/workflow/skill_workflow/exec.instructions.md` |
-| Codex (CLI or VS Code) | `/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/workflow/token_effective_workflow/exec.instructions.md` | `/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/workflow/general_workflow/exec.instructions.md` | `/Users/hangyu/UMI_2026/agentic_training_loop/.github/HarnessFlow/workflow/skill_workflow/exec.instructions.md` |
+| Claude Code | `workflow/token_effective_workflow/exec.instructions.md` | `workflow/general_workflow/exec.instructions.md` | `workflow/skill_workflow/exec.instructions.md` |
+| Codex (CLI or VS Code) | `.github/HarnessFlow/workflow/token_effective_workflow/exec.instructions.md` | `.github/HarnessFlow/workflow/general_workflow/exec.instructions.md` | `.github/HarnessFlow/workflow/skill_workflow/exec.instructions.md` |
 | VS Code Copilot | `@/.github/HarnessFlow/workflow/token_effective_workflow/exec.instructions.md` | `@/.github/HarnessFlow/workflow/general_workflow/exec.instructions.md` | `@/.github/HarnessFlow/workflow/skill_workflow/exec.instructions.md` |
 
 `simplify` / `code_review` each accept `false` (skip — the default), `true` (Claude Code's native `/simplify` · `/code-review`), or `local` (the pack's vendored `skills/code-simplification` · `skills/code-review-and-quality`, which work on every platform). See `_lib/review_skills.md`.
