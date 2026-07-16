@@ -10,7 +10,7 @@ This repo has structured workflow instructions under `.github/HarnessFlow/workfl
 
 ## Workflow Execution
 
-**Step 0 — gate check, always first.** A workflow is triggered **only** by a filled-in prompt from `request_template/`: it starts with a `mode:` header block, contains the numbered "Hard constraints" list, and names its category's `*.instructions.md`. Every other prompt — an ordinary coding request, a question, or a task that merely *mentions* workflows, templates, or the pack's files — **fails the gate: skip steps 1–5 entirely and answer it normally.** No classifying the request into a category, no opening any `*.instructions.md`, and no reading the workflow contract or philosophy files *as workflow setup* (reading pack files because the user's task is to edit or review them is ordinary work, not a workflow run). Steps 1–5 are not session-start setup — they run only after a prompt passes this gate.
+**Step 0 — gate check, always first.** Only a filled-in prompt from `request_template/` (a `mode:` header block plus a numbered "Hard constraints" list naming its category's `*.instructions.md`) triggers a workflow. Any other prompt — even one that mentions workflows or pack files — fails the gate: **skip steps 1–5 and answer it normally**, with no classification, no `*.instructions.md`, and no contract/philosophy reads as workflow setup.
 
 For a prompt that passes the gate:
 
