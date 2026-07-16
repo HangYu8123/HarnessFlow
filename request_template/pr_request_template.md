@@ -8,7 +8,7 @@ First, **READ THROUGH THE corresponding pr.instructions.md VERY CAREFULLY**, in 
 
 Hard constraints, in priority order (hardest first) —
 1. Read the entire matched instruction file before doing anything else, and follow its steps in order.
-2. Create every subagent per the `subagent_model` header — the default `inherit` keeps subagents on the main agent's model with **no downgrade** (in `mode: fast` the default main model is Sonnet 4.6); a specific model id overrides it for all subagents.
+2. Create every subagent per the `subagent_model` header — the default `inherit` keeps subagents on the main agent's model with **no downgrade**; a specific model id overrides it for all subagents.
 3. Resolve the matched instruction file from this table — pick your platform's row and this request's `mode:` column.
 
 | Active agent | `mode: fast` | `mode: general` | `mode: skill` |

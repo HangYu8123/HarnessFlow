@@ -12,7 +12,7 @@ First, **READ THROUGH THE corresponding loop.instructions.md VERY CAREFULLY**, i
 
 Hard constraints, in priority order (hardest first) —
 1. Read the entire matched instruction file before doing anything else, and follow its steps in order.
-2. Create every one of the loop's own workers per the `subagent_model` header — the default `inherit` keeps subagents on the main agent's model with **no downgrade** (in `mode: fast` the default main model is Sonnet 4.6); a specific model id overrides it.
+2. Create every one of the loop's own workers per the `subagent_model` header — the default `inherit` keeps subagents on the main agent's model with **no downgrade**; a specific model id overrides it.
 3. When the loop body uses `dispatch:`, the optional `dispatch_main_model` / `dispatch_subagent_model` headers select the model for the dispatched family's main agent and that family's own subagents respectively (both default `inherit`).
 4. The `max_iterations` / `no_progress_k` headers set the always-on safety caps (hard iteration cap, default 10; stop after this many no-progress iterations, default 3).
 5. Resolve the matched instruction file from this table — pick your platform's row and this request's `mode:` column.

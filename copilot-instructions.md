@@ -6,9 +6,13 @@ applyTo: '**'
 
 # Master Orchestrator
 
-This repo has structured workflow instructions under `.github/HarnessFlow/workflow/`. A filled-in prompt from `request_template/` names the matched instruction file for its category and `mode:`. A prompt that is not a filled-in template gets a normal answer — no classification, no workflow.
+This repo has structured workflow instructions under `.github/HarnessFlow/workflow/`.
 
 ## Workflow Execution
+
+**Step 0 — gate check, always first.** A workflow is triggered **only** by a filled-in prompt from `request_template/`: it starts with a `mode:` header block, contains the numbered "Hard constraints" list, and names its category's `*.instructions.md`. Every other prompt — an ordinary coding request, a question, or a task that merely *mentions* workflows, templates, or the pack's files — **fails the gate: skip steps 1–5 entirely and answer it normally.** No classifying the request into a category, no opening any `*.instructions.md`, and no reading the workflow contract or philosophy files *as workflow setup* (reading pack files because the user's task is to edit or review them is ordinary work, not a workflow run). Steps 1–5 are not session-start setup — they run only after a prompt passes this gate.
+
+For a prompt that passes the gate:
 
 1. **Read and follow** #file:_lib/workflow_contract.md before any workflow-specific work.
 2. **Read the matched instruction file** in its entirety.
