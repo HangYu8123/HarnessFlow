@@ -1,6 +1,6 @@
 # Loop-Control Contract
 
-Canonical rules for the loop meta-workflows: progress accounting, the durable goal record, and the opt-in native-goal bridge. Every `loop.instructions.md` variant (`general`, `fast`, `skill`) points here; this file is the single source — the workflow files deliberately do not restate it. Generic stay-engaged and wait rules (heartbeat, wake triggers, bounded deadlines, re-verification) live in `_lib/stay_active.md`; the loop-specific counters and checkpoint semantics live here.
+Canonical rules for the loop meta-workflows: progress accounting, the loop strategy, the durable goal record, and the opt-in native-goal bridge. Every `loop.instructions.md` variant (`general`, `fast`, `skill`) points here; this file is the single source — the workflow files deliberately do not restate it. Generic stay-engaged and wait rules (heartbeat, wake triggers, bounded deadlines, re-verification) live in `_lib/stay_active.md`; the loop-specific counters and checkpoint semantics live here.
 
 ---
 
@@ -35,6 +35,18 @@ When a loop makes no meaningful progress for `no_progress_k` (default **3**) con
 Ideas must be **genuinely new directions** — a different algorithm, data treatment, decomposition, or tool — not re-polishing of the stalled approach. Propose several candidates before probing and pick the one promising the most information for the least cost; pass every earlier probe's idea + verdict to each new probe so directions never repeat, and let a refuted or inconclusive verdict sharpen the next proposal rather than end it. Measure a probe only by its own cheap check, never the full verifier — that is what keeps iterations fast. Probes are committed iterations (`mode: explore` ledger entries, counting toward `max_iterations`) but never update `best` or the stagnation counters, and must not touch verifier/test files.
 
 Once an idea is **confirmed**, return to normal mode and run it at full scale under the full verifier. A meaningful new best resolves the episode and normal looping continues; otherwise — or if `no_progress_k` probes confirm nothing — the deferred no-progress exit fires, with the probes' ideas + verdicts as stagnation evidence. Persist the episode state (probes used, verdicts, confirmed idea) with the rest of the loop state so a restart resumes mid-episode, and include it in any exit-gater consultation.
+
+---
+
+## Loop Strategy (`loop_strategy` header)
+
+The optional `loop_strategy` request header selects how the loop's body work advances each iteration: `aggressive` | `fast_iteration` | `stable_advancing`. Absent or unrecognized values resolve to **`stable_advancing`** (the default). The controller copies the resolved strategy verbatim into the [loop spec] — it is a fixed input like the safety caps, never a field for planning subagents to design — and passes it, with its directives below, to every body-worker. For a dispatched sub-main agent the strategy is an **advisory note only**: it never overrides the dispatched family's own instructions, gates, or hard constraints.
+
+**Invariant (all strategies).** Strategy modulates only *how the body searches* — never *how success is proven or when the loop may stop*. The success criteria, exit-condition OR-set, always-on caps (`max_iterations`, `no_progress_k`), anti-gaming write-guard, and controller/delegation split are strategy-invariant. In particular, `aggressive` changes what the body is allowed to build, never how success is verified: every iteration still runs the full verifier and write-guard before it can count as progress.
+
+- **`aggressive`** — pursue the goal aggressively: ambitious, larger steps per iteration are welcome, and over-engineering and fine-grained optimization are explicitly allowed. This is a scoped license: it relaxes the simplicity-first bias **only within the files and scope of the current iteration's declared action** — it never licenses touching out-of-scope files or suspending Surgical Changes outside that action, and never exempts the iteration from verification (invariant above).
+- **`fast_iteration`** — proof-of-concept focus: prove that a new idea or direction works before investing in it. Each iteration is a deliberately small step with more thinking and analysis (a fuller Reflect & ledger entry), and the body actively references papers, tech reports, and online resources to source new ideas and directions fast — kept cheap: 1–2 targeted searches per iteration, tied to the current sub-goal, summarized rather than transcribed. **Orthogonal to §Exploration Mode:** a `fast_iteration` iteration is still a normal committed iteration — full verifier, full progress accounting (`raw_score`, `best`, and the counters all update). Probe accounting belongs only to a stagnation-triggered exploration episode, which triggers and resolves identically under every strategy.
+- **`stable_advancing`** *(default)* — solid, validated advancement: prefer the smallest change that demonstrably improves the metric, validate carefully (never skip or thin the verifier run), and prioritize code quality — clean, maintainable changes a reviewer would accept.
 
 ---
 

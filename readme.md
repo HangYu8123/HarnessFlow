@@ -86,10 +86,6 @@ The `fast` workflow is the efficiency–quality sweet spot. Across two independe
 | Self-verified before shipping | ❌ none | **✅ 32 tests green** | ✅ tests + edge probes |
 | Contract tests | 7/10 | **10/10** | 10/10 |
 
-<div align="center">
-<img src="fast_vs_general_benchmark.svg" alt="Token cost of the fast workflow versus the general workflow across two benchmarks. On the ShapeLab build, fast uses 2.49M tokens vs general's 5.00M; on the SWE-bench fix, fast uses 1.74M vs general's 4.45M. Both arms reach identical outcomes." width="100%">
-</div>
-
 | Dimension | baseline (no harness) | **fast** | general |
 |---|---|---|---|
 | Token cost vs `general` | cheapest, but no assurance | **2.0–2.6× cheaper, same result** | most expensive (baseline) |
@@ -197,9 +193,9 @@ The source repo stores the pack at the repo root. The installed layout expected 
 | `copilot-instructions.md` | VS Code Copilot router template. |
 | `CLAUDE.md` | Claude Code CLI router template copied to the target repo root by `cli_setup.sh`. |
 | `AGENTS.md` | Codex CLI router template copied to the target repo root by `cli_setup.sh`. |
-| `_lib/` | Shared workflow contract, safety rules, approval-gate rules, re-initialization rules, and the `simplify` / `code_review` review-skill resolution. |
+| `_lib/` | Shared procedures: the workflow contract, safety rules, approval-gate and re-initialization rules, loop-governance and stay-active rules, local-skill discovery, pack-path resolution, and the `simplify` / `code_review` review-skill resolution. |
 | `philosophy/` | Shared behavioral guidance used by workflows and subagents. |
-| `workflow/` | Tool-specific workflow instruction families. |
+| `workflow/` | The three shared, platform-adaptive workflow families (`general` / `fast` / `skill`), each used by all supported tools. |
 | `agents/` | Custom agent definitions plus `agents/INDEX.md`. |
 | `request_template/` | Fill-in request templates, including `mode: general` and `mode: fast` selection. |
 | `skills/` | Vendored skill definitions plus `skill_workflow_skills.md`, the community-skill registry that powers `mode: skill`. |
@@ -232,7 +228,7 @@ The three workflow families are:
 | `workflow/token_effective_workflow/` | `mode: fast` | Streamlined token-efficient workflows — one platform-adaptive set shared by all three tools. |
 | `workflow/skill_workflow/` | `mode: skill` | Skill-backed variant of the fast family — selected step instructions are replaced by confirmed ≥1000-star community skills (catalogued in `skills/skill_workflow_skills.md`), each with an inline fallback. Shared by all three tools. |
 
-The pack covers nine categories: code implementation, refactor, debug, query, correctness check, exec, PR creation, initialize, and loop. Each maps to a `*.instructions.md` file present in every workflow family, and each is reached through its fill-in prompt in `request_template/`; the root routers hold only the shared rules a workflow needs once its template has named it. The single `general_workflow` set adapts its behavior to the active agent (subagent mechanism, context passing, and native-skill steps) via `_lib/workflow_contract.md`.
+The pack covers nine categories: code implementation, refactor, debug, query, correctness check, exec, PR creation, initialize, and loop. Each maps to a `*.instructions.md` file present in every workflow family, and each is reached through its fill-in prompt in `request_template/`; the root routers hold only the shared rules a workflow needs once its template has named it. Each shared workflow set adapts its behavior to the active agent (subagent mechanism, context passing, and native-skill steps) via `_lib/workflow_contract.md`.
 
 ## Setup Scripts
 

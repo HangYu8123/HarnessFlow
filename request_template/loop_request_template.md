@@ -5,6 +5,7 @@ dispatch_main_model: inherit
 dispatch_subagent_model: inherit
 max_iterations: 10
 no_progress_k: 3
+loop_strategy: stable_advancing
 simplify: false
 code_review: false
 
@@ -15,7 +16,8 @@ Hard constraints, in priority order (hardest first) —
 2. Create every one of the loop's own workers per the `subagent_model` header — the default `inherit` keeps subagents on the main agent's model with **no downgrade**; a specific model id overrides it.
 3. When the loop body uses `dispatch:`, the optional `dispatch_main_model` / `dispatch_subagent_model` headers select the model for the dispatched family's main agent and that family's own subagents respectively (both default `inherit`).
 4. The `max_iterations` / `no_progress_k` headers set the always-on safety caps (hard iteration cap, default 10; stop after this many no-progress iterations, default 3).
-5. Resolve the matched instruction file from this table — pick your platform's row and this request's `mode:` column.
+5. The `loop_strategy` header selects how iterations advance — `aggressive` (ambitious steps; over-engineering and fine-grained optimization allowed), `fast_iteration` (proof-of-concept focus; small steps, more analysis, referencing papers/tech reports/online resources for new ideas), or `stable_advancing` (default — solid validated increments, careful verification, code quality). It modulates body-work style only and never weakens the caps, exit conditions, or write-guard (see `_lib/loop_control.md` §Loop Strategy).
+6. Resolve the matched instruction file from this table — pick your platform's row and this request's `mode:` column.
 
 | Active agent | `mode: fast` | `mode: general` | `mode: skill` |
 |---|---|---|---|
