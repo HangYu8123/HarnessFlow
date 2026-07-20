@@ -1,6 +1,7 @@
 mode: fast
 agent type: claude
 subagent_model: inherit
+online_researcher_effort: high
 dispatch_main_model: inherit
 dispatch_subagent_model: inherit
 max_iterations: 10

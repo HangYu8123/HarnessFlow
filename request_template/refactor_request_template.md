@@ -1,6 +1,7 @@
 mode: fast
 agent type: claude
 subagent_model: inherit
+online_researcher_effort: high
 simplify: false
 code_review: false
 

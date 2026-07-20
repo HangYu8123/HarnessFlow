@@ -1,6 +1,7 @@
 mode: fast
 agent type: claude
 subagent_model: inherit
+online_researcher_effort: high
 
 First, **READ THROUGH THE corresponding correctness_check.instructions.md VERY CAREFULLY**, in its entirety, then follow it step-by-step to check the correctness of the following.
 

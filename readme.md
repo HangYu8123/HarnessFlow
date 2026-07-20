@@ -23,7 +23,7 @@ HarnessFlow is a portable **Markdown instruction pack** — there is no runtime,
 - **Remembers** — results are written to `repo_info/` so later requests start with real context instead of re-deriving it.
 - **Three modes** — every workflow ships in a `general` (thorough), a `fast` (token-efficient), and a `skill` (community-skill-backed) variant.
 
-Use HarnessFlow for code implementation, refactors, debugging, codebase Q&A, correctness checks, command/skill execution, stacked-PR creation, repo initialization (first-time or re-initialization), and recurring loops — nine request types, each backed by its own workflow file and available in `general`, `fast`, and `skill` modes. The rest of this README is a high-signal landing page: see what it does, install the entry point for your tool, pick a workflow mode, and dive into the deeper docs and benchmarks only when you need them.
+Use HarnessFlow for code implementation, refactors, debugging, codebase Q&A, correctness checks, goal-directed execution, stacked-PR creation, repo initialization (first-time or re-initialization), and recurring loops — nine request types, each backed by its own workflow file and available in `general`, `fast`, and `skill` modes. The rest of this README is a high-signal landing page: see what it does, install the entry point for your tool, pick a workflow mode, and dive into the deeper docs and benchmarks only when you need them.
 
 
 ## How it performs
@@ -64,7 +64,7 @@ Every supported platform is a first-class citizen — pick the one you already u
 | **Debug** | Diagnose and fix errors, crashes, and failing tests |
 | **Query** | Explain, document, or answer questions about the codebase |
 | **Correctness Check** | Test, verify, validate, or audit existing behavior |
-| **Exec** | Run a command or skill and capture the results |
+| **Exec** | Execute actions toward a goal (commands, skills, scripts, tools) and validate the outcome |
 | **PR** | Break a large branch into reviewable, stacked PRs |
 | **Initialize** | Bootstrap repo memory for first-time setup, or re-initialize: validate the existing memory against the code and diff-update it |
 | **Loop** | Repeat a task or check iteratively until a condition is met |

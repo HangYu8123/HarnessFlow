@@ -13,6 +13,8 @@ report/
 tmp/
 *.tmp
 
+
+exps/
 # ── Python caches & build artifacts ──
 __pycache__/
 *.py[cod]
