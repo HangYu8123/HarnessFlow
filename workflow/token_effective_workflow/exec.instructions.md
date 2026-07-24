@@ -1,6 +1,6 @@
 ---
 name: 'Fast Goal Exec'
-description: 'Unified token-effective (fast) goal-execution workflow for Claude Code, Codex, and VS Code Copilot: main-agent plan, one parallel Devils Advocate + Online Researcher subagent step, and direct execution with captured-output validation.'
+description: 'Unified token-effective (fast) goal-execution workflow for Claude Code, Codex, and VS Code Copilot: main-agent plan through the general-family analyst lenses, one parallel Devils Advocate + Online Researcher subagent step, and direct execution with captured-output validation.'
 ---
 # Execute Toward a Goal in a Repo
 
@@ -19,6 +19,7 @@ description: 'Unified token-effective (fast) goal-execution workflow for Claude 
   - _lib/safety_rules.md
   - _lib/stay_active.md
   - _lib/workflow_contract.md
+  - _lib/subagent_contract.md
   - _lib/approval_gate.md
   - _lib/review_skills.md
   - repo_info/codebase_overview.md
@@ -28,6 +29,9 @@ description: 'Unified token-effective (fast) goal-execution workflow for Claude 
   - agents/devils-advocate.agent.md
   - agents/online-researcher.agent.md
   - skills/index.md
+  (role emulation — see workflow_contract.md §Main-Agent Role Emulation)
+  - agents/focus-analyst.agent.md
+  - agents/free-analyst.agent.md
 -->
 
 [inputs]:
@@ -41,9 +45,9 @@ description: 'Unified token-effective (fast) goal-execution workflow for Claude 
 
 **Read this file fully and follow each step.**
 Before doing any workflow-specific work, the main agent must read and follow [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) and [`philosophy/philosophy.instructions.md`](../../philosophy/philosophy.instructions.md) before proceeding.
-Every subagent created by this workflow must also read and follow those two files before reading [key md files] or performing task-specific work.
+Every subagent created by this workflow must instead read and follow [`_lib/subagent_contract.md`](../../_lib/subagent_contract.md) and [`philosophy/philosophy.instructions.md`](../../philosophy/philosophy.instructions.md) before reading [key md files] or performing task-specific work.
 
-Subagent launch rule: Follow the Subagent Launch Contract in [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md). After each subagent returns, the main agent must check that the result is complete, task-specific, grounded in the requested files, and uses the expected output label.
+Subagent launch rule: Follow the Subagent Launch Contract in [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md). **Every spawn carries two dials, not one:** model from the `subagent_model` header, effort from the `subagent_effort` header (and from `online_researcher_effort` for the Online Researcher). Unless the resolved effort is `inherit`, set the platform effort field where the spawn exposes one, otherwise put the line `effort: <level> — binding budget, not a hint` in the subagent prompt. After each subagent returns, the main agent must check that the result is complete, task-specific, grounded in the requested files, and uses the expected output label.
 
 > **Subagent invocation:** See `_lib/workflow_contract.md` §Subagent Invocation.
 
@@ -58,6 +62,8 @@ Read [key md files]. If important files are specified in [inputs], read them. Th
 
 ### Step 2 - Execution Planning
 Based on the repo context (per §Context Passing) + [inputs], the main agent reads the relevant files and proposes a [plan] covering the goal, the exact actions to run (validating any actions specified in [inputs] and deriving the rest), preconditions, expected outputs, the success criteria that prove the goal was met, failure modes, and rollback strategy.
+
+**Role emulation** (see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Main-Agent Role Emulation): read `agents/focus-analyst.agent.md` and `agents/free-analyst.agent.md`, and apply each as a lens on the files read in this step — depth on the scripts and entry points the actions touch, and a free-judgment pass on what else the goal actually requires — into [plan].
 
 ### Step 3 - Plan Challenge and Research
 **[PARALLEL EXECUTION — launch all listed subagents in parallel; see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]**
@@ -78,7 +84,7 @@ The main agent validates preconditions (environment, dependencies, required file
 **Stay active through execution (`_lib/stay_active.md`).** The main agent stays engaged from the first action to the last: it does not end its turn, idle, or hand back to the user while an action is still running, and it never asks the user to report when something finishes. Any action that blocks on a background process, a long build, or an external event must be **bounded** and must follow the `_lib/stay_active.md` Rule 2 wait protocol: reconcile real state, arm **two wake triggers through two different mechanisms** — one event-driven (completion notification / condition watch) and one time-driven fallback (a renewable watchdog tick or bounded polling re-check under one immutable absolute deadline that re-arming never extends) — reconcile again, then persist the pending-wait record (generation, awaited work, start time + deadline, last reconciliation result) to a scratch note **before the wait begins**. Whichever fires first, re-verify the real state (exit code, output, files) rather than trusting the trigger — a fired trigger is consumed, so re-arm a fresh pair before waiting again. On resume, accept a cached result only if its work identity matches the pending-wait record and validation passes, else re-execute safely per [final plan]. If the absolute deadline expires, record it as a hard blocker and escalate — never wait indefinitely. Record each completed wait (what was awaited, both triggers, which fired, duration) in [execution report].
 
 ### Step 6 - Review and Validation
-1. **Review skills (opt-in; both headers default to `false`):** only when the execution edited source files, resolve the request's `simplify` and `code_review` headers per [`_lib/review_skills.md`](../../_lib/review_skills.md) — `false` skips, `true` runs Claude Code's native `/simplify` / `/code-review medium`, `local` runs the pack's vendored `code-simplification` / `code-review-and-quality` skills (portable to every platform). Spawn one subagent per enabled skill, **sequentially, simplify first**, following the Subagent Launch Contract in [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) (subagents use the `subagent_model` header; keep an activity log and record fallbacks). Pass each the edited source files (the current diff) + [final plan] + [execution report] plus the relevant repo context. Record [simplify] and/or [code-review] for whichever ran; leave a skipped skill's label unproduced. Skip entirely when the execution only ran actions without editing source.
+1. **Review skills (opt-in; both headers default to `false`):** only when the execution edited source files, resolve the request's `simplify` and `code_review` headers per [`_lib/review_skills.md`](../../_lib/review_skills.md) — `false` skips, `true` runs Claude Code's native `/simplify` / `/code-review medium`, `local` runs the pack's local `code-simplification` / `code-review-and-quality` skills (portable to every platform). Spawn one subagent per enabled skill, **sequentially, simplify first**, following the Subagent Launch Contract in [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) (subagents use the `subagent_model` header; keep an activity log and record fallbacks). Pass each the edited source files (the current diff) + [final plan] + [execution report] plus the relevant repo context. Record [simplify] and/or [code-review] for whichever ran; leave a skipped skill's label unproduced. Skip entirely when the execution only ran actions without editing source.
 2. The main agent reviews the changes directly, validates the execution against [final plan] + [execution report] — including whether the goal was achieved per its success criteria — and reports the conclusion as [direct review].
 Based on whichever of [simplify] + [code-review] + [direct review] were produced, the main agent analyzes and validates them all, and generates a [final report]. Then the main agent applies the clearly-correct, low-risk findings (do not auto-apply uncertain or behavior-changing ones), then records any remaining gaps for Step 7.
 

@@ -1,6 +1,6 @@
 ---
 name: 'Fast Refactor'
-description: 'Unified token-effective (fast) refactor workflow for Claude Code, Codex, and VS Code Copilot: main-agent plan, one parallel challenge + research subagent step, opt-in approval gate, direct implementation, platform-conditional native-skills review with self-challenge, and behavior-preservation validation'
+description: 'Unified token-effective (fast) refactor workflow for Claude Code, Codex, and VS Code Copilot: main-agent plan through the general-family analyst lenses, one parallel challenge + research subagent step, opt-in approval gate, direct implementation, platform-conditional native-skills review with self-challenge, and behavior-preservation validation'
 ---
 # Refactor an Existing Repo
 
@@ -12,6 +12,7 @@ description: 'Unified token-effective (fast) refactor workflow for Claude Code, 
   - philosophy/philosophy.instructions.md
   - _lib/safety_rules.md
   - _lib/workflow_contract.md
+  - _lib/subagent_contract.md
   - _lib/approval_gate.md
   - _lib/review_skills.md
   - repo_info/codebase_overview.md
@@ -21,6 +22,14 @@ description: 'Unified token-effective (fast) refactor workflow for Claude Code, 
   - skills/index.md
   - agents/devils-advocate.agent.md
   - agents/online-researcher.agent.md
+  (role emulation — see workflow_contract.md §Main-Agent Role Emulation)
+  - agents/architecture-analyst.agent.md
+  - agents/redundancy-analyst.agent.md
+  - agents/robustness-analyst.agent.md
+  - agents/free-analyst.agent.md
+  - agents/senior-engineer.agent.md
+  - agents/complexity-analyst.agent.md
+  - agents/principal-engineer.agent.md
 -->
 
 [inputs]:
@@ -32,9 +41,9 @@ description: 'Unified token-effective (fast) refactor workflow for Claude Code, 
 
 **Read this file fully and follow each step.**
 Before doing any workflow-specific work, the main agent must read and follow [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) and [`philosophy/philosophy.instructions.md`](../../philosophy/philosophy.instructions.md) before proceeding.
-Every subagent created by this workflow must also read and follow those two files before reading [key md files] or performing task-specific work.
+Every subagent created by this workflow must instead read and follow [`_lib/subagent_contract.md`](../../_lib/subagent_contract.md) and [`philosophy/philosophy.instructions.md`](../../philosophy/philosophy.instructions.md) before reading [key md files] or performing task-specific work.
 
-Subagent launch rule: Follow the Subagent Launch Contract in [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md). After each subagent returns, the main agent must check that the result is complete, task-specific, grounded in the requested files, and uses the expected output label.
+Subagent launch rule: Follow the Subagent Launch Contract in [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md). **Every spawn carries two dials, not one:** model from the `subagent_model` header, effort from the `subagent_effort` header (and from `online_researcher_effort` for the Online Researcher). Unless the resolved effort is `inherit`, set the platform effort field where the spawn exposes one, otherwise put the line `effort: <level> — binding budget, not a hint` in the subagent prompt. After each subagent returns, the main agent must check that the result is complete, task-specific, grounded in the requested files, and uses the expected output label.
 
 > **Subagent invocation:** See `_lib/workflow_contract.md` §Subagent Invocation.
 
@@ -48,6 +57,8 @@ Read [key md files]. If target files are specified in [inputs], read them. Conde
 ### Step 2 - Refactor Analysis
 
 Based on the repo context ([key md files] and [target files]) + [inputs], the main agent reads the relevant files. Then the main agent proposes a [plan] for addressing the target refactors + a [comparison] report (before/after) indicating the changes + behavior-preservation notes.
+
+**Role emulation** (see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Main-Agent Role Emulation): read `agents/architecture-analyst.agent.md`, `agents/redundancy-analyst.agent.md`, `agents/robustness-analyst.agent.md`, `agents/free-analyst.agent.md`, `agents/senior-engineer.agent.md` (code review mode), `agents/complexity-analyst.agent.md`, and `agents/principal-engineer.agent.md` (plan review), and apply each as a lens on the files read in this step — architecture placement, redundancy/overlap, robustness and regression risk, free-judgment reading, line-by-line code-quality review, unnecessary complexity, and a principal-engineer feasibility pass that rejects redundant or incorrect items — into [plan] + [comparison].
 
 ### Step 3 - Plan Challenge and Research
 **[PARALLEL EXECUTION — launch all listed subagents in parallel; see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]**
@@ -66,7 +77,7 @@ The main agent incorporates [challenge report] and [online resource] (when produ
 The main agent implements [final plan] and records an [implementation report] containing changes only, with no explanations.
 
 ### Step 6 - Code Review and Validation
-1. **Review skills (opt-in; both headers default to `false`):** resolve the request's `simplify` and `code_review` headers per [`_lib/review_skills.md`](../../_lib/review_skills.md) — `false` skips, `true` runs Claude Code's native `/simplify` / `/code-review medium`, `local` runs the pack's vendored `code-simplification` / `code-review-and-quality` skills (portable to every platform). Spawn one subagent per enabled skill, **sequentially, simplify first**, following the Subagent Launch Contract in [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) (subagents use the `subagent_model` header; keep an activity log and record fallbacks). Pass each the changed files (the current diff) + [final plan] + [implementation report] plus the relevant repo context. Record [simplify] and/or [code-review] for whichever ran; leave a skipped skill's label unproduced.
+1. **Review skills (opt-in; both headers default to `false`):** resolve the request's `simplify` and `code_review` headers per [`_lib/review_skills.md`](../../_lib/review_skills.md) — `false` skips, `true` runs Claude Code's native `/simplify` / `/code-review medium`, `local` runs the pack's local `code-simplification` / `code-review-and-quality` skills (portable to every platform). Spawn one subagent per enabled skill, **sequentially, simplify first**, following the Subagent Launch Contract in [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) (subagents use the `subagent_model` header; keep an activity log and record fallbacks). Pass each the changed files (the current diff) + [final plan] + [implementation report] plus the relevant repo context. Record [simplify] and/or [code-review] for whichever ran; leave a skipped skill's label unproduced.
 2. The main agent reviews the changes directly, validates the implementation with [final plan] + [implementation report], and reports the conclusion as [direct review].
 Based on whichever of [simplify] + [code-review] + [direct review] were produced, the main agent analyzes and validates them all, and generates a [final report]. Then the main agent applies the clearly-correct, low-risk findings (do not auto-apply uncertain or behavior-changing ones), then records any remaining gaps for Step 7.
 

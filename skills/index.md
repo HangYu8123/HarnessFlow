@@ -32,7 +32,7 @@ Search this index before using repository skills. Each skill is an official skil
 - Purpose: Reduce complexity in a diff while preserving exact behavior — guard clauses over deep nesting, focused functions over long ones, descriptive names, no dead code — and apply the edits to the working tree.
 - Trigger: Use **only** from a workflow's post-implementation review step when the request header is `simplify: local` (see `_lib/review_skills.md`). This is the platform-independent alternative to Claude Code's native `/simplify`.
 - Condition: Post-implementation / review-time only — **not** a planning-time skill, so Local Skill Discovery (`_lib/local_skill_discovery.md`) must skip it.
-- Source: Vendored from `addyosmani/agent-skills` (75,536★, MIT) · `skills/code-simplification/SKILL.md`, plus a HarnessFlow precedence preamble (no-commit safety rule and the autonomous approval gate override the upstream text).
+- Source: A self-contained HarnessFlow skill, distilled from `addyosmani/agent-skills` (75,536★, MIT) · `skills/code-simplification/SKILL.md`. The pack's own rules (no-commit safety rule, autonomous approval gate, diff-scoped edits) are stated directly, so there is no upstream text to override.
 - Keywords: simplify, simplification, reduce complexity, readability, dead code, deep nesting, long function, redundancy, refactor for clarity.
 
 ## code-review-and-quality
@@ -42,7 +42,7 @@ Search this index before using repository skills. Each skill is an official skil
 - Purpose: Review-only, multi-axis review of a diff — correctness, readability/simplicity, architecture, security, performance — returning severity-labelled findings (Critical / required / Optional / Nit / FYI).
 - Trigger: Use **only** from a workflow's post-implementation review step when the request header is `code_review: local` (see `_lib/review_skills.md`). This is the platform-independent alternative to Claude Code's native `/code-review`.
 - Condition: Post-implementation / review-time only, and strictly read-only — **not** a planning-time skill, so Local Skill Discovery (`_lib/local_skill_discovery.md`) must skip it.
-- Source: Vendored from `addyosmani/agent-skills` (75,536★, MIT) · `skills/code-review-and-quality/SKILL.md`, plus a HarnessFlow precedence preamble (no-commit safety rule and the autonomous approval gate override the upstream text).
+- Source: A self-contained HarnessFlow skill, distilled from `addyosmani/agent-skills` (75,536★, MIT) · `skills/code-review-and-quality/SKILL.md`. The pack's own rules (no-commit safety rule, autonomous approval gate, review-only) are stated directly, so there is no upstream text to override.
 - Keywords: code review, quality gate, correctness, security review, performance review, architecture review, severity labels, dead code hygiene.
 
 ## weekly-update-report

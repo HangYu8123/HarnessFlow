@@ -8,6 +8,7 @@ description: 'Instructions for creating necessary repo_info memory files to guid
   - philosophy/philosophy.instructions.md
   - _lib/safety_rules.md
   - _lib/workflow_contract.md
+  - _lib/subagent_contract.md
   - _lib/absolutize_pack_paths.md
   - _lib/reinitialize.md
   - repo_info/ (created by this workflow)
@@ -20,9 +21,9 @@ description: 'Instructions for creating necessary repo_info memory files to guid
 [parameters]:
 
 Before doing any workflow-specific work, the main agent must read and follow [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) and [`philosophy/philosophy.instructions.md`](../../philosophy/philosophy.instructions.md) before proceeding.
-Every subagent created by this workflow must also read and follow those two files before reading the repo or performing task-specific work.
+Every subagent created by this workflow must instead read and follow [`_lib/subagent_contract.md`](../../_lib/subagent_contract.md) and [`philosophy/philosophy.instructions.md`](../../philosophy/philosophy.instructions.md) before reading the repo or performing task-specific work.
 
-Subagent launch rule: Follow the Subagent Launch Contract in [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md).
+Subagent launch rule: Follow the Subagent Launch Contract in [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md). **Every spawn carries two dials, not one:** model from the `subagent_model` header, effort from the `subagent_effort` header (and from `online_researcher_effort` for the Online Researcher). Unless the resolved effort is `inherit`, set the platform effort field where the spawn exposes one, otherwise put the line `effort: <level> — binding budget, not a hint` in the subagent prompt.
 
 > **Subagent invocation:** See [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Invocation.
 
@@ -155,6 +156,7 @@ Copy the entry-point files from the pack to their standard discoverable location
    - **Important**: In the destination copy, rewrite all `#file:` references by prepending `HarnessFlow/` to their paths. For example, `#file:_lib/workflow_contract.md` becomes `#file:HarnessFlow/_lib/workflow_contract.md`, and `#file:workflow/general_workflow/code.instructions.md` becomes `#file:HarnessFlow/workflow/general_workflow/code.instructions.md`. This is necessary because `#file:` paths resolve relative to the file's directory — when the file moves from `.github/HarnessFlow/` to `.github/`, the paths must be adjusted accordingly.
 2. Copy `.github/HarnessFlow/CLAUDE.md` → repo root `CLAUDE.md` (Claude Code CLI auto-discovers this at the repo root).
 3. Copy `.github/HarnessFlow/AGENTS.md` → repo root `AGENTS.md` (Codex CLI auto-discovers this at the repo root).
+4. Copy the native worker definitions: `.github/HarnessFlow/.claude/agents/*.md` → repo root `.claude/agents/` (Claude Code), and `.github/HarnessFlow/.codex/agents/*.toml` → repo root `.codex/agents/` (Codex). These let workflows spawn workers by agent type instead of by inline prompt. They are generated from `agents/*.agent.md`; if any source `.agent.md` was changed during this initialization, first re-run `python3 sync_agent_definitions.py` from the pack root, then copy.
 
 For each file:
 - If the destination file does **not** exist, copy it.

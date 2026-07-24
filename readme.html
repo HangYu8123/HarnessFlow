@@ -755,6 +755,7 @@
 |       |-- copilot-instructions.md
 |       |-- setup.sh
 |       |-- cli_setup.sh
+|       |-- sync_agent_definitions.py
 |       |-- _lib/
 |       |-- philosophy/
 |       |-- workflow/
@@ -764,8 +765,11 @@
 |       `-- repo_info/
 |-- AGENTS.md
 |-- CLAUDE.md
-`-- .claude/
-    `-- rules/</code></pre>
+|-- .claude/
+|   |-- rules/
+|   `-- agents/
+`-- .codex/
+    `-- agents/</code></pre>
           <ul class="module-list" style="margin-top:0;">
             <li><code>copilot-instructions.md</code><span>VS Code Copilot router template.</span></li>
             <li><code>CLAUDE.md</code><span>Claude Code CLI router template.</span></li>
@@ -773,6 +777,8 @@
             <li><code>_lib/</code><span>Workflow contract, safety rules, approval gate.</span></li>
             <li><code>philosophy/</code><span>Shared execution guidance for agents and subagents.</span></li>
             <li><code>workflow/</code><span>The <code>general</code>, <code>fast</code>, and <code>skill</code> instruction families.</span></li>
+            <li><code>agents/</code><span>Source worker-agent definitions — the single source of truth for every role.</span></li>
+            <li><code>.claude/agents/</code> · <code>.codex/agents/</code><span>Native worker definitions generated from <code>agents/</code> by <code>sync_agent_definitions.py</code>. Do not hand-edit.</span></li>
           </ul>
         </div>
       </div>
@@ -811,6 +817,13 @@ bash .github/HarnessFlow/cli_setup.sh</code></pre>
         <p class="lead">
           <code>agents/</code> defines <b>15 worker agents</b>, orchestrated by the per-category workflow files under
           <code>workflow/&lt;family&gt;/</code>. Skills provide reusable specialized procedures.
+        </p>
+        <p class="lead">
+          Each role is projected by <code>sync_agent_definitions.py</code> into the two native formats —
+          <code>.claude/agents/&lt;slug&gt;.md</code> and <code>.codex/agents/&lt;slug&gt;.toml</code> — which
+          <code>cli_setup.sh</code> installs. Spawning by agent type makes the role text the subagent's
+          <b>system prompt</b>, so it costs nothing per spawn instead of being re-sent or read in-band, and it
+          enforces that role's tools and sandbox. Re-run the sync after editing any <code>agents/*.agent.md</code>.
         </p>
         <div class="split">
           <div class="tile accent-green">

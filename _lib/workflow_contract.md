@@ -25,7 +25,7 @@ The operative rule — the trigger-phrase list, per-mode behavior, and nested-sk
 
 Before doing any workflow-specific work, the main agent must read and follow `philosophy/philosophy.instructions.md`.
 
-Every subagent created by any workflow must also read and follow this contract and `philosophy/philosophy.instructions.md` before reading context files or performing task-specific work.
+Every subagent created by any workflow must read and follow `_lib/subagent_contract.md` — the subagent-facing subset of this contract — and `philosophy/philosophy.instructions.md` before reading context files or performing task-specific work. Subagents do **not** read this file: the orchestration rules below (model/effort resolution, parallel launch and retry, invocation mechanics, multi-layer discovery, log timestamps) are the main agent's to apply.
 
 ---
 
@@ -48,34 +48,14 @@ In installed repos, do not create `repo_info/` outside `.github/HarnessFlow/repo
 - when creating any subagent, explicitly instruct the main agent to: "**Create the subagent with the exact [specified subagent model]. When `subagent_model` is a specific model id, use that exact id — a deliberate override; honor it even if it is smaller than [main agent model]. When `subagent_model` is `inherit` or unset, use [main agent model] and do not downgrade.**"
 - Subagents must use the [specified subagent model]
 - **Subagent model (specified by the instructions):** Every subagent uses the model the instructions specify via the `subagent_model` header. When `subagent_model` is a specific model id, all subagents run on that exact id (a deliberate override — honor it even if it is smaller than [main agent model]). When `subagent_model` is `inherit` or unset, [specified subagent model] falls back to [main agent model] — the model the main agent is running — which must not be downgraded: in **fast mode** (`mode: fast`) the default main model is **Sonnet 4.6**, so `inherit` subagents run on Sonnet 4.6; in **general** and **skill** modes `inherit` subagents run on whatever model the main agent is running. (Request templates ship with `subagent_model: inherit`.)
-- **Subagent effort (optional header):** When the request includes a `subagent_effort` header (`low` | `medium` | `high` | `xhigh` | `max` — Claude Code's documented effort scale; available levels depend on the model), resolve it as [specified subagent effort]. Where the platform exposes a reasoning-effort control for the subagent being created — Claude Code custom-agent definitions (`.claude/agents/*.md`) and `--agents` JSON support an `effort:` frontmatter field separate from `model:`, which overrides the session effort and inherits from the session when unset — create the subagent with [specified subagent effort]. Ad-hoc prompt-only spawns (e.g. the Claude Code `Task` tool, Codex workers) have **no per-invocation effort parameter**: record `effort: not-applied` in the activity log and continue — never block or fail a launch over effort. When the header is absent, subagents inherit the session/main-agent effort. Role-specific effort headers (see §Online Researcher effort below) override [specified subagent effort] for the named role when present.
-- **Online Researcher effort (optional header):** When the request includes an `online_researcher_effort` header (same scale: `low` | `medium` | `high` | `xhigh` | `max`), resolve it as [specified online researcher effort]. When spawning the **Online Researcher** subagent (`agents/online-researcher.agent.md`), use [specified online researcher effort] in place of [specified subagent effort]. The same platform caveat applies: ad-hoc prompt-only spawns record `effort: not-applied`; only agent-definition-time effort fields are enforceable. When the header is absent, the Online Researcher uses [specified subagent effort] (which itself inherits the session effort when absent). The model is unaffected — the Online Researcher still uses [specified subagent model].
+- **Subagent effort (specified by the instructions):** Effort is the **second dial on every spawn** — resolve it alongside [specified subagent model], never instead of it. Resolve the `subagent_effort` header (`inherit` | `low` | `medium` | `high` | `xhigh` | `max` — Claude Code's documented effort scale plus `inherit`; available levels depend on the model) as [specified subagent effort]. **`inherit`, or an absent header, means use the session/main-agent effort:** set no platform effort field and add no `effort:` prompt line, and record `effort: inherit` in the activity log. Any other value is a deliberate override and must reach the subagent through one of two channels. **(a) The installed agent definition** — `.claude/agents/*.md` (and `--agents` JSON) supports an `effort:` frontmatter field, `.codex/agents/*.toml` a `model_reasoning_effort` field; both are separate from the model and both override the session effort, inheriting from it when unset. This is the *enforced* channel, but it is **per role, not per request**: to use it, set `effort:` in the source `agents/<slug>.agent.md` frontmatter and re-run `sync_agent_definitions.py` to propagate it (Codex clamps `xhigh`/`max` to `high`). **(b) The prompt** — neither the Claude Code `Task` tool nor a Codex worker exposes a **per-invocation** effort parameter, so a per-request `subagent_effort` header that is not already baked into the definition must be enforced through the prompt: include the line `effort: [specified subagent effort] — binding budget, not a hint` in the subagent prompt, and record `effort: prompt-enforced` in the activity log. `_lib/subagent_contract.md` §Working Rules binds the subagent to that line, and a skill the subagent was told to follow may define what the level costs it (see `_lib/review_skills.md` §Effort budget). Record `effort: not-applied` only when neither channel exists — never block or fail a launch over effort. Role-specific effort headers (see §Online Researcher effort below) override [specified subagent effort] for the named role when present. (Request templates ship with `subagent_effort: high`.)
+- **Online Researcher effort (specified by the instructions):** Resolve the `online_researcher_effort` header (same scale, `inherit` included) as [specified online researcher effort]. When spawning the **Online Researcher** subagent (`agents/online-researcher.agent.md`), use [specified online researcher effort] in place of [specified subagent effort] — a deliberate per-role override: honor it even when it is *lower* than [specified subagent effort], exactly as a specific `subagent_model` is honored even when smaller. The same two-channel enforcement applies: set the platform effort field where it exists, otherwise carry the level in the prompt and record `effort: prompt-enforced`. `inherit`, or an absent header, falls back to [specified subagent effort] (which itself falls back to the session effort). The model is unaffected — the Online Researcher still uses [specified subagent model]. (Request templates ship with `online_researcher_effort: high`; `initialize` omits it because that family spawns no Online Researcher.)
 - A subagent means a separate spawned agent invocation with its own context. Main-agent roleplay, self-simulation, or inline execution must not be labeled as subagent output.
-- Each subagent prompt must include: the role/mode, exact task, required inputs, context files to read, expected output label, this contract path, and `philosophy/philosophy.instructions.md`.
+- Each subagent prompt must include: the role/mode, exact task, required inputs, context files to read, expected output label, the `effort:` line whenever [specified subagent effort] for that role is not `inherit` (see §Subagent effort), `_lib/subagent_contract.md`, and `philosophy/philosophy.instructions.md`.
 - For a parallel group, follow §Parallel Execution & Fallback below.
 - If native subagent creation is unavailable, blocked, or cannot use the [specified subagent model], do not hide the failure. Record a fallback result with the same output label and `status: fallback-single-agent` or `status: blocked`, then continue only where the workflow allows fallback.
 - Maintain an in-memory activity log for every subagent group with: role, output label, launch mechanism, requested model, confirmed model when available, requested effort and whether it was applied (see §Subagent effort), context files, start status, completion status, and fallback reason if any.
-- Every real subagent result should include the following metadata. **In VS Code Copilot and Codex**, the result must begin with this header block. **In Claude Code**, the header is optional — the `Task` tool scopes results automatically, so subagents may return their analysis directly without the header:
-
-```md
-[subagent result]
-role:
-output_label:
-status: completed | skipped | blocked | failed
-model:
-result:
-```
-
-- Every fallback result must begin with:
-
-```md
-[fallback result]
-role:
-output_label:
-status: fallback-single-agent | blocked
-model:
-result:
-```
+- The `[subagent result]` and `[fallback result]` header blocks, and the platform rule for when they are required, are canonical in `_lib/subagent_contract.md` §Result Format (this section deliberately does not restate them). Validate every returned result against that format.
 
 ---
 
@@ -91,15 +71,51 @@ Canonical rule for every `[PARALLEL EXECUTION]` tag in the workflow files (the t
 
 ---
 
+## Main-Agent Role Emulation (Fast Family)
+
+Canonical rule for every "**Role emulation**" line in `workflow/token_effective_workflow/`
+(the lines point here — this is the single source; do not restate it at the point of use).
+
+The fast family does not spawn a planning panel: its planning step is main-agent work. That
+step is not thereby a *thinner* analysis — the main agent takes on the roles the
+`general_workflow/` counterpart would have spawned. At the planning step:
+
+1. **Read the role files.** Read each `agents/<role>.agent.md` the emulation line names — the
+   same files the general workflow passes to its panel — for that role's cognitive mode,
+   approach, and output expectations.
+2. **One reading pass, many lenses.** Read the task's files **once**, then apply each role's
+   question set to what you read. Do **not** replay each role's own read-everything cycle —
+   N independent traversals inside one context buys nothing and is exactly the redundancy the
+   fast family exists to avoid. Widen the reading set when a lens demands a file the others
+   did not need.
+3. **Keep the lenses distinct before synthesizing.** Record each role's findings separately
+   (architecture vs. redundancy vs. robustness, focus vs. broad vs. free, …), then reconcile
+   them into the step's single output label. A lens that merely echoes another adds nothing —
+   say so rather than padding.
+4. **A review lens is not a review subagent.** Emulating a Senior/Principal Engineer plan
+   review does not replace the workflow's real `Devils Advocate` and `Online Researcher`
+   spawns: same-model self-review carries a self-preference bias that an independently
+   spawned challenger does not. Those steps still run as specified.
+5. **Never label emulation as subagent output.** This is main-agent work, per §Subagent Launch
+   Contract ("Main-agent roleplay, self-simulation, or inline execution must not be labeled as
+   subagent output"). Use the step's own output label; emit no `[subagent result]` block and
+   no activity-log entry for an emulated role.
+
+---
+
 ## Subagent Invocation — Platform-Specific Mechanisms
 
-When a workflow says to "launch" or "create" a subagent, use the platform's native mechanism:
+When a workflow says to "launch" or "create" a subagent, use the platform's native mechanism.
+
+**Prefer the installed agent definition over an ad-hoc prompt.** `sync_agent_definitions.py` projects every `agents/<slug>.agent.md` into a native definition — `.claude/agents/<slug>.md` for Claude Code, `.codex/agents/<slug>.toml` for Codex — and `cli_setup.sh` installs both into the target repo. Each role's **agent type is `<slug>`**: the source filename without `.agent.md` (`agents/focus-analyst.agent.md` → `focus-analyst`). Spawning by agent type puts the role text in the subagent's *system prompt* instead of the spawn prompt, so it is never re-sent as prompt tokens and never read in-band, and it applies that role's tool/sandbox restriction. When a workflow names an agent file, resolve it to its agent type and spawn that.
 
 | Platform | Mechanism | How to invoke |
 |---|---|---|
 | **VS Code + Copilot** | `agent` tool (built-in tool set) | Invoke by agent name (matches `name:` in `.agent.md` frontmatter). Ensure the orchestrating agent's `tools:` includes `agent` and `agents:` lists the target worker-agent names. |
-| **Claude Code CLI** | `Task` tool | Pass a complete prompt including role, task, required context files, output label, and references to `_lib/workflow_contract.md` and `philosophy/philosophy.instructions.md`. |
-| **Codex CLI** | Agent workers / sequential fallback | Pass same prompt structure. If parallel workers are unavailable, launch sequentially and preserve output labels. |
+| **Claude Code CLI** | `Task` tool, `subagent_type: <slug>` | Spawn the installed definition by agent type. The prompt then carries **only** task-specific content — task, inputs, `[repo context digest]`, output label, and the `effort:` line when one applies. Do **not** restate the role text, the behavioral contract, or the output format: they are already the subagent's system prompt. |
+| **Codex CLI** | Named agent worker / sequential fallback | Spawn the `.codex/agents/<slug>.toml` worker by name, with the same task-only prompt. Project definitions load only in a **trusted** project. If parallel workers are unavailable, launch sequentially and preserve output labels. |
+
+**Fallback when no definition is installed** (definitions missing, project untrusted, or a platform without them): spawn ad-hoc and pass a complete prompt — role, task, required context files, output label, and references to `_lib/subagent_contract.md` and `philosophy/philosophy.instructions.md`. Record `launch mechanism: ad-hoc prompt` in the activity log so the extra cost is visible.
 
 Before invoking a subagent in VS Code, ensure:
 1. The orchestrating agent's frontmatter declares `tools: ['agent', ...]` and lists the target worker agent in `agents: [...]`.

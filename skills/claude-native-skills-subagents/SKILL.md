@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 Use this skill after a code, debug, refactor, or fast workflow implementation step produces an implementation report, such as [implementation report], [bug fix implementation report], or a workflow-specific equivalent.
 
-**Scope:** this skill handles the **`true`** value of the `simplify` / `code_review` headers only — that is, Claude Code's *native bundled* skills. `false` skips, and `local` is served by the pack's vendored skills without this wrapper. `_lib/review_skills.md` (resolved by the Pack Path Resolution rule) is the canonical source for all three values; read it first and let it decide whether this skill runs at all.
+**Scope:** this skill handles the **`true`** value of the `simplify` / `code_review` headers only — that is, Claude Code's *native bundled* skills. `false` skips, and `local` is served by the pack's own local skills without this wrapper. `_lib/review_skills.md` (resolved by the Pack Path Resolution rule) is the canonical source for all three values; read it first and let it decide whether this skill runs at all.
 
 ## Instructions
 

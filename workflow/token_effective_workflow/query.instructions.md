@@ -1,6 +1,6 @@
 ---
 name: 'Fast Query'
-description: 'Unified token-effective (fast) workflow for Claude Code, Codex, and VS Code Copilot: main-agent answer drafting with one parallel challenge + research subagent step. Read-only.'
+description: 'Unified token-effective (fast) workflow for Claude Code, Codex, and VS Code Copilot: main-agent answer drafting through the general-family analyst lenses with one parallel challenge + research subagent step. Read-only.'
 ---
 # Ask about an existing repo
 
@@ -12,11 +12,16 @@ description: 'Unified token-effective (fast) workflow for Claude Code, Codex, an
   - philosophy/philosophy.instructions.md
   - _lib/safety_rules.md
   - _lib/workflow_contract.md
+  - _lib/subagent_contract.md
   - repo_info/codebase_overview.md
   - repo_info/scripts_overview.md
   - repo_info/update_logs.md
   - repo_info/known_issues.md
   - repo_info/past_Q&A.md
+  (role emulation — see workflow_contract.md §Main-Agent Role Emulation)
+  - agents/focus-analyst.agent.md
+  - agents/broad-analyst.agent.md
+  - agents/free-analyst.agent.md
 -->
 
 This workflow is read-only — it answers questions and does not modify code, so there is no approval gate or implementation step.
@@ -29,9 +34,9 @@ This workflow is read-only — it answers questions and does not modify code, so
 
 **read through this entire file and follow the instructions carefully**.
 Before doing any workflow-specific work, the main agent must read and follow [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) and [`philosophy/philosophy.instructions.md`](../../philosophy/philosophy.instructions.md) before proceeding.
-Every subagent created by this workflow must also read and follow those two files before reading [key md files] or performing task-specific work. The main agent reads [key md files] in Step 1 and hands off repo context per §Context Passing; subagents must not re-read [key md files] unless a specific file path is needed for their task.
+Every subagent created by this workflow must instead read and follow [`_lib/subagent_contract.md`](../../_lib/subagent_contract.md) and [`philosophy/philosophy.instructions.md`](../../philosophy/philosophy.instructions.md) before reading [key md files] or performing task-specific work. The main agent reads [key md files] in Step 1 and hands off repo context per §Context Passing; subagents must not re-read [key md files] unless a specific file path is needed for their task.
 
-Subagent launch rule: Follow the Subagent Launch Contract in [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md). After each subagent returns, the main agent must check that the result is complete, task-specific, grounded in the requested files, and uses the expected output label.
+Subagent launch rule: Follow the Subagent Launch Contract in [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md). **Every spawn carries two dials, not one:** model from the `subagent_model` header, effort from the `subagent_effort` header (and from `online_researcher_effort` for the Online Researcher). Unless the resolved effort is `inherit`, set the platform effort field where the spawn exposes one, otherwise put the line `effort: <level> — binding budget, not a hint` in the subagent prompt. After each subagent returns, the main agent must check that the result is complete, task-specific, grounded in the requested files, and uses the expected output label.
 
 > **Subagent invocation:** See `_lib/workflow_contract.md` §Subagent Invocation.
 
@@ -44,6 +49,8 @@ Read [key md files]. If important files are specified in [inputs], read them. Co
 
 ### Step 2 - Answer Drafting
 Based on the repo context (per §Context Passing) + [important information] + [inputs], the main agent reads the relevant files and drafts [draft answers] grounded in the codebase.
+
+**Role emulation** (see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Main-Agent Role Emulation): read `agents/focus-analyst.agent.md`, `agents/broad-analyst.agent.md`, and `agents/free-analyst.agent.md`, and apply each as a lens on the files read in this step — every file/function named in [important information] in depth, the pipeline upstream→downstream, and a free-judgment pass — into [draft answers], noting where the lenses disagree.
 
 ### Step 3 - Answer Challenge and Research
 **[PARALLEL EXECUTION — launch all listed subagents in parallel; see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]** This is the only step that spawns subagents.

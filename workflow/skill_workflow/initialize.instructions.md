@@ -8,6 +8,7 @@ description: 'Unified skill-backed (skill mode) repo-initialization workflow for
   - philosophy/philosophy.instructions.md
   - _lib/safety_rules.md
   - _lib/workflow_contract.md
+  - _lib/subagent_contract.md
   - _lib/absolutize_pack_paths.md
   - _lib/reinitialize.md
   - skills/skill_workflow_skills.md
@@ -30,9 +31,9 @@ This workflow generates documentation; it does not modify source code, so there 
 
 **read through this entire file and follow the instructions carefully**.
 Before doing any workflow-specific work, the main agent must read and follow [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) and [`philosophy/philosophy.instructions.md`](../../philosophy/philosophy.instructions.md) before proceeding.
-Every subagent created by this workflow must also read and follow those two files before performing task-specific work. The main agent passes repo context to subagents per §Context Passing; subagents do not re-read files already summarized by the main agent (on a first run the `repo_info/` overviews do not exist yet — this workflow creates them; on re-initialization the existing overviews are passed to subagents as validation baselines per `_lib/reinitialize.md`).
+Every subagent created by this workflow must instead read and follow [`_lib/subagent_contract.md`](../../_lib/subagent_contract.md) and [`philosophy/philosophy.instructions.md`](../../philosophy/philosophy.instructions.md) before performing task-specific work. The main agent passes repo context to subagents per §Context Passing; subagents do not re-read files already summarized by the main agent (on a first run the `repo_info/` overviews do not exist yet — this workflow creates them; on re-initialization the existing overviews are passed to subagents as validation baselines per `_lib/reinitialize.md`).
 
-Subagent launch rule: Follow the Subagent Launch Contract in [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md). After each subagent returns, the main agent must check that the result is complete, task-specific, grounded in the requested files, and uses the expected output label.
+Subagent launch rule: Follow the Subagent Launch Contract in [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md). **Every spawn carries two dials, not one:** model from the `subagent_model` header, effort from the `subagent_effort` header (and from `online_researcher_effort` for the Online Researcher). Unless the resolved effort is `inherit`, set the platform effort field where the spawn exposes one, otherwise put the line `effort: <level> — binding budget, not a hint` in the subagent prompt. After each subagent returns, the main agent must check that the result is complete, task-specific, grounded in the requested files, and uses the expected output label.
 
 > **Subagent invocation:** See `_lib/workflow_contract.md` §Subagent Invocation.
 
@@ -125,6 +126,7 @@ Copy the entry-point files from the pack to their standard discoverable location
      - In the destination copy, rewrite all `#file:` references by prepending `HarnessFlow/` to their paths. For example, `#file:_lib/workflow_contract.md` becomes `#file:HarnessFlow/_lib/workflow_contract.md`. This is necessary because `#file:` paths resolve relative to `.github/copilot-instructions.md`.
   2. Copy `.github/HarnessFlow/CLAUDE.md` to repo root `CLAUDE.md`.
   3. Copy `.github/HarnessFlow/AGENTS.md` to repo root `AGENTS.md`.
+  4. Copy the native worker definitions: `.github/HarnessFlow/.claude/agents/*.md` to repo root `.claude/agents/`, and `.github/HarnessFlow/.codex/agents/*.toml` to repo root `.codex/agents/`. These let workflows spawn workers by agent type instead of by inline prompt. They are generated from `agents/*.agent.md`; if any source `.agent.md` was changed during this initialization, first re-run `python3 sync_agent_definitions.py` from the pack root, then copy.
 
   For each destination file:
   - Create it if absent.

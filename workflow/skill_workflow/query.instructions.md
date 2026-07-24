@@ -14,6 +14,7 @@ description: 'Unified skill-backed (skill mode) repo-Q&A workflow for Claude Cod
   - philosophy/philosophy.instructions.md
   - _lib/safety_rules.md
   - _lib/workflow_contract.md
+  - _lib/subagent_contract.md
   - skills/skill_workflow_skills.md
   - repo_info/codebase_overview.md
   - repo_info/scripts_overview.md
@@ -34,9 +35,9 @@ This workflow is read-only — it answers questions and does not modify code, so
 
 **read through this entire file and follow the instructions carefully**.
 Before doing any workflow-specific work, the main agent must read and follow [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) and [`philosophy/philosophy.instructions.md`](../../philosophy/philosophy.instructions.md) before proceeding.
-Every subagent created by this workflow must also read and follow those two files before reading [key md files] or performing task-specific work. The main agent reads [key md files] in Step 1 and hands off repo context per §Context Passing; subagents must not re-read [key md files] unless a specific file path is needed for their task.
+Every subagent created by this workflow must instead read and follow [`_lib/subagent_contract.md`](../../_lib/subagent_contract.md) and [`philosophy/philosophy.instructions.md`](../../philosophy/philosophy.instructions.md) before reading [key md files] or performing task-specific work. The main agent reads [key md files] in Step 1 and hands off repo context per §Context Passing; subagents must not re-read [key md files] unless a specific file path is needed for their task.
 
-Subagent launch rule: Follow the Subagent Launch Contract in [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md). After each subagent returns, the main agent must check that the result is complete, task-specific, grounded in the requested files, and uses the expected output label.
+Subagent launch rule: Follow the Subagent Launch Contract in [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md). **Every spawn carries two dials, not one:** model from the `subagent_model` header, effort from the `subagent_effort` header (and from `online_researcher_effort` for the Online Researcher). Unless the resolved effort is `inherit`, set the platform effort field where the spawn exposes one, otherwise put the line `effort: <level> — binding budget, not a hint` in the subagent prompt. After each subagent returns, the main agent must check that the result is complete, task-specific, grounded in the requested files, and uses the expected output label.
 
 > **Subagent invocation:** See `_lib/workflow_contract.md` §Subagent Invocation.
 

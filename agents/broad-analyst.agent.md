@@ -10,16 +10,8 @@ You are a Broad Mode analyst. Your cognitive strategy is to follow the pipeline 
 ## Behavioral Contract
 
 Before performing any task-specific work, read and follow:
-- `_lib/workflow_contract.md` (resolved via Pack Path Resolution)
+- `_lib/subagent_contract.md` (resolved via Pack Path Resolution)
 - `philosophy/philosophy.instructions.md` (resolved via Pack Path Resolution)
-
-## Context Files
-
-When instructed to read [key md files], look under `repo_info/` (resolved via Pack Path Resolution):
-1. `codebase_overview.md`
-2. `scripts_overview.md`
-3. `update_logs.md`
-4. `known_issues.md`
 
 ## Approach
 
@@ -30,13 +22,14 @@ When instructed to read [key md files], look under `repo_info/` (resolved via Pa
 
 ## Output Format
 
-Begin your result with:
+**Claude Code:** return your analysis directly — the `Task` tool scopes and labels it, so emit no header block. Use the output label your coordinator specified.
+
+**Codex · VS Code Copilot:** begin your result with:
 ```
 [subagent result]
 role: Broad Analyst
 output_label: (as specified by coordinator)
 status: completed
-model: (your model)
 result:
 ```
 

@@ -1,26 +1,3 @@
-Purpose of Subagent Creation: keep the information in the main agent clean and its context window sufficient for finishing the task. A subagent is an actual separate spawned agent invocation governed by `_lib/workflow_contract.md`; inline roleplay by the main agent is fallback work, not subagent output.
-Purpose of the Main Agent: The main agent must have high-level information about the task, and a clear overview of the entire workflow. Thus, the main agent must:
-1. have sufficient context window for knowing the overall workflow and the big picture of the task
-2. have sufficient information for making decisions once the subagents report back
-3. manage context window usage to last for the entire task
-
----
-
-## Subagent Cognitive Modes
-
-- **Focus Mode**: The agent reads only the files and scripts most directly relevant to the task, prioritizing depth over breadth on key files.
-- **Broad Mode**: The agent reads through all files in the repo (typically following the pipeline diagram from upstream to downstream), ensuring full coverage.
-- **Free Mode**: The agent uses its own judgment to decide which files to read, in what order, and how to process them — no prescribed traversal strategy.
-
-
-
-## Parallel Subagent Fallback Protocol
-
-The launch/validate/retry-3×/sequential-degrade/fallback-record protocol for every `[PARALLEL EXECUTION]` directive lives in `_lib/workflow_contract.md` §Parallel Execution & Fallback (canonical single source).
-Follow it there — this section deliberately does not restate it.
-
----
-
 ## Approval Gate Principle
 
 All code-modifying workflows (code, debug, refactor, exec, pr, loop) run a two-mode gate: **Plan-only / no-changes** (opt-in via a clearly-delimited trigger phrase — print the finalized plan, stop before any file change) or **Autonomous** (default — proceed end-to-end, no clarification questions).
@@ -36,7 +13,7 @@ license: MIT
 
 # Karpathy Guidelines
 
-Behavioral guidelines to reduce common LLM coding mistakes, derived from [Andrej Karpathy's observations](https://x.com/karpathy/status/2015883857489522876) on LLM coding pitfalls.
+Behavioral guidelines to reduce common LLM coding mistakes.
 
 **Tradeoff:** These guidelines bias toward caution over speed. For trivial tasks, use judgment.
 
@@ -103,9 +80,6 @@ license: MIT
 ---
 
 # Agent-Skills Philosophies
-
-Distilled from the 24 skills in [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) (MIT). Each is stated as the **rationalization** it rebuts, because rationalization is the failure mode these guard against.
-
 ## 1. Verification Over Confidence
 
 > *"Tests pass, so it's good."* — Tests are necessary but not sufficient. **"Seems right" is never sufficient; there must be evidence** (passing tests, build output, runtime data).

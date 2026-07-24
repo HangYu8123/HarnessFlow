@@ -1,6 +1,6 @@
 ---
 name: 'Fast Correctness Check'
-description: 'Unified token-effective (fast) correctness workflow for Claude Code, Codex, and VS Code Copilot: main-agent scope-driven inspection with optional script runs, then one parallel challenge + research subagent step. Read-only.'
+description: 'Unified token-effective (fast) correctness workflow for Claude Code, Codex, and VS Code Copilot: main-agent scope-driven inspection through the general-family exam lenses with optional script runs, then one parallel challenge + research subagent step. Read-only.'
 ---
 # Examine Existing Repo for Correctness
 
@@ -8,6 +8,7 @@ description: 'Unified token-effective (fast) correctness workflow for Claude Cod
   - philosophy/philosophy.instructions.md
   - _lib/safety_rules.md
   - _lib/workflow_contract.md
+  - _lib/subagent_contract.md
   - repo_info/codebase_overview.md
   - repo_info/scripts_overview.md
   - repo_info/update_logs.md
@@ -15,6 +16,11 @@ description: 'Unified token-effective (fast) correctness workflow for Claude Cod
   - repo_info/past_Correctness_Check.md
   - agents/devils-advocate.agent.md
   - agents/online-researcher.agent.md
+  (role emulation — see workflow_contract.md §Main-Agent Role Emulation)
+  - agents/focus-analyst.agent.md
+  - agents/broad-analyst.agent.md
+  - agents/free-analyst.agent.md
+  - agents/qa-engineer.agent.md
 -->
 
 **Safety: follow `_lib/safety_rules.md`.**
@@ -32,9 +38,9 @@ This workflow is read-only — it inspects and reports, and does not modify code
 
 **read through this entire file and follow the instructions carefully**.
 Before doing any workflow-specific work, the main agent must read and follow [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) and [`philosophy/philosophy.instructions.md`](../../philosophy/philosophy.instructions.md) before proceeding.
-Every subagent created by this workflow must also read and follow those two files before reading [key md files] or performing task-specific work.
+Every subagent created by this workflow must instead read and follow [`_lib/subagent_contract.md`](../../_lib/subagent_contract.md) and [`philosophy/philosophy.instructions.md`](../../philosophy/philosophy.instructions.md) before reading [key md files] or performing task-specific work.
 
-Subagent launch rule: Follow the Subagent Launch Contract in [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md). After each subagent returns, the main agent must check that the result is complete, task-specific, grounded in the requested files, and uses the expected output label.
+Subagent launch rule: Follow the Subagent Launch Contract in [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md). **Every spawn carries two dials, not one:** model from the `subagent_model` header, effort from the `subagent_effort` header (and from `online_researcher_effort` for the Online Researcher). Unless the resolved effort is `inherit`, set the platform effort field where the spawn exposes one, otherwise put the line `effort: <level> — binding budget, not a hint` in the subagent prompt. After each subagent returns, the main agent must check that the result is complete, task-specific, grounded in the requested files, and uses the expected output label.
 
 > **Subagent invocation:** See `_lib/workflow_contract.md` §Subagent Invocation.
 
@@ -51,6 +57,8 @@ Based on the repo context (per §Context Passing) + [important information] + th
 - **Whole-repo scope:** traverse the full pipeline upstream→downstream.
 
 If the user requested script runs, run the runnable scripts directly in pipeline order and record any errors or unexpected outputs as [run results].
+
+**Role emulation** (see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Main-Agent Role Emulation): read `agents/focus-analyst.agent.md`, `agents/broad-analyst.agent.md`, `agents/free-analyst.agent.md`, and `agents/qa-engineer.agent.md` (exam mode), and apply each as a lens on the files read in this step — the important files/functionalities in depth, every file re-ordered by pipeline flow for coverage, a free-judgment reading order, and a QA pass over the runnable scripts and their failure modes — into the report.
 
 Draft [draft correctness report], including all script failures from [run results].
 

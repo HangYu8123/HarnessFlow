@@ -18,12 +18,12 @@ absent, unset, or any unrecognized value is treated as `false`.
 |---|---|---|---|---|
 | `false` *(default)* | Nothing. Skip the step entirely and leave the output label **unproduced**. | — | — | all |
 | `true` | Claude Code's **native bundled skill**: `/simplify`, resp. `/code-review medium`. | `/simplify` yes · `/code-review` no | `[simplify]` · `[code-review]` | Claude Code only — see *Platform note* |
-| `local` | The pack's **vendored skill**: `skills/code-simplification/SKILL.md`, resp. `skills/code-review-and-quality/SKILL.md` (resolve via Pack Path Resolution). | `code-simplification` yes · `code-review-and-quality` no | `[simplify]` · `[code-review]` | all |
+| `local` | The pack's own **local skill**: `skills/code-simplification/SKILL.md`, resp. `skills/code-review-and-quality/SKILL.md` (resolve via Pack Path Resolution). | `code-simplification` yes · `code-review-and-quality` no | `[simplify]` · `[code-review]` | all |
 
 `/code-review medium` — `medium` is the **skill's own** effort level on its
 `low|medium|high|xhigh|max|ultra` scale, a property of the skill call, not of the
-subagent's model. A per-subagent reasoning-effort override is not settable on an ad-hoc
-spawn (see `_lib/workflow_contract.md` §Subagent Launch Contract, "Subagent effort").
+subagent's model. It is a separate dial from `subagent_effort`, which governs the subagent
+running the skill and is carried in that subagent's prompt (see §Effort budget below).
 
 ---
 
@@ -34,7 +34,7 @@ native skills do not exist, so `true` keeps whatever non-Claude branch the calli
 workflow already specifies (typically: skip the native skills; in the `general_workflow`
 family the main agent still performs its own manual complexity/redundancy review).
 
-**`local` is the portable option.** A vendored skill is just a `SKILL.md` the subagent
+**`local` is the portable option.** A local skill is just a `SKILL.md` the subagent
 reads and follows, so `local` behaves identically on Claude Code, Codex, and VS Code
 Copilot. Choose `local` when you want a real review pass on a non-Claude platform.
 
@@ -54,8 +54,7 @@ exactly once.
    the changed files (the current diff), the workflow's finalized plan, its implementation
    or execution report, and the relevant repo context (per §Context Passing).
    - `true` → have it run `/simplify`.
-   - `local` → have it read `skills/code-simplification/SKILL.md` and follow that skill,
-     including the skill's own *HarnessFlow precedence* table.
+   - `local` → have it read `skills/code-simplification/SKILL.md` and follow that skill.
 
    Either way it applies its edits to the working tree. Record **[simplify]**.
 
@@ -75,6 +74,35 @@ whole step.
 
 ---
 
+## Effort budget (`local` only)
+
+`subagent_effort` buys a **token budget** for these two skills, not just reasoning depth.
+No platform exposes an effort parameter on an ad-hoc spawn, so the main agent enforces it
+through the prompt (`_lib/workflow_contract.md` §Subagent Launch Contract, "Subagent
+effort"): add this line to each local-skill subagent prompt —
+
+```
+effort: <low|medium|high|xhigh|max> — binding budget, not a hint. See the skill's §Effort budget.
+```
+
+Each local skill defines what its level costs it. The tiers are:
+
+| | `low` | `medium` | `high` and above · no `effort:` line |
+|---|---|---|---|
+| **Intake** | the handed-in diff | the handed-in diff | the diff plus whatever the skill's method calls for |
+| **`git blame`, whole-file reads, reading the test suite** | only when a hunk is unintelligible without it | only when a hunk is unintelligible without it | as the skill specifies |
+| **Test runs (simplify)** | one run over the batched edits; revert the whole batch on failure | per-edit loop: apply, test, keep or revert | per-edit loop |
+| **An unanswered question the tier forbids chasing** | narrow the claim — skip the simplification, report the axis as unverified | same | does not arise; go read the file |
+
+A cheap run is fine; a cheap run that reads as thorough is not. Every tiered run ends its
+report with a one-line `budget:` note naming what the tier kept it from checking, and the
+main agent carries that note into [final report] rather than dropping it.
+
+This section governs `local` only. `true` invokes Claude Code's native skills, which carry
+their own effort scale (see the `/code-review medium` note above).
+
+---
+
 ## Orchestration per workflow family
 
 - **`token_effective_workflow/`** — the main agent spawns the one or two subagents
@@ -83,7 +111,7 @@ whole step.
   the review is delegated to `skills/claude-native-skills-subagents/SKILL.md`, which is the
   **only** caller of the native `/simplify` and `/code-review`; do not invoke either
   separately in addition to it. When the value is `local`, that wrapper does not apply —
-  spawn the vendored-skill subagents directly, exactly as described above.
+  spawn the local-skill subagents directly, exactly as described above.
 
 ---
 

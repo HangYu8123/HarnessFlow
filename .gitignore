@@ -33,7 +33,7 @@ env/
 # ── Node ──
 node_modules/
 
-# ── Claude Code local state (keep .claude/rules tracked) ──
+# ── Claude Code local state (keep .claude/rules and .claude/agents tracked) ──
 .claude/settings.local.json
 .claude/scheduled_tasks.lock
 

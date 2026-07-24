@@ -1,6 +1,6 @@
 ---
 name: 'Fast PR Creation'
-description: 'Unified token-effective (fast) PR-stack workflow for Claude Code, Codex, and VS Code Copilot: main-agent diff analysis with file-completeness verification, one parallel challenge + research subagent step, and direct stack execution using the breakdown-pr skill'
+description: 'Unified token-effective (fast) PR-stack workflow for Claude Code, Codex, and VS Code Copilot: main-agent diff analysis through the general-family breakdown lenses with file-completeness verification, one parallel challenge + research subagent step, and direct stack execution using the breakdown-pr skill'
 ---
 # Create Pull Requests from a Feature Branch
 
@@ -14,6 +14,7 @@ description: 'Unified token-effective (fast) PR-stack workflow for Claude Code, 
   - philosophy/philosophy.instructions.md
   - _lib/safety_rules.md
   - _lib/workflow_contract.md
+  - _lib/subagent_contract.md
   - _lib/approval_gate.md
   - _lib/review_skills.md
   - repo_info/codebase_overview.md
@@ -24,6 +25,11 @@ description: 'Unified token-effective (fast) PR-stack workflow for Claude Code, 
   - skills/breakdown-pr/SKILL.md
   - agents/devils-advocate.agent.md
   - agents/online-researcher.agent.md
+  (role emulation — see workflow_contract.md §Main-Agent Role Emulation)
+  - agents/focus-analyst.agent.md
+  - agents/broad-analyst.agent.md
+  - agents/free-analyst.agent.md
+  - agents/senior-engineer.agent.md
 -->
 
 [inputs]:
@@ -39,10 +45,10 @@ Also read the breakdown-pr skill at [`skills/breakdown-pr/SKILL.md`](../../skill
 
 **Read this file fully and follow each step.**
 Before doing any workflow-specific work, the main agent must read and follow [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) and [`philosophy/philosophy.instructions.md`](../../philosophy/philosophy.instructions.md) before proceeding.
-Every subagent created by this workflow must also read and follow those two files before reading [key md files] or performing task-specific work.
+Every subagent created by this workflow must instead read and follow [`_lib/subagent_contract.md`](../../_lib/subagent_contract.md) and [`philosophy/philosophy.instructions.md`](../../philosophy/philosophy.instructions.md) before reading [key md files] or performing task-specific work.
 The main agent reads [key md files] in Step 1 and condenses them (plus any target files) into a [repo context digest]; per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents, on **Claude Code** the digest is passed inline to subagents, and on **Codex** and **VS Code Copilot** subagents read [key md files] directly. The neutral phrase "the repo context (per §Context Passing)" resolves accordingly.
 
-Subagent launch rule: Follow the Subagent Launch Contract in [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md). After each subagent returns, the main agent must check that the result is complete, task-specific, grounded in the requested files, and uses the expected output label.
+Subagent launch rule: Follow the Subagent Launch Contract in [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md). **Every spawn carries two dials, not one:** model from the `subagent_model` header, effort from the `subagent_effort` header (and from `online_researcher_effort` for the Online Researcher). Unless the resolved effort is `inherit`, set the platform effort field where the spawn exposes one, otherwise put the line `effort: <level> — binding budget, not a hint` in the subagent prompt. After each subagent returns, the main agent must check that the result is complete, task-specific, grounded in the requested files, and uses the expected output label.
 
 > **Subagent invocation:** See `_lib/workflow_contract.md` §Subagent Invocation.
 
@@ -61,6 +67,8 @@ Read [key md files] and [breakdown-pr skill], and condense [key md files] (plus 
 
 ### Step 2 — PR Planning
 Based on the Step 1 manifests + [breakdown-pr skill] + [inputs], the main agent analyzes the diff, identifies change types and logical groupings, and proposes a [plan] + [dependency graph] following the [breakdown-pr skill] output format. Use [filtered diff manifest] as the authoritative file list; **every file in [filtered diff manifest] must be assigned to exactly one PR**, and each PR must be buildable.
+
+**Role emulation** (see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Main-Agent Role Emulation): read `agents/focus-analyst.agent.md`, `agents/broad-analyst.agent.md`, `agents/free-analyst.agent.md`, and `agents/senior-engineer.agent.md` (plan review), and apply each as a lens on the diff read in this step — depth on the most substantive changed files, the pipeline upstream→downstream to catch cross-cutting changes, a free-judgment grouping pass, and a senior-engineer pass on buildability and dependency ordering — into [plan] + [dependency graph].
 
 File completeness verification: after drafting [plan], rerun `git diff --name-only <base>...<branch>` and cross-reference the output against [plan]. Add missing files to the most appropriate PR; remove files matching [gitignore patterns] or [auto-generated files] unless the user explicitly requested their inclusion. Log discrepancies found and resolved.
 
@@ -89,7 +97,7 @@ The main agent executes the PR stack creation directly, following [breakdown-pr 
 Record [execution report] containing branches created, commits made, PRs submitted, and failures, with no explanations.
 
 ### Step 6 — Stack Review and Verification
-1. **Review skills (opt-in; both headers default to `false`):** PR re-organization authors no new logic, so these run **only when source files were actually edited** (e.g., conflict resolution). Resolve the request's `simplify` and `code_review` headers per [`_lib/review_skills.md`](../../_lib/review_skills.md) — `false` skips, `true` runs Claude Code's native `/simplify` / `/code-review medium`, `local` runs the pack's vendored `code-simplification` / `code-review-and-quality` skills (portable to every platform). Spawn one subagent per enabled skill, **sequentially, simplify first**, following the Subagent Launch Contract in [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) (subagents use the `subagent_model` header; keep an activity log and record fallbacks). Pass each the edited source files (the current diff) + [final plan] + [execution report] plus the relevant repo context. Record [simplify] and/or [code-review] for whichever ran; leave a skipped skill's label unproduced.
+1. **Review skills (opt-in; both headers default to `false`):** PR re-organization authors no new logic, so these run **only when source files were actually edited** (e.g., conflict resolution). Resolve the request's `simplify` and `code_review` headers per [`_lib/review_skills.md`](../../_lib/review_skills.md) — `false` skips, `true` runs Claude Code's native `/simplify` / `/code-review medium`, `local` runs the pack's local `code-simplification` / `code-review-and-quality` skills (portable to every platform). Spawn one subagent per enabled skill, **sequentially, simplify first**, following the Subagent Launch Contract in [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) (subagents use the `subagent_model` header; keep an activity log and record fallbacks). Pass each the edited source files (the current diff) + [final plan] + [execution report] plus the relevant repo context. Record [simplify] and/or [code-review] for whichever ran; leave a skipped skill's label unproduced.
 2. After the native review sub-step completes, the main agent spawns a **Devils Advocate** (`agents/devils-advocate.agent.md`) that reads [breakdown-pr skill] + [final plan] + [execution report] and reviews the stack assuming the PR stack breakdown is wrong — broken builds, incorrect dependency ordering, mixed concerns, missing or misplaced files, stacking risks — explains why each part is wrong, and returns the report as [devils-advocate review].
 3. While the **Devils Advocate** is working, the main agent verifies the stack directly against [final plan] and [execution report]: branch/commit structure, dependency order, no unrelated or auto-generated files included, all necessary files present, and the final stack top matches the original branch diff. Run [breakdown-pr skill] step 7 verification, including `git diff --exit-code` and `git range-diff` where appropriate. Save the conclusion as [direct review].
 
