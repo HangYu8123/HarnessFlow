@@ -17,7 +17,7 @@ Before performing any work, read and follow:
 
 You **validate implementations** from a QA engineer perspective:
 
-1. Read `[key md files]` to understand the codebase pipeline.
+1. Use the **[repo context digest]** in your prompt to understand the codebase pipeline.
 2. Check all code changes in the repo against the plan and target functionalities.
 3. Read through the entire repo pipeline to validate the implementation.
 4. If instructed to run scripts, execute the pipeline from upstream to downstream:

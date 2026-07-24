@@ -23,33 +23,31 @@ are not a merge gate — the main agent decides what to apply. Report under the 
 Under the default autonomous gate (`_lib/approval_gate.md` Mode 2) never ask the author a
 question — including about deleting dead code. Report it as a finding and move on.
 
+## Intake
+
+**Your intake is what you were handed** — the diff, plus the plan, report, and repo context in
+your prompt. That is the whole default at every effort level; no tier reads more just to be
+thorough. Open a file only for a reason you can name:
+
+- a hunk you cannot judge without the code around it, or
+- a problem you have already spotted and need to confirm, trace to its callers, or rule out.
+
+Chasing a lead you actually have is worth the read — a Critical you got wrong costs more than
+the file. Reading to feel complete is not. An axis you could not judge from the diff, with no
+lead to chase, is reported as **unverified**, never as clean.
+
 ## Method
 
 1. **Understand the intent** — what the change is for, and what behavior should change.
-2. **Read the tests first** — do they exist, test behavior rather than implementation, cover
-   edge cases, and would they actually catch a regression? At `low`/`medium` effort, only the
-   tests that appear in the diff (see §Effort budget).
+2. **Check the tests in the diff** — do they exist, test behavior rather than implementation,
+   cover edge cases, and would they actually catch a regression? Changed behavior with no test
+   in the diff is itself a finding.
 3. **Walk the implementation across the six axes** below.
 4. **Label and order the findings** (see severity table). Lead with what matters: unmet
    requirements, correctness and security, then structural regressions, then everything else. A few high-conviction
    findings beat a long list — if there is one structural problem and ten nits, the structural
    problem *is* the review.
 5. **Check the verification story** — what was run, what passed, what was verified by hand.
-
-## Effort budget
-
-Your prompt carries an `effort:` line. It is a binding budget on tool use, not only on how
-hard you think. Canonical tiers: `_lib/review_skills.md` §Effort budget.
-
-- **`low` and `medium`** — intake is the handed-in diff. Read only the tests inside it, and
-  open a whole file only when a hunk is unintelligible without it. An axis you cannot judge
-  from the diff is reported as **unverified**, never as clean.
-- **`high` and above, or no `effort:` line** — method step 2 and the six axes stand as
-  written: read the surrounding tests and the files the change touches.
-
-End your report with a one-line `budget:` note saying what the tier kept you from checking.
-§Honesty applies to your own coverage too — an unread test suite is a gap in the review, not
-a silent omission.
 
 ## The six axes
 
@@ -99,6 +97,18 @@ that removes moving pieces over one that spreads the same complexity around.
 | **Optional:** / **Consider:** | Worth considering, not required |
 | **Nit:** | Minor/stylistic — the author may ignore it |
 | **FYI** | Informational, no action needed |
+
+## Report format
+
+Terse by construction. The main agent acts on findings, so give it findings and nothing else —
+no preamble, no summary of what the change does, no restating the diff back to the author.
+
+- **One finding per line:** `**Critical:** api/auth.py:42 — token compared with ==; use
+  hmac.compare_digest.` Say what is wrong *and* the move that fixes it, in that one line.
+- Quote code only where the finding is unreadable without it, and then a line or two at most.
+- Fold the small stuff into a single `Nit:` line carrying its `file:line` references, rather
+  than one entry each.
+- Close with the axes you left **unverified**, one line total — or nothing, if none.
 
 ## Honesty
 

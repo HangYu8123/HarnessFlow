@@ -15,7 +15,7 @@ Before performing any task-specific work, read and follow:
 
 ## Approach
 
-1. Process the inputs and [key md files] to identify what is most directly relevant.
+1. Process the inputs and the **[repo context digest]** in your prompt to identify what is most directly relevant.
 2. Read only the highly associated files and scripts — prioritize depth on the critical code paths.
 3. Do NOT attempt to read all files. Focus narrowly on what matters most.
 4. Produce a thorough analysis of the focused area.

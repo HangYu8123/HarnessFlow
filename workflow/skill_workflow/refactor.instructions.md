@@ -6,7 +6,7 @@ description: 'Unified skill-backed (skill mode) refactor workflow for Claude Cod
 
 **Safety: follow `_lib/safety_rules.md`.**
 
-> **Unified workflow (platform-adaptive).** This single file serves Claude Code, Codex, and VS Code Copilot. Resolve all paths via Pack Path Resolution (`.github/HarnessFlow/<path>` when installed, or `<path>` from the repo root). Launch subagents using your platform's mechanism per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Invocation. Handle repo-context handoff per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents: on **Claude Code** the main agent builds a condensed **[repo context digest]** and passes it inline to subagents; on **Codex** and **VS Code Copilot**, subagents read **[key md files]** directly.
+> **Unified workflow (platform-adaptive).** This single file serves Claude Code, Codex, and VS Code Copilot. Resolve all paths via Pack Path Resolution (`.github/HarnessFlow/<path>` when installed, or `<path>` from the repo root). Launch subagents using your platform's mechanism per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Invocation. Handle repo-context handoff per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents: the main agent builds a condensed **[repo context digest]** from **[key md files]**, keeps the files themselves as **[full repo context]**, and passes the digest — plus the excerpts of [full repo context] each subagent's task needs — inline to subagents.
 
 > **Skill-backed variant (skill mode).** Selected step *instructions* below are replaced by a confirmed ≥1000-star community skill, cited as `owner/repo:path` (resolve it from that GitHub repo or install it — **not** via Pack Path Resolution; see [`skills/skill_workflow_skills.md`](../../skills/skill_workflow_skills.md)). Every replaced step keeps an inline **fallback**; if the skill is not installed, perform the fallback and continue — never block on a missing external skill. Verified star counts and verification dates live **only** in that registry (single source — re-verify there); do not restate them in this file.
 
@@ -48,7 +48,7 @@ Subagent launch rule: Follow the Subagent Launch Contract in [`_lib/workflow_con
 ## CREATE ONE TODO PER STEP
 
 ### Step 1 - Context Gathering
-Read [key md files]. If target files are specified in [inputs], read them. Condense [key md files] (plus any target files read) into a [repo context digest] per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents: pass [inputs], [key md files], and [repo context digest].
+Read [key md files]. If target files are specified in [inputs], read them. Condense [key md files] (plus any target files read) into a [repo context digest] per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents: pass [inputs], [repo context digest], and the excerpts of [full repo context] each subagent's task needs.
 
 ### Step 2 - Refactor Analysis
 **Skill (replaces this step's instructions):** Produce the refactor [plan] by following **`writing-plans`** (`obra/superpowers:skills/writing-plans/SKILL.md`) — feed it the repo context (per §Context Passing) + [inputs]; it returns dependency-ordered, bite-sized tasks naming the exact files to touch and a verification step per task. Alongside [plan], record a [comparison] (before/after) and behavior-preservation notes.

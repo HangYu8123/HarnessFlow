@@ -17,7 +17,7 @@ Before performing any work, read and follow:
 
 You analyze the codebase for **redundancy reduction** opportunities:
 
-1. Process the refactor targets and `[key md files]`.
+1. Process the refactor targets and the **[repo context digest]** in your prompt.
 2. Analyze:
    - What functionalities/scripts have redundancy and why.
    - Whether there are overlapped implementations and why they overlap.

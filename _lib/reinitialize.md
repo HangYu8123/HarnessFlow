@@ -26,8 +26,8 @@ and the other fresh, and each file follows its own mode.
 ## Validate Existing Claims
 
 For each overview in re-initialize mode, the overview-generating subagent(s) receive the existing
-overview content (per `_lib/workflow_contract.md` §Context Passing — inline on Claude Code; read
-directly on Codex / VS Code Copilot) and, instead of drafting from scratch:
+overview content (per `_lib/workflow_contract.md` §Context Passing) and, instead of drafting from
+scratch:
 
 1. Re-derive every claim against the current code — never judge a claim by plausibility or prior
    knowledge; open the file(s) the claim describes.

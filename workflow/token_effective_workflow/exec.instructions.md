@@ -1,6 +1,6 @@
 ---
 name: 'Fast Goal Exec'
-description: 'Unified token-effective (fast) goal-execution workflow for Claude Code, Codex, and VS Code Copilot: main-agent plan through the general-family analyst lenses, one parallel Devils Advocate + Online Researcher subagent step, and direct execution with captured-output validation.'
+description: 'Unified token-effective (fast) goal-execution workflow for Claude Code, Codex, and VS Code Copilot: main-agent plan, one parallel Devils Advocate + Online Researcher subagent step, and direct execution with captured-output validation.'
 ---
 # Execute Toward a Goal in a Repo
 
@@ -12,7 +12,7 @@ description: 'Unified token-effective (fast) goal-execution workflow for Claude 
 
 **Stay active: follow `_lib/stay_active.md`.** The main agent never stands by while a command or subagent is in flight, and any unavoidable wait must arm **two wake triggers through two different mechanisms** before it begins — wake safety is **per-wait**: a fired trigger is consumed, and a fresh pair must be armed (never extending the wait's absolute deadline) before waiting again.
 
-> **Unified workflow (platform-adaptive).** This single file serves Claude Code, Codex, and VS Code Copilot. Resolve all paths via Pack Path Resolution (`.github/HarnessFlow/<path>` when installed, or `<path>` from the repo root). Launch subagents using your platform's mechanism per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Invocation. Handle repo-context handoff per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents: on **Claude Code** the main agent builds a condensed **[repo context digest]** and passes it inline to subagents; on **Codex** and **VS Code Copilot**, subagents read **[key md files]** directly.
+> **Unified workflow (platform-adaptive).** This single file serves Claude Code, Codex, and VS Code Copilot. Resolve all paths via Pack Path Resolution (`.github/HarnessFlow/<path>` when installed, or `<path>` from the repo root). Launch subagents using your platform's mechanism per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Invocation. Handle repo-context handoff per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents: the main agent builds a condensed **[repo context digest]** from **[key md files]**, keeps the files themselves as **[full repo context]**, and passes the digest — plus the excerpts of [full repo context] each subagent's task needs — inline to subagents.
 
 <!-- Required Context Files (CLI-resolvable paths):
   - philosophy/philosophy.instructions.md
@@ -29,9 +29,6 @@ description: 'Unified token-effective (fast) goal-execution workflow for Claude 
   - agents/devils-advocate.agent.md
   - agents/online-researcher.agent.md
   - skills/index.md
-  (role emulation — see workflow_contract.md §Main-Agent Role Emulation)
-  - agents/focus-analyst.agent.md
-  - agents/free-analyst.agent.md
 -->
 
 [inputs]:
@@ -56,14 +53,12 @@ Subagent launch rule: Follow the Subagent Launch Contract in [`_lib/workflow_con
 ## CREATE ONE TODO PER STEP
 
 ### Step 1 - Context Gathering
-Read [key md files]. If important files are specified in [inputs], read them. Then, per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents: on **Claude Code**, condense the understanding into a **[repo context digest]** (a concise bullet-point summary covering codebase structure/pipeline, key scripts and their roles, recent changes, and active known issues) to pass inline to subagents; on **Codex** and **VS Code Copilot**, keep [key md files] for subagents to read directly.
+Read [key md files]. If important files are specified in [inputs], read them. Then, per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents, condense the understanding into a **[repo context digest]** (a concise bullet-point summary covering codebase structure/pipeline, key scripts and their roles, recent changes) and pass it, plus the excerpts of [full repo context] each subagent's task needs, inline to subagents.
 
 **Local Skill Discovery (before any plan drafting):** When the goal or any specified action involves a named skill, or the goal could be aided by a local skill, perform Local Skill Discovery per `_lib/local_skill_discovery.md` (scan `skills/index.md`; on a confirmed match, read its `SKILL.md`); fold the result [local skills] into the repo context (per §Context Passing) so the Step 3 subagents receive it, and integrate it when the main agent drafts [plan]/[final plan]. Skip when the goal is served by plain commands with no relevant skill ([local skills]: none relevant).
 
 ### Step 2 - Execution Planning
 Based on the repo context (per §Context Passing) + [inputs], the main agent reads the relevant files and proposes a [plan] covering the goal, the exact actions to run (validating any actions specified in [inputs] and deriving the rest), preconditions, expected outputs, the success criteria that prove the goal was met, failure modes, and rollback strategy.
-
-**Role emulation** (see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Main-Agent Role Emulation): read `agents/focus-analyst.agent.md` and `agents/free-analyst.agent.md`, and apply each as a lens on the files read in this step — depth on the scripts and entry points the actions touch, and a free-judgment pass on what else the goal actually requires — into [plan].
 
 ### Step 3 - Plan Challenge and Research
 **[PARALLEL EXECUTION — launch all listed subagents in parallel; see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]**

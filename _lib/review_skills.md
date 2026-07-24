@@ -23,7 +23,8 @@ absent, unset, or any unrecognized value is treated as `false`.
 `/code-review medium` — `medium` is the **skill's own** effort level on its
 `low|medium|high|xhigh|max|ultra` scale, a property of the skill call, not of the
 subagent's model. It is a separate dial from `subagent_effort`, which governs the subagent
-running the skill and is carried in that subagent's prompt (see §Effort budget below).
+running the skill (see `_lib/workflow_contract.md` §Subagent Launch Contract, "Subagent
+effort").
 
 ---
 
@@ -71,35 +72,6 @@ exactly once.
 
 When only one of the two is enabled, run just that one. When both are `false`, skip the
 whole step.
-
----
-
-## Effort budget (`local` only)
-
-`subagent_effort` buys a **token budget** for these two skills, not just reasoning depth.
-No platform exposes an effort parameter on an ad-hoc spawn, so the main agent enforces it
-through the prompt (`_lib/workflow_contract.md` §Subagent Launch Contract, "Subagent
-effort"): add this line to each local-skill subagent prompt —
-
-```
-effort: <low|medium|high|xhigh|max> — binding budget, not a hint. See the skill's §Effort budget.
-```
-
-Each local skill defines what its level costs it. The tiers are:
-
-| | `low` | `medium` | `high` and above · no `effort:` line |
-|---|---|---|---|
-| **Intake** | the handed-in diff | the handed-in diff | the diff plus whatever the skill's method calls for |
-| **`git blame`, whole-file reads, reading the test suite** | only when a hunk is unintelligible without it | only when a hunk is unintelligible without it | as the skill specifies |
-| **Test runs (simplify)** | one run over the batched edits; revert the whole batch on failure | per-edit loop: apply, test, keep or revert | per-edit loop |
-| **An unanswered question the tier forbids chasing** | narrow the claim — skip the simplification, report the axis as unverified | same | does not arise; go read the file |
-
-A cheap run is fine; a cheap run that reads as thorough is not. Every tiered run ends its
-report with a one-line `budget:` note naming what the tier kept it from checking, and the
-main agent carries that note into [final report] rather than dropping it.
-
-This section governs `local` only. `true` invokes Claude Code's native skills, which carry
-their own effort scale (see the `/code-review medium` note above).
 
 ---
 

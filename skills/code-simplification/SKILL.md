@@ -23,6 +23,19 @@ drive-by refactors of untouched code. **Never commit, branch, or open a PR** (`_
 rule 1). Under the default autonomous gate (`_lib/approval_gate.md` Mode 2) do not ask
 questions — choose the most reasonable reading, record it as a one-line assumption, proceed.
 
+## Intake
+
+**Your intake is what you were handed** — the diff, plus the context in your prompt. That is
+the whole default at every effort level; no tier reads more just to be thorough. Open a file,
+or run `git blame`, only for a reason you can name:
+
+- a hunk you cannot judge without the code around it, or
+- a simplification you have already found and need to confirm is safe — the fence question in
+  rule 2, asked about an edit you actually intend to make.
+
+Never read speculatively. If the question stays unanswered, skip that simplification: the
+cheap path is never allowed to become a behavior risk.
+
 ## Rules
 
 1. **Preserve behavior exactly.** Same output for every input, same error behavior, same side
@@ -30,8 +43,8 @@ questions — choose the most reasonable reading, record it as a one-line assump
    change a test means you changed behavior. If unsure a change is behavior-preserving, skip it.
 2. **Understand before touching (Chesterton's Fence).** Know what the code is responsible for,
    what calls it, and why it might be written that way, before you change or delete it. Check
-   `git blame` when the reason isn't obvious. Can't answer? Read more; don't simplify — at
-   `low`/`medium` effort, skip the change instead of reading more (see §Effort budget).
+   `git blame` when the reason isn't obvious and the answer decides the edit (§Intake). Still
+   can't answer? Don't simplify.
 3. **Match the project's conventions**, not your preferences — imports, naming, error handling,
    type depth, and how neighboring code solves the same problem. Simplification that breaks
    consistency is churn.
@@ -41,8 +54,7 @@ questions — choose the most reasonable reading, record it as a one-line assump
    functions into one complex one, or deleting an abstraction that exists for testability all
    make things worse.
 6. **One change at a time.** Apply, re-run the tests, keep or revert. Batching untested edits
-   hides which one broke things — at `low` effort you batch anyway and accept that cost (see
-   §Effort budget). If a change would touch >500 lines, script it instead.
+   hides which one broke things. If a change would touch >500 lines, script it instead.
 
 ## What to look for
 
@@ -58,21 +70,15 @@ questions — choose the most reasonable reading, record it as a one-line assump
 | Dead code: unreachable branches, unused vars/imports, commented-out blocks | Remove once confirmed dead |
 | Wrapper or pattern that adds no value (factory-for-a-factory) | Inline it; call the real thing |
 
-## Effort budget
+## Report format
 
-Your prompt carries an `effort:` line. It is a binding budget on tool use, not only on how
-hard you think. Canonical tiers: `_lib/review_skills.md` §Effort budget.
+Terse by construction — no preamble, no before/after code blocks, no summary of the diff the
+main agent already has.
 
-- **`low` and `medium`** — intake is the handed-in diff. No `git blame`; open a whole file
-  only when a hunk is unintelligible without it. When that leaves a Chesterton's Fence
-  question unanswered (rule 2), **skip that simplification** — the budget never buys a
-  behavior risk.
-- **`low` also** — replace rule 6's per-edit test loop with a single run: apply the batch,
-  run the tests once, and revert **the whole batch** if it fails rather than bisecting it.
-- **`high` and above, or no `effort:` line** — rules 2 and 6 stand exactly as written.
-
-End your report with a one-line `budget:` note saying what the tier kept you from checking
-(files not opened, history not read, edits skipped for an unanswered fence question).
+- **One line per edit:** `api/auth.py:42 — nested ternary → if/else`.
+- Then one line for the tests: what you ran and whether it passed.
+- Then any assumption you made, one line each. If you changed nothing, say so in one line and
+  why — that is a complete report.
 
 ## Before you finish
 

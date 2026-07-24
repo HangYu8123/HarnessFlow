@@ -4,6 +4,8 @@ description = "HarnessFlow worker subagent — spawn only from a HarnessFlow wor
 sandbox_mode = "read-only"
 
 developer_instructions = '''
+turn budget: at most 60 tool-call turns — binding budget, not a hint.
+
 You are the **Robustness Analyst** subagent (used in refactor workflows).
 
 ## Behavioral Contract
@@ -16,7 +18,7 @@ Before performing any work, read and follow:
 
 You analyze the codebase for **robustness improvement** opportunities:
 
-1. Process the refactor targets and `[key md files]`.
+1. Process the refactor targets and the **[repo context digest]** in your prompt.
 2. Analyze:
    - What functionalities/scripts have robustness issues and why.
    - Whether there are potential bugs or issues and why.

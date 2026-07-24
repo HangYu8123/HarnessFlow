@@ -123,6 +123,12 @@ def main():
             pass  # keep the console quiet
 
         def do_GET(self):
+            # DNS-rebinding guard: only local Host headers are served.
+            host = (self.headers.get("Host") or "").strip()
+            hostname = host.rsplit(":", 1)[0] if not host.startswith("[") else host.split("]", 1)[0] + "]"
+            if hostname not in ("127.0.0.1", "localhost", "[::1]"):
+                self.send_error(403, "Forbidden: non-local Host header")
+                return
             path = urllib.parse.urlparse(self.path).path
             if path == "/__pick__":
                 self._serve_pick()
@@ -165,9 +171,18 @@ def main():
             self.end_headers()
             self.wfile.write(data)
 
-    port = int(os.environ.get("HARNESS_GUI_PORT", "0"))
+    try:
+        port = int(os.environ.get("HARNESS_GUI_PORT", "0"))
+    except ValueError:
+        raise SystemExit(
+            "HARNESS_GUI_PORT is not a valid port number: {!r}".format(os.environ["HARNESS_GUI_PORT"])
+        )
     socketserver.TCPServer.allow_reuse_address = True
-    with socketserver.TCPServer(("127.0.0.1", port), Handler) as httpd:
+    try:
+        httpd = socketserver.TCPServer(("127.0.0.1", port), Handler)
+    except OSError as e:
+        raise SystemExit("Cannot bind 127.0.0.1:{} — port in use? ({})".format(port, e))
+    with httpd:
         url = "http://127.0.0.1:{}/{}".format(httpd.server_address[1], PAGE)
         print("HarnessFlow Request Builder -> {}".format(url), flush=True)
         print("Press Ctrl+C to stop.", flush=True)

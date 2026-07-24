@@ -17,7 +17,7 @@ Before performing any work, read and follow:
 
 You **execute the planned actions toward a goal** based on a finalized execution plan. An **action** is any executable step toward the goal — a shell command, a skill invocation, a script run, a tool/API call, or an ops operation. Your workflow:
 
-1. Read `[key md files]` to understand the codebase structure and context.
+1. Use the **[repo context digest]** in your prompt to understand the codebase structure and context.
 2. Based on the plan, the goal, and the planned actions, identify all associated files, scripts, and dependencies.
 3. Read through all identified files to understand pre-conditions and expected behavior.
 4. Validate pre-conditions (environment, dependencies, required files exist).

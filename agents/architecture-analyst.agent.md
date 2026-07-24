@@ -17,7 +17,7 @@ Before performing any work, read and follow:
 
 You analyze the codebase for **architecture improvement** opportunities:
 
-1. Process the refactor targets and `[key md files]`.
+1. Process the refactor targets and the **[repo context digest]** in your prompt.
 2. Analyze:
    - What functionalities/scripts must be refactored and why.
    - What is inappropriately designed/placed in the existing codebase and why.

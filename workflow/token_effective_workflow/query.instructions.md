@@ -1,12 +1,12 @@
 ---
 name: 'Fast Query'
-description: 'Unified token-effective (fast) workflow for Claude Code, Codex, and VS Code Copilot: main-agent answer drafting through the general-family analyst lenses with one parallel challenge + research subagent step. Read-only.'
+description: 'Unified token-effective (fast) workflow for Claude Code, Codex, and VS Code Copilot: main-agent answer drafting with one parallel challenge + research subagent step. Read-only.'
 ---
 # Ask about an existing repo
 
 **Safety: follow `_lib/safety_rules.md`.**
 
-> **Unified workflow (platform-adaptive).** This single file serves Claude Code, Codex, and VS Code Copilot. Resolve all paths via Pack Path Resolution (`.github/HarnessFlow/<path>` when installed, or `<path>` from the repo root). Launch subagents using your platform's mechanism per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Invocation. Handle repo-context handoff per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents: on **Claude Code** the main agent builds a condensed **[repo context digest]** and passes it inline to subagents; on **Codex** and **VS Code Copilot**, subagents read **[key md files]** directly.
+> **Unified workflow (platform-adaptive).** This single file serves Claude Code, Codex, and VS Code Copilot. Resolve all paths via Pack Path Resolution (`.github/HarnessFlow/<path>` when installed, or `<path>` from the repo root). Launch subagents using your platform's mechanism per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Invocation. Handle repo-context handoff per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents: the main agent builds a condensed **[repo context digest]** from **[key md files]**, keeps the files themselves as **[full repo context]**, and passes the digest — plus the excerpts of [full repo context] each subagent's task needs — inline to subagents.
 
 <!-- Required Context Files (CLI-resolvable paths):
   - philosophy/philosophy.instructions.md
@@ -18,10 +18,6 @@ description: 'Unified token-effective (fast) workflow for Claude Code, Codex, an
   - repo_info/update_logs.md
   - repo_info/known_issues.md
   - repo_info/past_Q&A.md
-  (role emulation — see workflow_contract.md §Main-Agent Role Emulation)
-  - agents/focus-analyst.agent.md
-  - agents/broad-analyst.agent.md
-  - agents/free-analyst.agent.md
 -->
 
 This workflow is read-only — it answers questions and does not modify code, so there is no approval gate or implementation step.
@@ -45,12 +41,10 @@ Subagent launch rule: Follow the Subagent Launch Contract in [`_lib/workflow_con
 ## CREATE ONE TODO PER STEP
 
 ### Step 1 - Context Gathering
-Read [key md files]. If important files are specified in [inputs], read them. Condense the understanding into a [repo context digest] and identify [important information] — the most relevant code, scripts, files, and functionalities for the questions. Per §Context Passing: on **Claude Code** pass the [repo context digest] inline to subagents; on **Codex** and **VS Code Copilot** keep [key md files] for subagents to read directly.
+Read [key md files]. If important files are specified in [inputs], read them. Condense the understanding into a [repo context digest] and identify [important information] — the most relevant code, scripts, files, and functionalities for the questions. Per §Context Passing: pass the [repo context digest] inline to subagents, plus the excerpts of [full repo context] each subagent's task needs.
 
 ### Step 2 - Answer Drafting
-Based on the repo context (per §Context Passing) + [important information] + [inputs], the main agent reads the relevant files and drafts [draft answers] grounded in the codebase.
-
-**Role emulation** (see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Main-Agent Role Emulation): read `agents/focus-analyst.agent.md`, `agents/broad-analyst.agent.md`, and `agents/free-analyst.agent.md`, and apply each as a lens on the files read in this step — every file/function named in [important information] in depth, the pipeline upstream→downstream, and a free-judgment pass — into [draft answers], noting where the lenses disagree.
+Based on the repo context (per §Context Passing) + [important information] + [inputs], the goal for the agent is to correctly ad comprehensively answer the queries, the main agent reads the relevant files and drafts [draft answers] grounded in the codebase.
 
 ### Step 3 - Answer Challenge and Research
 **[PARALLEL EXECUTION — launch all listed subagents in parallel; see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]** This is the only step that spawns subagents.

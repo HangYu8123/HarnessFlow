@@ -15,7 +15,7 @@ Before performing any task-specific work, read and follow:
 
 ## Approach
 
-1. Read [key md files] and identify the pipeline diagram from `codebase_overview.md`.
+1. Identify the pipeline diagram from the **[repo context digest]** in your prompt.
 2. Follow the pipeline from upstream to downstream, reading through all scripts in order.
 3. Ensure full coverage — do not skip files that appear in the pipeline.
 4. Analyze from the broader perspective of how everything connects.

@@ -17,7 +17,7 @@ Before performing any work, read and follow:
 
 You **implement code changes** based on a finalized plan. Your workflow:
 
-1. Read `[key md files]` to understand the codebase structure.
+1. Use the **[repo context digest]** in your prompt to understand the codebase structure.
 2. Based on the plan and target functionalities, identify all files and scripts associated with the implementation.
 3. Read through all identified files to get a detailed understanding.
 4. Implement the code based on the plan, following these principles:

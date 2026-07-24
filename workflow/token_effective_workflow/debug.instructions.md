@@ -1,6 +1,6 @@
 ---
 name: 'Fast Debug'
-description: 'Unified token-effective (fast) debug workflow for Claude Code, Codex, and VS Code Copilot: optional reproduction, main-agent diagnosis and fix plan through the general-family analyst lenses, one parallel challenge + research subagent step, direct fix, and platform-conditional review.'
+description: 'Unified token-effective (fast) debug workflow for Claude Code, Codex, and VS Code Copilot: optional reproduction, main-agent diagnosis and fix plan, one parallel challenge + research subagent step, direct fix, and platform-conditional review.'
 ---
 # Debug Instructions
 
@@ -18,16 +18,11 @@ description: 'Unified token-effective (fast) debug workflow for Claude Code, Cod
   - skills/index.md
   - agents/devils-advocate.agent.md
   - agents/online-researcher.agent.md
-  (role emulation — see workflow_contract.md §Main-Agent Role Emulation)
-  - agents/focus-analyst.agent.md
-  - agents/broad-analyst.agent.md
-  - agents/free-analyst.agent.md
-  - agents/senior-engineer.agent.md
 -->
 
 **Safety: follow `_lib/safety_rules.md`.**
 
-> **Unified workflow (platform-adaptive).** This single file serves Claude Code, Codex, and VS Code Copilot. Resolve all paths via Pack Path Resolution (`.github/HarnessFlow/<path>` when installed, or `<path>` from the repo root). Launch subagents using your platform's mechanism per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Invocation. Handle repo-context handoff per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents: on **Claude Code** the main agent builds a condensed **[repo context digest]** and passes it inline to subagents; on **Codex** and **VS Code Copilot**, subagents read **[key md files]** directly.
+> **Unified workflow (platform-adaptive).** This single file serves Claude Code, Codex, and VS Code Copilot. Resolve all paths via Pack Path Resolution (`.github/HarnessFlow/<path>` when installed, or `<path>` from the repo root). Launch subagents using your platform's mechanism per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Invocation. Handle repo-context handoff per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents: the main agent builds a condensed **[repo context digest]** from **[key md files]**, keeps the files themselves as **[full repo context]**, and passes the digest — plus the excerpts of [full repo context] each subagent's task needs — inline to subagents.
 
 [inputs]:
 - input 1: target bug
@@ -54,7 +49,7 @@ Skipped by default; run only if `reproduce: true` is set in the debug request.
 The main agent identifies the target scripts and entry points, runs the relevant bug path in the correct order per scripts_overview.md, and captures stdout, stderr, exit codes, error messages, and tracebacks into [reproduction report].
 
 ### Step 1 - Context Gathering
-Read [key md files]. If suspected scripts are specified in [inputs], read them. Condense them into a **[repo context digest]** — a concise bullet-point summary covering codebase structure/pipeline, key scripts and their roles, recent changes, and active known issues — for use in later steps and for handoff to subagents per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents.
+Read [key md files]. If suspected scripts are specified in [inputs], read them. Condense them into a **[repo context digest]** — a concise bullet-point summary covering codebase structure/pipeline, key scripts and their roles, recent changes — for use in later steps and for handoff to subagents per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents.
 
 **Local Skill Discovery (before any plan drafting):** Perform Local Skill Discovery per `_lib/local_skill_discovery.md` — scan `skills/index.md` for any local skill whose trigger fits [inputs]/the task; on a confirmed match, read its `SKILL.md`. Keep the result as [local skills], fold it into the repo context (per §Context Passing) so the Step 3 subagents receive it, and integrate it when the main agent drafts [plan]/[final plan]. If nothing matches, record [local skills]: none relevant.
 
@@ -63,8 +58,6 @@ Based on [repo context digest] + [inputs] + [reproduction report] (if any), the 
 1. Checks update_logs.md and known_issues.md for whether this bug was previously addressed and, if so, why the prior fix failed.
 2. Reads the associated scripts and identifies the most likely root cause(s) with evidence and affected scripts, recorded as [bug info].
 3. Proposes a [plan] that fixes the bug without breaking the codebase or repeating known_issues.md issues.
-
-**Role emulation** (see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Main-Agent Role Emulation): read `agents/focus-analyst.agent.md`, `agents/broad-analyst.agent.md`, `agents/free-analyst.agent.md`, and `agents/senior-engineer.agent.md` (plan review), and apply each as a lens on the scripts read in this step — the suspected scripts in depth, the pipeline upstream→downstream, free-judgment reading, and a senior-engineer pass on fix correctness, feasibility, and regressions — into [bug info] + [plan]. (The Bug Reproducer, prior-fix, and evidence-based-diagnosis roles are already covered by Step 0 and items 1–2 above; do not repeat them.)
 
 ### Step 3 - Plan Challenge and Research
 **[PARALLEL EXECUTION — launch all listed subagents in parallel; see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]**
@@ -84,7 +77,7 @@ The main agent implements [final plan] directly and records [implementation repo
 
 ### Step 6 - Code Review and Validation
 1. **Review skills (opt-in; both headers default to `false`):** resolve the request's `simplify` and `code_review` headers per [`_lib/review_skills.md`](../../_lib/review_skills.md) — `false` skips, `true` runs Claude Code's native `/simplify` / `/code-review medium`, `local` runs the pack's local `code-simplification` / `code-review-and-quality` skills (portable to every platform). Spawn one subagent per enabled skill, **sequentially, simplify first**, following the Subagent Launch Contract in [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) (subagents use the `subagent_model` header; keep an activity log and record fallbacks). Pass each the changed files (the fix diff) + [final plan] + [implementation report] plus the relevant repo context. Record [simplify] and/or [code-review] for whichever ran; leave a skipped skill's label unproduced.
-2. The main agent reviews the changes directly, validates the implementation with [final plan] + [implementation report], and reports the conclusion as [direct review].
+2. The main agent reviews the changes directly, and reports the conclusion as [direct review].
 
 Based on whichever of [simplify] + [code-review]  + [direct review] were produced, the main agent analyzes and validates them all, and generates a [final report]. Then the main agent applies the clearly-correct, low-risk findings (do not auto-apply uncertain or behavior-changing ones), then records any remaining gaps for Step 7.
 

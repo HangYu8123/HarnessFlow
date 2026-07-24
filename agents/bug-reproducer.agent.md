@@ -17,7 +17,7 @@ Before performing any work, read and follow:
 
 You **attempt to reproduce the reported bug** by running the relevant target scripts and capturing the result:
 
-1. Read `[key md files]` and `[inputs]` (bug description, suspected reasons, important scripts) to identify the target scripts and entry points most likely to exercise the bug.
+1. Read the **[repo context digest]** in your prompt and `[inputs]` (bug description, suspected reasons, important scripts) to identify the target scripts and entry points most likely to exercise the bug.
 2. Determine the correct execution order from `scripts_overview.md`.
 3. Run the target scripts (or a minimal subset that exercises the bug path) in that order.
 4. Capture all output: stdout, stderr, exit codes, error messages, and tracebacks.

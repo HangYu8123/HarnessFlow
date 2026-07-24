@@ -1,6 +1,6 @@
 ---
 name: 'Fast Correctness Check'
-description: 'Unified token-effective (fast) correctness workflow for Claude Code, Codex, and VS Code Copilot: main-agent scope-driven inspection through the general-family exam lenses with optional script runs, then one parallel challenge + research subagent step. Read-only.'
+description: 'Unified token-effective (fast) correctness workflow for Claude Code, Codex, and VS Code Copilot: main-agent scope-driven inspection with optional script runs, then one parallel challenge + research subagent step. Read-only.'
 ---
 # Examine Existing Repo for Correctness
 
@@ -16,16 +16,11 @@ description: 'Unified token-effective (fast) correctness workflow for Claude Cod
   - repo_info/past_Correctness_Check.md
   - agents/devils-advocate.agent.md
   - agents/online-researcher.agent.md
-  (role emulation — see workflow_contract.md §Main-Agent Role Emulation)
-  - agents/focus-analyst.agent.md
-  - agents/broad-analyst.agent.md
-  - agents/free-analyst.agent.md
-  - agents/qa-engineer.agent.md
 -->
 
 **Safety: follow `_lib/safety_rules.md`.**
 
-> **Unified workflow (platform-adaptive).** This single file serves Claude Code, Codex, and VS Code Copilot. Resolve all paths via Pack Path Resolution (`.github/HarnessFlow/<path>` when installed, or `<path>` from the repo root). Launch subagents using your platform's mechanism per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Invocation. Handle repo-context handoff per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents: on **Claude Code** the main agent builds a condensed **[repo context digest]** and passes it inline to subagents; on **Codex** and **VS Code Copilot**, subagents read **[key md files]** directly.
+> **Unified workflow (platform-adaptive).** This single file serves Claude Code, Codex, and VS Code Copilot. Resolve all paths via Pack Path Resolution (`.github/HarnessFlow/<path>` when installed, or `<path>` from the repo root). Launch subagents using your platform's mechanism per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Invocation. Handle repo-context handoff per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents: the main agent builds a condensed **[repo context digest]** from **[key md files]**, keeps the files themselves as **[full repo context]**, and passes the digest — plus the excerpts of [full repo context] each subagent's task needs — inline to subagents.
 
 This workflow is read-only — it inspects and reports, and does not modify code, so there is no approval gate or implementation step.
 
@@ -49,7 +44,7 @@ Subagent launch rule: Follow the Subagent Launch Contract in [`_lib/workflow_con
 ## CREATE ONE TODO PER STEP
 
 ### Step 1 - Context Gathering
-Read [key md files]. If important files or target functionalities are specified in [inputs], read them. Per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents, condense the understanding into a **[repo context digest]** (Claude Code passes it inline to subagents; Codex and VS Code Copilot keep [key md files] for subagents to read directly) and identify [important information] — the most relevant code, scripts, and functionalities. Decide the **scope**: whole-repo (include the full pipeline diagram) or target functionality (include upstream/downstream context).
+Read [key md files]. If important files or target functionalities are specified in [inputs], read them. Per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents, condense the understanding into a **[repo context digest]** (passed inline to subagents, plus the excerpts of [full repo context] each subagent's task needs) and identify [important information] — the most relevant code, scripts, and functionalities. Decide the **scope**: whole-repo (include the full pipeline diagram) or target functionality (include upstream/downstream context).
 
 ### Step 2 - Correctness Analysis
 Based on the repo context (per §Context Passing) + [important information] + the chosen scope, the main agent lists the relevant files, orders them by pipeline flow, reads them, and examines correctness:
@@ -57,8 +52,6 @@ Based on the repo context (per §Context Passing) + [important information] + th
 - **Whole-repo scope:** traverse the full pipeline upstream→downstream.
 
 If the user requested script runs, run the runnable scripts directly in pipeline order and record any errors or unexpected outputs as [run results].
-
-**Role emulation** (see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Main-Agent Role Emulation): read `agents/focus-analyst.agent.md`, `agents/broad-analyst.agent.md`, `agents/free-analyst.agent.md`, and `agents/qa-engineer.agent.md` (exam mode), and apply each as a lens on the files read in this step — the important files/functionalities in depth, every file re-ordered by pipeline flow for coverage, a free-judgment reading order, and a QA pass over the runnable scripts and their failure modes — into the report.
 
 Draft [draft correctness report], including all script failures from [run results].
 

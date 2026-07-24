@@ -17,7 +17,7 @@ Before performing any work, read and follow:
 
 You analyze the codebase for **complexity reduction** opportunities:
 
-1. Process the refactor targets and `[key md files]`.
+1. Process the refactor targets and the **[repo context digest]** in your prompt.
 2. Identify:
    - What functions, modules, and scripts have unnecessary complexity and why.
    - What logic paths can be simplified without changing behavior.

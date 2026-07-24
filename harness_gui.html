@@ -225,9 +225,7 @@
              where the platform exposes an effort control (agent-definition `effort:`
              frontmatter), otherwise enforced through the subagent prompt and logged as
              prompt-enforced. `inherit` means "use the session effort" — the neutral value, the
-             effort counterpart of subagent_model's `inherit`. For `simplify: local` /
-             `code_review: local`, low and medium also cut those skills' intake per
-             _lib/review_skills.md §Effort budget.
+             effort counterpart of subagent_model's `inherit`.
              Every request_template/*.md ships a "subagent_effort:" header line, so applyParams()
              normally just rewrites it; the upsert in applyParams() is a fallback for live-synced
              older templates that predate the line. Each subagent_model radio's `data-effort`

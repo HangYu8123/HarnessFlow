@@ -67,6 +67,25 @@ CLAUDE_DESC_PREFIX = (
     "never by autonomous delegation. "
 )
 
+# Effort level -> hard turn cap (`maxTurns`) for generated Claude definitions.
+# One turn = one assistant step; a batch of parallel tool calls counts once.
+# Anchors: Claude Agent SDK / claude-code-action default 10 turns, OpenAI
+# Agents SDK DEFAULT_MAX_TURNS 10, LangGraph recursion_limit 25, community
+# Claude Code guidance ~20 for a typical subagent — plus ~3 turns of fixed
+# HarnessFlow preamble (contract + philosophy + repo context reads) per worker.
+# The cap lands in every generated definition: a native `maxTurns:` frontmatter
+# field where the format has one, a `turn budget:` body line otherwise.
+EFFORT_MAX_TURNS = {
+    "low": 12,
+    "medium": 20,
+    "high": 30,
+    "xhigh": 45,
+    "max": 60,
+}
+# A def with no pinned `effort:` runs at whatever effort the request sets, so
+# its static cap must fit the highest tier — a runaway backstop, nothing more.
+DEFAULT_MAX_TURNS = EFFORT_MAX_TURNS["max"]
+
 
 def parse_source(path):
     """Split an ``agents/*.agent.md`` file into (frontmatter dict, body)."""
@@ -87,12 +106,25 @@ def parse_source(path):
     for key in ("name", "description"):
         if not front.get(key):
             raise SystemExit("{}: frontmatter is missing `{}`.".format(path, key))
+    effort = front.get("effort")
+    if effort and effort not in CODEX_EFFORT:
+        raise SystemExit("{}: unknown effort '{}'.".format(path, effort))
+    max_turns = front.get("max_turns")
+    if max_turns and not (max_turns.isdigit() and int(max_turns) > 0):
+        raise SystemExit(
+            "{}: `max_turns` must be a positive integer, got {!r}.".format(path, max_turns)
+        )
     return front, body
 
 
 def source_tools(path, front):
     """Return the source `tools:` tokens, validated against the tool map."""
-    tokens = re.findall(r"['\"]([^'\"]+)['\"]", front.get("tools", ""))
+    raw = front.get("tools", "")
+    tokens = re.findall(r"['\"]([^'\"]+)['\"]", raw)
+    if raw.strip() and not tokens:
+        raise SystemExit(
+            "{}: `tools:` value {!r} parsed to no tokens — quote each tool name.".format(path, raw)
+        )
     unknown = [t for t in tokens if t not in CLAUDE_TOOLS]
     if unknown:
         raise SystemExit(
@@ -111,6 +143,16 @@ def claude_tools(tokens):
     return out
 
 
+def turn_cap(front):
+    """Hard turn cap: explicit `max_turns:` wins, else the pinned effort tier,
+    else the runaway backstop for defs whose effort arrives per request."""
+    if front.get("max_turns"):
+        return int(front["max_turns"])
+    if front.get("effort"):
+        return EFFORT_MAX_TURNS[front["effort"]]
+    return DEFAULT_MAX_TURNS
+
+
 def yaml_quote(value):
     return '"' + value.replace("\\", "\\\\").replace('"', '\\"') + '"'
 
@@ -127,6 +169,7 @@ def render_claude(slug, src_name, front, body, tokens):
     lines.append("model: inherit")
     if front.get("effort"):
         lines.append("effort: " + front["effort"])
+    lines.append("maxTurns: {}".format(turn_cap(front)))
     lines.append("---")
     lines.append("")
     lines.append("<!-- {} from {}/{} — do not edit by hand. -->".format(MARKER, SRC_DIR, src_name))
@@ -159,6 +202,13 @@ def render_codex(slug, src_name, front, body, tokens):
         lines.append("model_reasoning_effort = " + toml_quote(CODEX_EFFORT[effort]))
     lines.append("")
     lines.append("developer_instructions = '''")
+    # No native turn-cap field in this format — the cap binds as definition text.
+    lines.append(
+        "turn budget: at most {} tool-call turns — binding budget, not a hint.".format(
+            turn_cap(front)
+        )
+    )
+    lines.append("")
     lines.append(body)
     lines.append("'''")
     return "\n".join(lines) + "\n"
@@ -203,7 +253,9 @@ def main():
     os.makedirs(CLAUDE_DIR, exist_ok=True)
     os.makedirs(CODEX_DIR, exist_ok=True)
 
-    written, removed, slugs = [], [], set()
+    # Parse + render everything into memory first, so any SystemExit fires
+    # before the first output file is written.
+    written, removed, slugs, outputs = [], [], set(), []
     for src_name in sources:
         slug = src_name[: -len(SRC_SUFFIX)]
         if not re.fullmatch(r"[a-z][a-z-]*", slug):
@@ -214,16 +266,15 @@ def main():
         slugs.add(slug)
         front, body = parse_source(os.path.join(SRC_DIR, src_name))
         tokens = source_tools(os.path.join(SRC_DIR, src_name), front)
-        write_if_changed(
-            os.path.join(CLAUDE_DIR, slug + ".md"),
-            render_claude(slug, src_name, front, body, tokens),
-            written,
+        outputs.append(
+            (os.path.join(CLAUDE_DIR, slug + ".md"), render_claude(slug, src_name, front, body, tokens))
         )
-        write_if_changed(
-            os.path.join(CODEX_DIR, slug + ".toml"),
-            render_codex(slug, src_name, front, body, tokens),
-            written,
+        outputs.append(
+            (os.path.join(CODEX_DIR, slug + ".toml"), render_codex(slug, src_name, front, body, tokens))
         )
+
+    for path, content in outputs:
+        write_if_changed(path, content, written)
 
     prune_stale(CLAUDE_DIR, slugs, ".md", removed)
     prune_stale(CODEX_DIR, slugs, ".toml", removed)

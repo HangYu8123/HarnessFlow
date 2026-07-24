@@ -54,6 +54,7 @@ def main():
     old = json.loads(m.group(1))
     order = [k for k in old if k in templates] + [k for k in templates if k not in old]
     body = json.dumps({k: templates[k] for k in order}, indent=2, ensure_ascii=True)
+    body = body.replace("</", "<\\/")  # HTML-safe inside <script>; still valid JSON
 
     new_block = OPEN_TAG + "\n" + body + "\n" + CLOSE_TAG
     if page[m.start() : m.end()] == new_block:
