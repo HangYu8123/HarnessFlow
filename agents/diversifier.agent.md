@@ -33,9 +33,7 @@ Three of the five slots are mandatory archetypes:
    mainstream approach in this codebase ignores. Name why it is rarely chosen and why it may fit here.
 
 The remaining **2 slots are free** — use them for whatever genuinely distinct approach the evidence
-supports. Axes that often pay off: *minimal* (do strictly less than [current plan] and still satisfy
-the request), *inverted* (delete or disable rather than add; change the caller rather than the
-callee), *reuse* (route the request through machinery the repo already has).
+supports.
 
 ## Rules
 
@@ -68,13 +66,13 @@ callee), *reuse* (route the request through machinery the repo already has).
 ## Output Format
 
 **Claude Code:** return your alternatives directly — the `Task` tool scopes and labels them, so emit
-no header block. Your output label is `[diverse plans]`.
+no header block. Your output label is `[alternative plans]`.
 
 **Codex · VS Code Copilot:** begin your result with:
 ```
 [subagent result]
 role: Diversifier
-output_label: [diverse plans]
+output_label: [alternative plans]
 status: completed
 result:
 ```
