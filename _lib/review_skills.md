@@ -47,9 +47,14 @@ Both are launched as subagents under the Subagent Launch Contract
 (`_lib/workflow_contract.md` §Subagent Launch Contract): they use the `subagent_model` the
 request specifies, and the main agent keeps the usual activity log.
 
-**Order matters, and they run sequentially — never in parallel.** The simplify step writes
-the working tree; the code-review step must read the *resulting* diff. Invoke each skill
-exactly once.
+**They run in parallel — launch both before waiting for either.** This is a deliberate
+speed-for-accuracy trade: the simplify step writes the working tree, so the code-review
+step reads a diff that may be stale by the time it reports. See *Parallel-review caveats*
+below for how the main agent reconciles that. Invoke each skill exactly once.
+
+Launch per `_lib/workflow_contract.md` §Parallel Execution & Fallback: issue both subagent
+invocations before waiting on any result; if parallel launch is unavailable, degrade to
+sequential with simplify first.
 
 1. **Simplify** (only when `simplify` is `true` or `local`) — spawn one subagent. Pass it
    the changed files (the current diff), the workflow's finalized plan, its implementation
@@ -60,8 +65,9 @@ exactly once.
    Either way it applies its edits to the working tree. Record **[simplify]**.
 
 2. **Code review** (only when `code_review` is `true` or `local`, *and* the step actually
-   changed code files) — **after the simplify subagent returns**, spawn a second subagent.
-   Pass it the resulting post-simplify diff plus the same plan / report / repo context.
+   changed code files) — spawn a second subagent **at the same time as the simplify
+   subagent, without waiting for it**. Pass it the diff as it stands at launch, plus the
+   same plan / report / repo context.
    - `true` → have it run `/code-review medium`, **review-only**: never `--fix`, never
      `--comment` (`--comment` posts inline comments to a GitHub PR — an outward-facing
      action governed by `_lib/safety_rules.md` rule 1).
@@ -72,6 +78,22 @@ exactly once.
 
 When only one of the two is enabled, run just that one. When both are `false`, skip the
 whole step.
+
+---
+
+## Parallel-review caveats
+
+Running the two concurrently is faster but costs the guarantee that code-review saw the
+final tree. When both actually ran, the main agent must, before consuming the results:
+
+1. **Anchor findings by file + symbol, not line number.** Simplify may have moved or
+   deleted the lines a code-review finding cites. Re-locate each finding in the current
+   tree; drop the ones simplify already resolved.
+2. **Re-check any finding that lands in a region simplify edited.** Those are the only
+   ones the staleness can invalidate — a finding in untouched code is unaffected.
+3. **Treat a direct conflict as unresolved, not as a fix.** If simplify rewrote code that
+   code-review flagged as buggy, the bug is not automatically gone; verify or record it
+   as a gap.
 
 ---
 

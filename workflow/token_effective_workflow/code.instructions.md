@@ -21,6 +21,7 @@ description: 'Unified token-effective (fast) code-implementation workflow for Cl
   - repo_info/known_issues.md
   - agents/devils-advocate.agent.md
   - agents/online-researcher.agent.md
+  - agents/diversifier.agent.md
   - skills/index.md
 -->
 
@@ -44,7 +45,7 @@ Subagent launch rule: Follow the Subagent Launch Contract in [`_lib/workflow_con
 ## CREATE ONE TODO PER STEP
 
 ### Step 1 - Context Gathering
-Read [key md files]. If important files are specified in [inputs], read them. Condense them (plus any target files) into a **[repo context digest]** for use in later steps, and hand off repo context to subagents per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents: the main agent passes [repo context digest] inline, plus the excerpts of [full repo context] each subagent's task needs.
+Read [key md files]. If important files are specified in [inputs], read them. Everything read in this step — [key md files] plus any additional files read — is **[full repo context]**; keep it in your own context for the rest of the run. Condense them (plus any target files) into a **[repo context digest]** for use in later steps, and hand off repo context to subagents per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents: the main agent passes [repo context digest] inline, plus the excerpts of [full repo context] each subagent's task needs.
 
 **Local Skill Discovery (before any plan drafting):** Perform Local Skill Discovery per `_lib/local_skill_discovery.md` — scan `skills/index.md` for any local skill whose trigger fits [inputs]/the task; on a confirmed match, read its `SKILL.md`. Keep the result as [local skills], fold it into the repo context (per §Context Passing) so the Step 3 subagents receive it, and integrate it when the main agent drafts [plan]/[final plan]. If nothing matches, record [local skills]: none relevant.
 
@@ -58,9 +59,10 @@ Based on the repo context (per §Context Passing) + [inputs], the main agent rea
 |----------|-------|---------------|------|
 | Challenge | **Devils Advocate** (`agents/devils-advocate.agent.md`) | Always | Read the repo context (per §Context Passing) + [plan] + [inputs], and additional files/scripts if needed. Assume every step in the [plan] is wrong, flawed, and over-engineered; identify overlooked side effects, integration risks, incorrect assumptions, over-engineering and regressions. Then explain why the items are wrong, flawed, and over-engineered. Distinguish genuine defects from out-of-scope or speculative additions, and report only evidence-backed criticisms (do not manufacture problems). Return [challenge report]. |
 | Research | **Online Researcher** (`agents/online-researcher.agent.md`) | Always | Read the repo context (per §Context Passing) + [plan] + [inputs]. Search online for reliable references, established solutions, and available resources. Return [online resource]. |
+| Diversify | **Diversifier** (`agents/diversifier.agent.md`) | Always | Read the repo context (per §Context Passing) + [plan] + [inputs], and additional files if needed. Propose 5 alternative plans that each fulfill [inputs] — including one **risky**, one **aggressive**, and one **rare** — each structurally different from [plan] and from each other, each carrying a calibrated `P(better)` that it beats [plan]. Return [diverse plans]. |
 
 ### Step 4 - Refine and Approval Gate
-The main agent incorporates [challenge report] and [online resource] (when produced) into a [final plan]. Print [final plan].
+The main agent incorporates [challenge report] and [online resource] (when produced) into a [final plan], adopting any alternative from [diverse plans] whose `P(better)` and evidence beat the current plan (otherwise keeping it, with a one-line note why). Print [final plan].
 
 **Approval gate (opt-in):** see `_lib/approval_gate.md` — proceed directly to Step 5 unless the user asked for no code/file changes or a plan-only review.
 
@@ -68,10 +70,12 @@ The main agent incorporates [challenge report] and [online resource] (when produ
 The main agent implements [final plan] directly and records [implementation report] containing changes only, with no explanations.
 
 ### Step 6 - Code Review and Validation
-1. **Review skills (opt-in; both headers default to `false`):** resolve the request's `simplify` and `code_review` headers per [`_lib/review_skills.md`](../../_lib/review_skills.md) — `false` skips, `true` runs Claude Code's native `/simplify` / `/code-review medium`, `local` runs the pack's local `code-simplification` / `code-review-and-quality` skills (portable to every platform). Spawn one subagent per enabled skill, **sequentially, simplify first**, following the Subagent Launch Contract in [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) (subagents use the `subagent_model` header; keep an activity log and record fallbacks). Pass each the changed files (the current diff) + [final plan] + [implementation report] plus the relevant repo context. Record [simplify] and/or [code-review] for whichever ran; leave a skipped skill's label unproduced.
-2. The main agent reviews the changes directly, reports the conclusion as [direct review].
 
-Based on whichever of [simplify] + [code-review] + [direct review] were produced, the main agent analyzes and validates them all, and generates a [final report]. Then the main agent applies the clearly-correct, low-risk findings (do not auto-apply uncertain or behavior-changing ones), then records any remaining gaps for Step 7.
+**[PARALLEL EXECUTION — launch the review-skill subagents in one batch; see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]** Issue every enabled subagent invocation below before waiting on any result, and perform the main agent's own direct review while they run. **Speed-for-accuracy trade:** simplify writes the working tree while the other reviewers read it, so reconcile their findings per [`_lib/review_skills.md`](../../_lib/review_skills.md) §Parallel-review caveats before the remediation pass. Degrade to sequential (simplify first) only if parallel launch is unavailable.
+1. **Review skills (opt-in; both headers default to `false`):** resolve the request's `simplify` and `code_review` headers per [`_lib/review_skills.md`](../../_lib/review_skills.md) — `false` skips, `true` runs Claude Code's native `/simplify` / `/code-review medium`, `local` runs the pack's local `code-simplification` / `code-review-and-quality` skills (portable to every platform). Spawn one subagent per enabled skill **in parallel — issue both invocations before waiting on either** (per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback; degrade to sequential, simplify first, only if parallel launch is unavailable), following the Subagent Launch Contract in [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) (subagents use the `subagent_model` header; keep an activity log and record fallbacks). Pass each the changed files (the current diff) + [final plan] + [implementation report] plus the relevant repo context. Record [simplify] and/or [code-review] for whichever ran; leave a skipped skill's label unproduced.
+2. **While those subagents run**, the main agent reviews the changes directly, reports the conclusion as [direct review].
+
+Based on whichever of [simplify] + [code-review] + [direct review] were produced, the main agent analyzes and validates them all — reconciling [simplify] against [code-review] per [`_lib/review_skills.md`](../../_lib/review_skills.md) §Parallel-review caveats when both ran — and generates a [final report]. Then the main agent applies the clearly-correct, low-risk findings (do not auto-apply uncertain or behavior-changing ones), then records any remaining gaps for Step 7.
 
 ### Step 7 - Documentation and Summary
 1. Update codebase_overview.md and scripts_overview.md based on actual changes and [final report].

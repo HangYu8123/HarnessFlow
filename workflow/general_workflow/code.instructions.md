@@ -41,7 +41,7 @@ Subagent launch rule: Follow the Subagent Launch Contract in [`_lib/workflow_con
 ## CREATE ONE TODO PER STEP
 
 ### Step 1 - Context Gathering and Local Skill Discovery
-Read [key md files]. Understand them. Then, per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents, create a condensed **[repo context digest]** — a concise bullet-point summary covering: codebase structure/pipeline, key scripts and their roles, recent changes — and pass it, plus the excerpts of [full repo context] each subagent's task needs, inline to every subagent.
+Read [key md files]. Understand them. Everything read in this step — [key md files] plus any additional files read — is **[full repo context]**; keep it in your own context for the rest of the run. Then, per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents, create a condensed **[repo context digest]** — a concise bullet-point summary covering: codebase structure/pipeline, key scripts and their roles, recent changes — and pass it, plus the excerpts of [full repo context] each subagent's task needs, inline to every subagent.
 
 If preferred files are specified, the main agent must read through the preferred files, then combine the understood knowledge with [key md files].
 
@@ -63,15 +63,16 @@ The main agent creates a **Senior Engineer** subagent (`agents/senior-engineer.a
 The main agent reviews the plans and implementation diagrams from Step 2 and [senior staff engineer review], and reads necessary files. If the plans or the review involve any other repos, go to those repos, read their codebase_overview.md and scripts_overview.md if they exist, and keep those in the memory. Finally, combine all that information and draft a [final plan] that is feasible, stable, and verified against existing tests and behavior.
 
 ### Step 5 - Plan Challenge and Research
-**[PARALLEL EXECUTION — launch all listed subagents in parallel; see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]** Pass [final plan], the input functionalities from [inputs], and the repo context (per §Context Passing) to both subagents.
+**[PARALLEL EXECUTION — launch all listed subagents in parallel; see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]** Pass [final plan], the input functionalities from [inputs], and the repo context (per §Context Passing) to all three subagents.
 
 | Subagent | Agent | When to spawn | Task |
 |----------|-------|---------------|------|
 | Challenge | **Devils Advocate** (`agents/devils-advocate.agent.md`) | Always | Read all relevant scripts, then critically challenge [final plan] — looking for overlooked side effects, integration risks, incorrect assumptions about the codebase, or potential regressions. Return flaws as [valid criticisms]. |
 | Research | **Online Researcher** (`agents/online-researcher.agent.md`) | Always | Identify extra needs for skills, tools, and packages. MUST actually call the platform's live web search/fetch tool(s) to search the live internet (never answer from prior knowledge) and MUST return the source URLs fetched as proof — see `agents/online-researcher.agent.md`. Return [online resource]. |
+| Diversify | **Diversifier** (`agents/diversifier.agent.md`) | Always | Process [inputs], [final plan], and the repo context (per §Context Passing), and read the files [final plan] touches. Then propose 5 alternative plans that each fulfill the target functionalities — including one **risky**, one **aggressive**, and one **rare** — each structurally different from [final plan] and from each other, each carrying a calibrated `P(better)` that it beats [final plan]. Return [diverse plans]. |
 
 ### Step 6 - Incorporate Criticisms
-The main agent incorporates [valid criticisms] and [online resource], and updates [final plan] accordingly.
+The main agent incorporates [valid criticisms] and [online resource], and updates [final plan] accordingly. It also weighs [diverse plans]: where an alternative's `P(better)` and evidence show it beats [final plan], adopt it — or graft in the part of it that wins — and restate [final plan] on that basis; otherwise keep [final plan] and record in one line why the alternatives were not taken.
 
 ### Step 7 - Print Plan and Approval Gate
 The main agent prints the updated [final plan], so the user can review it. **Approval gate:** See `_lib/approval_gate.md`.
@@ -84,6 +85,7 @@ The main agent creates an **Implementer** subagent (`agents/implementer.agent.md
 - **When a header is `true` and the main agent is Claude Code (or another Claude agent with Claude Code skills available):** search `skills/index.md` for `claude-native-skills-subagents`, then use the skill at [`skills/claude-native-skills-subagents/SKILL.md`](../../skills/claude-native-skills-subagents/SKILL.md) — it is the only caller of the native `/simplify` and `/code-review`; do not invoke either separately. (`/code-review` additionally requires that the implementation changed code files.)
 - **When a header is `local` (any platform, no Claude Code dependency):** skip that wrapper skill and spawn the local-skill subagent directly per [`_lib/review_skills.md`](../../_lib/review_skills.md) — `skills/code-simplification/SKILL.md` for `simplify`, `skills/code-review-and-quality/SKILL.md` for `code_review`.
 - **Otherwise (`true` on Codex, or VS Code Copilot without Claude Code skills):** the native skills do not exist — skip them; instead, the main agent performs a manual review of all changed files for unnecessary complexity and redundancy before proceeding.
+- **Parallel launch (speed-for-accuracy trade):** launch **every** review subagent this step spawns — the native wrapper's, or the `local` ones — **in parallel, including simplify** (see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback). Simplify writes the working tree while the reviewers read it, so reconcile their findings per [`_lib/review_skills.md`](../../_lib/review_skills.md) §Parallel-review caveats before applying anything. Degrade to sequential (simplify first) only if parallel launch is unavailable.
 
 ### Step 10 - Implementation Review and QA
 **[PARALLEL EXECUTION — launch all listed subagents in parallel; see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]** Pass [final plan], target functionalities, [implementation report], and the repo context (per §Context Passing) to both subagents.

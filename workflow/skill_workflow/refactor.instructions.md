@@ -26,6 +26,7 @@ description: 'Unified skill-backed (skill mode) refactor workflow for Claude Cod
   - skills/claude-native-skills-subagents/SKILL.md
   - agents/devils-advocate.agent.md
   - agents/online-researcher.agent.md
+  - agents/diversifier.agent.md
 -->
 
 [inputs]:
@@ -48,7 +49,7 @@ Subagent launch rule: Follow the Subagent Launch Contract in [`_lib/workflow_con
 ## CREATE ONE TODO PER STEP
 
 ### Step 1 - Context Gathering
-Read [key md files]. If target files are specified in [inputs], read them. Condense [key md files] (plus any target files read) into a [repo context digest] per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents: pass [inputs], [repo context digest], and the excerpts of [full repo context] each subagent's task needs.
+Read [key md files]. If target files are specified in [inputs], read them. Everything read in this step — [key md files] plus any additional files read — is **[full repo context]**; keep it in your own context for the rest of the run. Condense [key md files] (plus any target files read) into a [repo context digest] per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents: pass [inputs], [repo context digest], and the excerpts of [full repo context] each subagent's task needs.
 
 ### Step 2 - Refactor Analysis
 **Skill (replaces this step's instructions):** Produce the refactor [plan] by following **`writing-plans`** (`obra/superpowers:skills/writing-plans/SKILL.md`) — feed it the repo context (per §Context Passing) + [inputs]; it returns dependency-ordered, bite-sized tasks naming the exact files to touch and a verification step per task. Alongside [plan], record a [comparison] (before/after) and behavior-preservation notes.
@@ -61,9 +62,10 @@ Read [key md files]. If target files are specified in [inputs], read them. Conde
 |----------|-------|---------------|------|
 | Challenge | **Devils Advocate** (`agents/devils-advocate.agent.md`) | Always | **Skill-backed:** run the challenge by following **`the-fool`** (`Jeffallan/claude-skills:skills/the-fool/SKILL.md`) — a structured devil's-advocate / pre-mortem over the repo context (per §Context Passing) + [plan] + [comparison] + [inputs], reading additional files if needed. Assume every step in the [plan] is wrong, flawed, and over-engineered; identify overlooked side effects, integration risks, incorrect assumptions, over-engineering, and regressions; report only evidence-backed criticisms (do not manufacture problems). Return [challenge report]. **Fallback if `the-fool` is unavailable:** perform the Devil's Advocate task as written in the fast workflow. |
 | Research | **Online Researcher** (`agents/online-researcher.agent.md`) | Always | **Skill-backed:** draft [online resource] by running **`deep-research`** (`davila7/claude-code-templates:cli-tool/components/skills/ai-research/deep-research/SKILL.md`) — plan/search/read/synthesize a **cited report** of reliable references, established refactoring/migration solutions, and available resources for [plan] + [comparison] + [inputs]. The subagent MUST call its platform's live web search/fetch tool(s) and return source URLs as proof (see `agents/online-researcher.agent.md`). **Fallback if `deep-research` is unavailable:** perform the Online Researcher task as written in the fast workflow. |
+| Diversify | **Diversifier** (`agents/diversifier.agent.md`) | Always | **No skill binding** — no vetted ≥1000★ skill covers plan diversification, so run the Diversifier agent definition directly: Receive the repo context (per §Context Passing) + [plan] + [comparison] + [inputs], and read additional files if needed. Propose 5 alternative refactor plans that each achieve the refactor targets — including one **risky**, one **aggressive**, and one **rare** — each structurally different from [plan] and from each other, each carrying a calibrated `P(better)` that it beats [plan]. Return [diverse plans]. |
 
 ### Step 4 - Refine and Approval Gate
-The main agent incorporates [challenge report] and [online resource] (when produced) into a [final plan]. Print [final plan].
+The main agent incorporates [challenge report] and [online resource] (when produced) into a [final plan], adopting any alternative from [diverse plans] whose `P(better)` and evidence beat the current plan (otherwise keeping it, with a one-line note why). Print [final plan].
 
 **Approval gate (opt-in):** see `_lib/approval_gate.md` — proceed directly to Step 5 unless the user asked for no code/file changes or a plan-only review.
 
@@ -72,6 +74,8 @@ The main agent incorporates [challenge report] and [online resource] (when produ
 **Fallback if the skills are unavailable:** the main agent implements [final plan] and records an [implementation report] (changes only, no explanations).
 
 ### Step 6 - Code Review and Validation
+
+**[PARALLEL EXECUTION — launch the review-skill subagents and the `the-fool` self-challenge in one batch; see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]** Issue every enabled subagent invocation below before waiting on any result, and perform the main agent's own direct review while they run. **Speed-for-accuracy trade:** simplify writes the working tree while the other reviewers read it, so reconcile their findings per [`_lib/review_skills.md`](../../_lib/review_skills.md) §Parallel-review caveats before the remediation pass. Degrade to sequential (simplify first) only if parallel launch is unavailable.
 1. The main agent first reviews the changes, save the conclusion as [direct review].
 2. **Review skills** (`true` = Claude Code native · `local` = the pack's local skills; see [`_lib/review_skills.md`](../../_lib/review_skills.md)):
    - **Review skills (opt-in; both headers default to `false`):** resolve the request's `simplify` and `code_review` headers per [`_lib/review_skills.md`](../../_lib/review_skills.md). `false` skips that skill entirely. When a header is **`true`** and the main agent is Claude Code (or another Claude agent with Claude Code skills available), run the native review **once** via [`skills/claude-native-skills-subagents/SKILL.md`](../../skills/claude-native-skills-subagents/SKILL.md) — that skill is the only caller of `/simplify` and `/code-review`; do not run either yourself in addition to it. When a header is **`local`**, skip that wrapper and spawn the local-skill subagent directly (`skills/code-simplification/SKILL.md`, resp. `skills/code-review-and-quality/SKILL.md`) — this works on every platform. Record [simplify] and/or [code-review] for whichever ran. If a `true` header's native skill is unavailable, skip it.

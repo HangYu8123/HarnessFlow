@@ -333,7 +333,7 @@ The launcher serves over http so the templates stay live-synced from `request_te
 
 ## Agents And Skills
 
-`agents/` defines **15 worker agents**, orchestrated by the per-category workflow instruction files under `workflow/<family>/` (which act as the coordinators). Worker agents include Focus Analyst, Broad Analyst, Free Analyst, Senior Engineer, Principal Engineer, Devils Advocate, Online Researcher, Implementer, Executor, QA Engineer, Bug Reproducer, and the refactor specialists Architecture, Redundancy, Robustness, and Complexity Analyst.
+`agents/` defines **16 worker agents**, orchestrated by the per-category workflow instruction files under `workflow/<family>/` (which act as the coordinators). Worker agents include Focus Analyst, Broad Analyst, Free Analyst, Senior Engineer, Principal Engineer, Devils Advocate, Diversifier, Online Researcher, Implementer, Executor, QA Engineer, Bug Reproducer, and the refactor specialists Architecture, Redundancy, Robustness, and Complexity Analyst.
 
 Each `agents/<slug>.agent.md` is the single source of truth for its role, projected by `sync_agent_definitions.py` into the two native definition formats — `.claude/agents/<slug>.md` and `.codex/agents/<slug>.toml` — which `cli_setup.sh` installs. Spawning by agent type (`focus-analyst`, `senior-engineer`, …) makes the role text the subagent's **system prompt**, so it costs nothing per spawn instead of being re-sent or read in-band, and it enforces that role's tools (Claude Code) and sandbox (Codex). **Re-run `python3 sync_agent_definitions.py` from the pack root after editing any `agents/*.agent.md`.**
 

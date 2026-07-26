@@ -46,7 +46,7 @@ Subagent launch rule: Follow the Subagent Launch Contract in [`_lib/workflow_con
 ## CREATE ONE TODO PER STEP
 
 ### Step 1 - Context Gathering
-Read [key md files]. If important files are specified in [inputs], read them. Condense the understanding into a [repo context digest] and identify [important information] — the most relevant code, scripts, files, and functionalities for the questions. Per §Context Passing: pass the [repo context digest] inline to subagents, plus the excerpts of [full repo context] each subagent's task needs.
+Read [key md files]. If important files are specified in [inputs], read them. Everything read in this step — [key md files] plus any additional files read — is **[full repo context]**; keep it in your own context for the rest of the run. Condense the understanding into a [repo context digest] and identify [important information] — the most relevant code, scripts, files, and functionalities for the questions. Per §Context Passing: pass the [repo context digest] inline to subagents, plus the excerpts of [full repo context] each subagent's task needs.
 
 ### Step 2 - Answer Drafting
 *(Unchanged — no qualifying skill; answers must be grounded in this specific codebase.)*

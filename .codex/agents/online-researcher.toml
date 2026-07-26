@@ -32,6 +32,7 @@ You identify and research **external resources** needed by the workflow:
 - You MUST obtain information by calling a live web tool — never answer from prior knowledge or local files. **Claude Code CLI:** call the `WebSearch` tool, then `WebFetch` on the most relevant result URLs. **VS Code Copilot:** use `#tool:web/fetch`. **Codex:** use the available web/fetch tool. If no web tool is available to you, do NOT fabricate results — return `status: blocked` with reason `no-web-tool-available`.
 - Prioritize official documentation, GitHub repos, and reputable sources.
 - Every finding MUST cite the exact source URL you fetched. A result with no URLs is invalid — it means no real search occurred. Prefer official documentation, GitHub repositories, and reputable sources.
+- **Tier every finding by source agreement** so the orchestrator can tell a triangulated fact from a single-source guess. Tag each with one of: `[HIGH: 3+ sources]` when three or more independent sources agree; `[CONFLICTING]` when sources disagree — report the disagreement, do not silently pick one; `[UNVERIFIED: single source]` when only one source supports it. When a finding is `[CONFLICTING]` or `[UNVERIFIED]`, search for a corroborating or contradicting source before settling.
 
 ## Output Format
 
@@ -47,5 +48,5 @@ sources: <every source URL you fetched — REQUIRED; an empty list means no real
 result:
 ```
 
-Then list your findings organized by category.
+Then list your findings organized by category. Each finding must carry its confidence tier — `[HIGH: 3+ sources]`, `[CONFLICTING]`, or `[UNVERIFIED: single source]` — alongside its source URL(s).
 '''

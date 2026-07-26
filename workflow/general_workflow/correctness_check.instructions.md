@@ -42,7 +42,7 @@ Subagent launch rule: Follow the Subagent Launch Contract in [`_lib/workflow_con
 ## CREATE ONE TODO PER STEP
 
 ### Step 1 - Context Gathering
-Read [key md files]. Understand them. Then, per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents, create a condensed **[repo context digest]** — a concise bullet-point summary covering codebase structure/pipeline, key scripts and their roles, recent changes, and past correctness-check findings — and pass it, plus the excerpts of [full repo context] each subagent's task needs, inline to every subagent.
+Read [key md files]. Understand them. Everything read in this step — [key md files] plus any additional files read — is **[full repo context]**; keep it in your own context for the rest of the run. Then, per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents, create a condensed **[repo context digest]** — a concise bullet-point summary covering codebase structure/pipeline, key scripts and their roles, recent changes, and past correctness-check findings — and pass it, plus the excerpts of [full repo context] each subagent's task needs, inline to every subagent.
 Use `past_Correctness_Check.md` as the canonical correctness-check history file; do not create alternate correctness history filenames.
 
 If important files are specified in [inputs], the main agent must read through the important files, then combine the understood knowledge with [key md files]. If target functionalities are specified in [inputs], according to [key md files], the main agent must read through the related scripts, then combine the understood knowledge with [key md files].
