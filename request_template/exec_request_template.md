@@ -3,6 +3,8 @@ agent type: claude
 subagent_model: inherit
 subagent_effort: high
 online_researcher_effort: high
+devils_advocate: off
+online_research: on
 simplify: false
 code_review: false
 
@@ -18,6 +20,8 @@ Hard constraints, in priority order (hardest first) —
 | Claude Code | `workflow/token_effective_workflow/exec.instructions.md` | `workflow/general_workflow/exec.instructions.md` | `workflow/skill_workflow/exec.instructions.md` |
 | Codex (CLI or VS Code) | `.github/HarnessFlow/workflow/token_effective_workflow/exec.instructions.md` | `.github/HarnessFlow/workflow/general_workflow/exec.instructions.md` | `.github/HarnessFlow/workflow/skill_workflow/exec.instructions.md` |
 | VS Code Copilot | `@/.github/HarnessFlow/workflow/token_effective_workflow/exec.instructions.md` | `@/.github/HarnessFlow/workflow/general_workflow/exec.instructions.md` | `@/.github/HarnessFlow/workflow/skill_workflow/exec.instructions.md` |
+
+`devils_advocate` (default `off`) and `online_research` (default `on`) toggle the Devils Advocate and Online Researcher subagents on/off — `on` runs it, `off` skips it and leaves its output label unproduced. The Diversifier always runs.
 
 `simplify` / `code_review` each accept `false` (skip — the default), `true` (Claude Code's native `/simplify` · `/code-review`), or `local` (the pack's local `skills/code-simplification` · `skills/code-review-and-quality`, which work on every platform). See `_lib/review_skills.md`.
 

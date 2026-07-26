@@ -67,8 +67,8 @@ The main agent reviews the plans and implementation diagrams from Step 2 and [se
 
 | Subagent | Agent | When to spawn | Task |
 |----------|-------|---------------|------|
-| Challenge | **Devils Advocate** (`agents/devils-advocate.agent.md`) | Always | Read all relevant scripts, then critically challenge [final plan] — looking for overlooked side effects, integration risks, incorrect assumptions about the codebase, or potential regressions. Return flaws as [valid criticisms]. |
-| Research | **Online Researcher** (`agents/online-researcher.agent.md`) | Always | Identify extra needs for skills, tools, and packages. MUST actually call the platform's live web search/fetch tool(s) to search the live internet (never answer from prior knowledge) and MUST return the source URLs fetched as proof — see `agents/online-researcher.agent.md`. Return [online resource]. |
+| Challenge | **Devils Advocate** (`agents/devils-advocate.agent.md`) | `devils_advocate: on` · default `off` | Read all relevant scripts, then critically challenge [final plan] — looking for overlooked side effects, integration risks, incorrect assumptions about the codebase, or potential regressions. Return flaws as [valid criticisms]. |
+| Research | **Online Researcher** (`agents/online-researcher.agent.md`) | `online_research: on` · default `on` | Identify extra needs for skills, tools, and packages. MUST actually call the platform's live web search/fetch tool(s) to search the live internet (never answer from prior knowledge) and MUST return the source URLs fetched as proof — see `agents/online-researcher.agent.md`. Return [online resource]. |
 | Diversify | **Diversifier** (`agents/diversifier.agent.md`) | Always | Process [inputs], [final plan], and the repo context (per §Context Passing), and read the files [final plan] touches. Then propose 5 alternative plans that each fulfill the target functionalities — including one **risky**, one **aggressive**, and one **rare** — each structurally different from [final plan] and from each other, each carrying a calibrated `P(better)` that it beats [final plan]. Return [diverse plans]. |
 
 ### Step 6 - Incorporate Criticisms

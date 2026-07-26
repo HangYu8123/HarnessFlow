@@ -3,6 +3,8 @@ agent type: claude
 subagent_model: inherit
 subagent_effort: high
 online_researcher_effort: high
+devils_advocate: off
+online_research: on
 
 First, **READ THROUGH THE corresponding query.instructions.md VERY CAREFULLY**, in its entirety, then follow it step-by-step to answer the queries.
 
@@ -16,6 +18,8 @@ Hard constraints, in priority order (hardest first) —
 | Claude Code | `workflow/token_effective_workflow/query.instructions.md` | `workflow/general_workflow/query.instructions.md` | `workflow/skill_workflow/query.instructions.md` |
 | Codex (CLI or VS Code) | `.github/HarnessFlow/workflow/token_effective_workflow/query.instructions.md` | `.github/HarnessFlow/workflow/general_workflow/query.instructions.md` | `.github/HarnessFlow/workflow/skill_workflow/query.instructions.md` |
 | VS Code Copilot | `@/.github/HarnessFlow/workflow/token_effective_workflow/query.instructions.md` | `@/.github/HarnessFlow/workflow/general_workflow/query.instructions.md` | `@/.github/HarnessFlow/workflow/skill_workflow/query.instructions.md` |
+
+`devils_advocate` (default `off`) and `online_research` (default `on`) toggle the Devils Advocate and Online Researcher subagents on/off — `on` runs it, `off` skips it and leaves its output label unproduced. The Diversifier always runs.
 
 query:
 
