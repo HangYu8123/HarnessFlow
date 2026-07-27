@@ -132,7 +132,7 @@ bash .github/HarnessFlow/setup.sh
 
 ## Get Started
 
-A workflow runs when a filled-in request template names its instruction file. A bare, plain-language prompt is answered normally, without the pack. Auto-discovered router files, quoted chat history, and assistant or tool logs do not count as activation, and the assistant never reconstructs a template from an ordinary request.
+Only a filled-in request template starts a workflow. Plain prompts and quoted logs do not, and the assistant never reconstructs a template.
 
 ### Step 1 — Initialize repo memory
 

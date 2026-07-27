@@ -520,9 +520,8 @@
           changes, and stop. HarnessFlow replaces that with a formalized pipeline. A request template names a
           detailed workflow, which decomposes into parallel subagents with distinct cognitive perspectives,
           challenged by an adversarial reviewer, validated by a QA pass, and recorded in persistent repo memory.
-          A bare, plain-language prompt is answered normally, without the pack. Auto-discovered router files,
-          quoted chat history, and assistant or tool logs do not count as activation, and the assistant never
-          reconstructs a template from an ordinary request.
+          Only a filled-in request template starts a workflow. Plain prompts and quoted logs do not, and the
+          assistant never reconstructs a template.
           It is pure Markdown plus two Bash setup scripts — copy it into any repo under
           <code>.github/HarnessFlow/</code> and it works with Claude Code, Codex, and VS Code Copilot.
         </p>
