@@ -44,12 +44,12 @@ description: 'Unified token-effective (fast) loop meta-workflow for Claude Code,
 
 [key md files]: codebase_overview.md, scripts_overview.md, update_logs.md, known_issues.md (under `repo_info/`, resolved via Pack Path Resolution). In multi-layer repos, also read the `codebase_overview.md` + `scripts_overview.md` of each discovered layer per `_lib/workflow_contract.md` §Key Context Files → Multi-Layer / Nested Repos.
 
-**Model & effort headers** (read from the request header; governed by [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Launch Contract — default `inherit`, never downgrade):
+**Model & effort headers** (read from the request header; governed by [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Launch Contract — templates ship Opus 5 + low; `inherit` never downgrades):
 - `subagent_model` — model for the loop's own workers (the free-form body-worker, Devils Advocate, Online Researcher).
 - `dispatch_main_model` — *dispatch only:* model for the sub-main agent that runs the dispatched family.
 - `dispatch_subagent_model` — *dispatch only:* model for that family's own subagents.
-- `subagent_effort` — reasoning-effort budget for those same workers (`inherit` | `low` | `medium` | `high` | `xhigh` | `max`; request templates ship `high`). Applied per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent effort — the platform effort field where the spawn exposes one, otherwise an `effort: <level> — binding budget, not a hint` line in the worker's prompt. `inherit` means add neither.
-- `online_researcher_effort` — replaces `subagent_effort` for the Online Researcher only; honor it even when it is lower.
+- `subagent_effort` — reasoning-effort budget for those same workers (`inherit` | `low` | `medium` | `high` | `xhigh` | `max`; request templates ship `low`). Applied per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent effort — the platform effort field where the spawn exposes one, otherwise an `effort: <level> — binding budget, not a hint` line in the worker's prompt. `inherit` means add neither.
+- `online_researcher_effort` — replaces `subagent_effort` for the Online Researcher only (request templates ship `medium`); honor it even when it is lower.
 - *Dispatch:* there is no separate `dispatch_*_effort` header — both effort levels **cross the dispatch boundary unchanged**, and the sub-main agent applies them to every subagent it spawns, just as `loop_strategy` is passed down.
 
 **Safety-cap headers** (read from the request header; always enforced — these are the always-on stops):
