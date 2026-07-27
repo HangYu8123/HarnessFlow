@@ -32,7 +32,7 @@ Worker agents are `user-invocable: false` — they are only accessible as subage
 | `senior-engineer` | **Senior Engineer** — Senior Staff Engineer review | Read, Grep, Glob | read-only | code, debug, refactor, exec |
 | `principal-engineer` | **Principal Engineer** — Principal Engineer review (refactor authority) | Read, Grep, Glob | read-only | refactor (general only) |
 | `devils-advocate` | **Devils Advocate** — Critical challenger (finds risks) | Read, Grep, Glob | read-only | code, debug, query, correctness_check, refactor, exec |
-| `diversifier` | **Diversifier** — Alternative-plan generation (5 diverse plans + calibrated `P(better)`) | Read, Grep, Glob | read-only | code, debug, refactor, exec, pr |
+| `diversifier` | **Diversifier** — Alternative-plan generation (5 diverse plans + calibrated `P(better)`) | Read, Grep, Glob | read-only | code, debug, refactor, exec, pr, correctness_check |
 | `online-researcher` | **Online Researcher** — External resource lookup | Read, Grep, Glob, WebSearch, WebFetch | read-only | code, debug, query, correctness_check, refactor, exec |
 | `implementer` | **Implementer** — Code implementation | Read, Grep, Glob, Edit, Write, Bash | workspace-write | code, debug, refactor |
 | `executor` | **Executor** — Cmd/skill execution | Read, Grep, Glob, Bash | workspace-write | exec |
