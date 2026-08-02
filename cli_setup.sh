@@ -136,6 +136,7 @@ CANONICAL_FILES=(
     "codebase_overview.md"
     "scripts_overview.md"
     "update_logs.md"
+    "update_logs_all.md"
     "known_issues.md"
     "update_logs_auto_generated.md"
     "known_issues_auto_generated.md"

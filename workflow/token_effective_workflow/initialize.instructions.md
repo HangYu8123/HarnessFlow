@@ -18,7 +18,9 @@ description: 'Unified token-effective (fast) repo-initialization workflow for Cl
 
 **Safety: follow `_lib/safety_rules.md`.**
 
-> **Unified workflow (platform-adaptive).** This single file serves Claude Code, Codex, and VS Code Copilot. Resolve all paths via Pack Path Resolution (`.github/HarnessFlow/<path>` when installed, or `<path>` from the repo root). Launch subagents using your platform's mechanism per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Invocation. Handle repo-context handoff per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents: the main agent builds a condensed **[repo context digest]** from **[key md files]**, keeps the files themselves as **[full repo context]**, and passes the digest — plus the excerpts of [full repo context] each subagent's task needs — inline to subagents. On a first run this workflow creates the `repo_info/` overviews, so subagents read the live repo files instead; on re-initialization the existing overviews are the baseline to validate and diff-update per [`_lib/reinitialize.md`](../../_lib/reinitialize.md).
+> **Preamble — canonical in [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md).** Platform adaptation (this file serves Claude Code, Codex, and VS Code Copilot), Pack Path Resolution, subagent invocation, repo-context handoff (**[repo context digest]** / **[full repo context]**), and the two spawn dials (`subagent_model` + `subagent_effort` / `online_researcher_effort`) with the returned-result check are governed by its §Pack Path Resolution · §Subagent Invocation · §Context Passing for Subagents · §Subagent Launch Contract — this file deliberately does not restate them.
+
+> **First run vs. re-initialization.** On a first run this workflow creates the `repo_info/` overviews, so subagents read the live repo files instead; on re-initialization the existing overviews are the baseline to validate and diff-update per [`_lib/reinitialize.md`](../../_lib/reinitialize.md).
 
 This workflow generates documentation; it does not modify source code, so there is no approval gate.
 
@@ -29,10 +31,6 @@ This workflow generates documentation; it does not modify source code, so there 
 **read through this entire file and follow the instructions carefully**.
 Before doing any workflow-specific work, the main agent must read and follow [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) and [`philosophy/philosophy.instructions.md`](../../philosophy/philosophy.instructions.md) before proceeding.
 Every subagent created by this workflow must instead read and follow [`_lib/subagent_contract.md`](../../_lib/subagent_contract.md) and [`philosophy/philosophy.instructions.md`](../../philosophy/philosophy.instructions.md) before performing task-specific work. The main agent passes repo context to subagents per §Context Passing; subagents do not re-read files already summarized by the main agent (on a first run the `repo_info/` overviews do not exist yet — this workflow creates them; on re-initialization the existing overviews are passed to subagents as validation baselines per `_lib/reinitialize.md`).
-
-Subagent launch rule: Follow the Subagent Launch Contract in [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md). **Every spawn carries two dials, not one:** model from the `subagent_model` header, effort from the `subagent_effort` header (and from `online_researcher_effort` for the Online Researcher). Unless the resolved effort is `inherit`, set the platform effort field where the spawn exposes one, otherwise put the line `effort: <level> — binding budget, not a hint` in the subagent prompt. After each subagent returns, the main agent must check that the result is complete, task-specific, grounded in the requested files, and uses the expected output label.
-
-> **Subagent invocation:** See `_lib/workflow_contract.md` §Subagent Invocation.
 
 ---
 
@@ -68,20 +66,20 @@ Generate each overview **once**. **[PARALLEL EXECUTION — launch all listed sub
 | Subagent | Agent | Role | Task |
 |----------|-------|------|------|
 | Codebase | **Free Analyst** (`agents/free-analyst.agent.md`) | Free mode | Read [inputs] + [file structure]. Decide the reading order (entry points → imports → pipeline position), read the files, and construct [codebase_overview draft]. |
-| Scripts | **Focus Analyst** (`agents/focus-analyst.agent.md`) | Folder mode | Read [inputs] + [file structure]. Go folder-by-folder and summarize each function/class in code files with their dependencies. Return [scripts overview draft]. |
+| Scripts | **Focus Analyst** (`agents/focus-analyst.agent.md`) | Repo-map mode | Read [inputs] + [file structure] + [`_lib/repo_map.md`](../../_lib/repo_map.md). Build the ranked repo map per that file: extract each file's definitions/references (best available extractor), rank by reference-graph centrality, render per-file summary + key signatures in rank order, and bisect to the token budget (≤4k; 8k super-large). Return [scripts overview draft]. |
 
 For an overview in re-initialize mode, additionally pass that analyst the overview's existing content (Free Analyst ← codebase_overview.md, Focus Analyst ← scripts_overview.md): the analyst validates it per [`_lib/reinitialize.md`](../../_lib/reinitialize.md) §Validate Existing Claims, and its draft is the existing overview plus a [validation & diff report] rather than a from-scratch rewrite.
 
 ### Step 4 - Synthesize and Write Codebase Overview
 1. The main agent validates [codebase_overview draft] against the actual files, fixing inaccuracies.
 2. Draft the [pipeline] diagram with associated scripts in each block and validate it against the code.
-3. Write codebase_overview.md with the diagram and repo description.
+3. Write codebase_overview.md with the diagram and repo description, keeping it within its ≤4k-token budget per [`_lib/repo_map.md`](../../_lib/repo_map.md).
 
 If codebase_overview.md is in re-initialize mode, apply the [validation & diff report] as targeted edits per [`_lib/reinitialize.md`](../../_lib/reinitialize.md) §Update With Diff — preserve confirmed content, never blank-and-rewrite.
 
 ### Step 5 - Synthesize and Write Scripts Overview
 1. The main agent spot-checks [scripts overview draft] against actual files and fixes inconsistencies.
-2. Write the final scripts_overview.md.
+2. Write the final scripts_overview.md, verifying the budget fit per [`_lib/repo_map.md`](../../_lib/repo_map.md) (bisect the ranked list; never exceed the budget).
 
 If scripts_overview.md is in re-initialize mode, apply the [validation & diff report] as targeted edits per [`_lib/reinitialize.md`](../../_lib/reinitialize.md) §Update With Diff — preserve confirmed content, never blank-and-rewrite.
 

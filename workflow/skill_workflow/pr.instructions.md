@@ -8,7 +8,7 @@ description: 'Unified skill-backed (skill mode) PR-stack workflow for Claude Cod
 
 **DO NOT COMMIT TO GITHUB WITHOUT USER APPROVAL | DO NOT WRITE SPAM FILES | DO NOT USE SUDO**
 
-> **Unified workflow (platform-adaptive).** This single file serves Claude Code, Codex, and VS Code Copilot. Resolve all paths via Pack Path Resolution (`.github/HarnessFlow/<path>` when installed, or `<path>` from the repo root). Launch subagents using your platform's mechanism per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Invocation. Handle repo-context handoff per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents: the main agent builds a condensed **[repo context digest]** from **[key md files]**, keeps the files themselves as **[full repo context]**, and passes the digest — plus the excerpts of [full repo context] each subagent's task needs — inline to subagents.
+> **Preamble — canonical in [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md).** Platform adaptation (this file serves Claude Code, Codex, and VS Code Copilot), Pack Path Resolution, subagent invocation, repo-context handoff (**[repo context digest]** / **[full repo context]**), and the two spawn dials (`subagent_model` + `subagent_effort` / `online_researcher_effort`) with the returned-result check are governed by its §Pack Path Resolution · §Subagent Invocation · §Context Passing for Subagents · §Subagent Launch Contract — this file deliberately does not restate them.
 
 > **Skill-backed variant (skill mode).** PR planning is already skill-based (the local `breakdown-pr` skill). The challenge, research, and post-execution self-challenge step *instructions* below are replaced by a confirmed ≥1000-star community skill, cited as `owner/repo:path` (resolve it from that GitHub repo or install it — **not** via Pack Path Resolution; see [`skills/skill_workflow_skills.md`](../../skills/skill_workflow_skills.md)). Every replaced step keeps an inline **fallback**; if the skill is not installed, perform the fallback and continue. Verified star counts and verification dates live **only** in that registry (single source — re-verify there); do not restate them in this file.
 
@@ -48,10 +48,6 @@ Also read the breakdown-pr skill at [`skills/breakdown-pr/SKILL.md`](../../skill
 Before doing any workflow-specific work, the main agent must read and follow [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) and [`philosophy/philosophy.instructions.md`](../../philosophy/philosophy.instructions.md) before proceeding.
 Every subagent created by this workflow must instead read and follow [`_lib/subagent_contract.md`](../../_lib/subagent_contract.md) and [`philosophy/philosophy.instructions.md`](../../philosophy/philosophy.instructions.md) before reading [key md files] or performing task-specific work.
 The main agent reads [key md files] in Step 1, keeps them as [full repo context], and condenses them (plus any target files) into a [repo context digest]; per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents, the digest is passed inline to subagents together with the excerpts of [full repo context] each subagent's task needs. The neutral phrase "the repo context (per §Context Passing)" resolves accordingly.
-
-Subagent launch rule: Follow the Subagent Launch Contract in [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md). **Every spawn carries two dials, not one:** model from the `subagent_model` header, effort from the `subagent_effort` header (and from `online_researcher_effort` for the Online Researcher). Unless the resolved effort is `inherit`, set the platform effort field where the spawn exposes one, otherwise put the line `effort: <level> — binding budget, not a hint` in the subagent prompt. After each subagent returns, the main agent must check that the result is complete, task-specific, grounded in the requested files, and uses the expected output label.
-
-> **Subagent invocation:** See `_lib/workflow_contract.md` §Subagent Invocation.
 
 ---
 
@@ -107,7 +103,7 @@ Record [execution report] containing branches created, commits made, PRs submitt
 4. Based on whichever of [simplify] + [code-review] + [post-impl challenge report] + [direct review] were produced, if any verification fails, perform **one** remediation pass (repair the affected branches, then re-verify once); record any remaining gaps for Step 7.
 
 ### Step 7 — Documentation and Summary
-1. Write to update_logs.md (one entry per PR in the stack):
+1. Write to update_logs.md (one entry per PR in the stack) per `_lib/doc_logging.md` (timestamps, IDs, two-file rule):
 ```md
 {=============================PR Creation Update===============================}
 {PR Title, Timestamp (current time, YYYY-MM-DD HH:MM), and PR number in stack (e.g., PR 1/5)}

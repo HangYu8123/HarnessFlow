@@ -19,11 +19,11 @@ description: 'Instructions for breaking down and creating pull requests from fea
   - skills/breakdown-pr/SKILL.md
 -->
 
-**DO NOT TRY TO COMMIT CHANGES TO GITHUB WITHOUT USER APPROVAL**
-**DO NOT WRITE SPAM FILES INTO THE REPO**
-**DO NOT USE SUDO**
+**Safety: follow `_lib/safety_rules.md`.**
 
-> **Unified workflow (platform-adaptive).** This single file serves Claude Code, Codex, and VS Code Copilot. Resolve all paths via Pack Path Resolution (`.github/HarnessFlow/<path>` when installed, or `<path>` from the repo root). Launch subagents using your platform's mechanism per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Invocation. Handle repo-context handoff per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents: the main agent builds a condensed **[repo context digest]** from **[key md files]**, keeps the files themselves as **[full repo context]**, and passes the digest — plus the excerpts of [full repo context] each subagent's task needs — inline to subagents.
+**DO NOT COMMIT TO GITHUB WITHOUT USER APPROVAL | DO NOT WRITE SPAM FILES | DO NOT USE SUDO**
+
+> **Preamble — canonical in [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md).** Platform adaptation (this file serves Claude Code, Codex, and VS Code Copilot), Pack Path Resolution, subagent invocation, repo-context handoff (**[repo context digest]** / **[full repo context]**), and the two spawn dials (`subagent_model` + `subagent_effort` / `online_researcher_effort`) with the returned-result check are governed by its §Pack Path Resolution · §Subagent Invocation · §Context Passing for Subagents · §Subagent Launch Contract — this file deliberately does not restate them.
 
 [inputs]:
 - input 1: target branch (optional, defaults to current branch)
@@ -37,10 +37,6 @@ description: 'Instructions for breaking down and creating pull requests from fea
 **Read this file fully and follow each step.**
 Before doing any workflow-specific work, the main agent must read and follow [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) and [`philosophy/philosophy.instructions.md`](../../philosophy/philosophy.instructions.md) before proceeding.
 Every subagent created by this workflow must instead read and follow [`_lib/subagent_contract.md`](../../_lib/subagent_contract.md) and [`philosophy/philosophy.instructions.md`](../../philosophy/philosophy.instructions.md) before reading [key md files] or performing task-specific work.
-
-Subagent launch rule: Follow the Subagent Launch Contract in [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md). **Every spawn carries two dials, not one:** model from the `subagent_model` header, effort from the `subagent_effort` header (and from `online_researcher_effort` for the Online Researcher). Unless the resolved effort is `inherit`, set the platform effort field where the spawn exposes one, otherwise put the line `effort: <level> — binding budget, not a hint` in the subagent prompt.
-
-> **Subagent invocation:** See `_lib/workflow_contract.md` §Subagent Invocation.
 
 ---
 
@@ -94,7 +90,7 @@ The main agent incorporates [valid criticisms] and [online resource], and update
 The main agent prints the updated [final pr plan] using the [breakdown-pr skill] output format, so the user can review it. **Approval gate:** See `_lib/approval_gate.md`.
 
 ### Step 9 - Execute the PR Stack
-The main agent creates an **Implementer** subagent (`agents/implementer.agent.md`), passing [final pr plan], [inputs], and the repo context (per §Context Passing). **Implementer Model Verification:** See `_lib/workflow_contract.md` §Implementer Model Verification Fallback. The subagent (or the main agent, if falling back) receives the repo context (per §Context Passing) and [breakdown-pr skill]. Then based on [final pr plan], the subagent executes the PR stack creation following the [breakdown-pr skill] step 6 (Execute Only After Approval). **Nested-skill note:** the skill's "Execute Only After Approval" / "ask before execution" wording maps to the single two-mode gate already evaluated at Step 8 above (`_lib/approval_gate.md` §Nested-skill approval language), not a second stop — in autonomous mode, create local branches/commits without re-asking and resolve ambiguous base/branch/stack-tool/uncommitted-change choices yourself as recorded assumptions; only the submit/push (final bullet) still needs explicit user approval. The execution steps:
+The main agent creates an **Implementer** subagent (`agents/implementer.agent.md`), passing [final pr plan], [inputs], and the repo context (per §Context Passing). **Implementer Model Verification:** See `_lib/implementer_fallback.md`. The subagent (or the main agent, if falling back) receives the repo context (per §Context Passing) and [breakdown-pr skill]. Then based on [final pr plan], the subagent executes the PR stack creation following the [breakdown-pr skill] step 6 (Execute Only After Approval). **Nested-skill note:** the skill's "Execute Only After Approval" / "ask before execution" wording maps to the single two-mode gate already evaluated at Step 8 above (`_lib/approval_gate.md` §Nested-skill approval language), not a second stop — in autonomous mode, create local branches/commits without re-asking and resolve ambiguous base/branch/stack-tool/uncommitted-change choices yourself as recorded assumptions; only the submit/push (final bullet) still needs explicit user approval. The execution steps:
 - Confirm the working tree policy for uncommitted changes.
 - Record the original source branch and intended final stack top.
 - Create each branch from the base or previous stack branch.
@@ -132,4 +128,4 @@ The main agent reads through [final pr plan], [execution report], [pr stack revi
 ```
 
 ### Step 13 - Write Logs and Chat Summary
-Write the PR Creation Update summary to update_logs.md. Do not add additional contents, just the PR creation report from Step 12. In addition, summarize the PR stack in bullet points and write them to the chat.
+Write the PR Creation Update summary to update_logs.md per `_lib/doc_logging.md` (timestamps, IDs, two-file rule). Do not add additional contents, just the PR creation report from Step 12. In addition, summarize the PR stack in bullet points and write them to the chat.

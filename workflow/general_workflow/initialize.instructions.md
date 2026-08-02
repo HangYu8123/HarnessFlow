@@ -16,16 +16,12 @@ description: 'Instructions for creating necessary repo_info memory files to guid
 
 **Safety: follow `_lib/safety_rules.md`.**
 
-> **Unified workflow (platform-adaptive).** This single file serves Claude Code, Codex, and VS Code Copilot. Resolve all paths via Pack Path Resolution (`.github/HarnessFlow/<path>` when installed, or `<path>` from the repo root). Launch subagents using your platform's mechanism per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Invocation. Handle repo-context handoff per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents: the main agent builds a condensed **[repo context digest]** from **[key md files]**, keeps the files themselves as **[full repo context]**, and passes the digest — plus the excerpts of [full repo context] each subagent's task needs — inline to subagents.
+> **Preamble — canonical in [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md).** Platform adaptation (this file serves Claude Code, Codex, and VS Code Copilot), Pack Path Resolution, subagent invocation, repo-context handoff (**[repo context digest]** / **[full repo context]**), and the two spawn dials (`subagent_model` + `subagent_effort` / `online_researcher_effort`) with the returned-result check are governed by its §Pack Path Resolution · §Subagent Invocation · §Context Passing for Subagents · §Subagent Launch Contract — this file deliberately does not restate them.
 
 [parameters]:
 
 Before doing any workflow-specific work, the main agent must read and follow [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) and [`philosophy/philosophy.instructions.md`](../../philosophy/philosophy.instructions.md) before proceeding.
 Every subagent created by this workflow must instead read and follow [`_lib/subagent_contract.md`](../../_lib/subagent_contract.md) and [`philosophy/philosophy.instructions.md`](../../philosophy/philosophy.instructions.md) before reading the repo or performing task-specific work.
-
-Subagent launch rule: Follow the Subagent Launch Contract in [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md). **Every spawn carries two dials, not one:** model from the `subagent_model` header, effort from the `subagent_effort` header (and from `online_researcher_effort` for the Online Researcher). Unless the resolved effort is `inherit`, set the platform effort field where the spawn exposes one, otherwise put the line `effort: <level> — binding budget, not a hint` in the subagent prompt.
-
-> **Subagent invocation:** See [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Subagent Invocation.
 
 ## Procedure 1: Run Setup & Scan Repo
 First, verify that the repo has been set up for your tool, then scan the repo.
@@ -50,10 +46,8 @@ If the repo_info folder does not exist, create it. Then ensure [repo_info files]
 These are the canonical repo memory files. Use `past_Q&A.md` for query history and `past_Correctness_Check.md` for correctness-check history; do not create alternate history filenames.
 Then determine [init mode] per [`_lib/reinitialize.md`](../../_lib/reinitialize.md) §Mode Detection: an overview file that already has non-empty content is in **re-initialize** mode (validate + diff-update, never regenerate from scratch); a missing or empty one is **fresh**.
 
-
 ## Procedure 3: Create File Structure
 Create a subagent, read through all the files in the repo, understand them, and create a [file structure] of the repo. The subagent must feed [file structure] back to the main agent. The main agent validates [file structure] and makes sure [file structure] includes all files and folders in the repo.
-
 
 ## Procedure 4: Create/Update Files
 create/update the files in Procedure 2 with the **following specifications**.
@@ -75,26 +69,23 @@ c. create a subagent (code agent, free mode), follow [file structure], the agent
 2. based on [codebase_overview 1], [codebase_overview 2], and [codebase_overview 3], the main agent must combine the advantages of three codebase_overviews, reject the redundant or incorrect parts of each codebase_overview, and draft final [codebase_overview]. The main agent must also check the consistency of final [codebase_overview] with the pipeline diagram in the original codebase_overview.md (if it exists); if there are inconsistencies, update the pipeline diagram accordingly.
 3. the main agent update [pipeline] accordingly.  
 4. the main agent convert [pipeline] into a code diagram. In each block in the diagram, the associated scripts must also be mentioned.
-5. Finally, the main agent create a codebase_overview.md based on the code diagram and [codebase_overview]. So the codebase_overview.md will have: 
+5. Finally, the main agent create a codebase_overview.md based on the code diagram and [codebase_overview], keeping the file within its ≤4k-token budget per [`_lib/repo_map.md`](../../_lib/repo_map.md). So the codebase_overview.md will have: 
    a. a very brief repo overview; 
    b. a brief introduction of what the repo is and what is the purpose of the repo;
    c. Repository layout;
    d. Components of the repo, and components dependency map
 6. On re-initialization, write per [`_lib/reinitialize.md`](../../_lib/reinitialize.md) §Update With Diff — targeted edits preserving confirmed content, never blank-and-rewrite. In addition, read the update_log.md, based on update logs, re-infer and re-understand the purpose of the repo. 
 
-
-
 ### 4.2 scripts_overview.md
 If the file does not exist, create an empty file.
 Then:
+Generate the file as a **ranked repo map** per [`_lib/repo_map.md`](../../_lib/repo_map.md) (budget ≤4k tokens; 8k for super-large repos):
 1. **[PARALLEL EXECUTION — launch all listed subagents in parallel; see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]**:
-a. create a subagent (code agent, folder mode), pass [file structure] to the subagent. the subagent must go through all files in the repo from folder to folder, and read through files in folders one by one. for each file, if it is a code script, summarize each module (function, method, class, code blocks, and dependencies to other scrpts) with three sentences: one sentence of function name, parameters, and outputs, one short sentence that describes the functionality, and one short sentence of dependencies to other scipts. organize the summarization by files: give each file a high-level summarization, and give out a list of dependencies of that file. then report [scripts overview 1] to the main agent.
-b. create a subagent (code agent, guided mode), pass [file structure] and ask the agent to read through scripts_overview.md. then the subagent must read through codebase_overview.md, understand [pipeline] and the codebase structure, then based on that, read through files according to [pipeline] (from upstream to downstream). for each file, if it is a code script, summarize each module (function, method, class, code blocks, and dependencies to other scrpts) with three sentences: one sentence of function name, parameters, and outputs, one short sentence that describes the functionality, and one short sentence of dependencies to other scipts. organize the summarization by files: give each file a high-level summarization, and give out a list of dependencies of that file. then report [scripts overview 2] to the main agent.
-c. create a subagent (code agent, file mode),  pass [file structure] to the subagent must go through all files in the repo, then read through files one by one. for each file, if it is a code script, summarize each module (function, method, class, code blocks, and dependencies to other scrpts) with three sentences: one sentence of function name, parameters, and outputs, one short sentence that describes the functionality, and one short sentence of dependencies to other scipts. organize the summarization by files: give each file a high-level summarization, and give out a list of dependencies of that file. then report [scripts overview 3] to the main agent.
-2. the main agent reads the reports from step 1 ([scripts overview 1], [scripts overview 2], and [scripts overview 3]) and scripts_overview.md, understands each of them, combines the advantages of three reports, rejects the redundant or incorrect parts of each report, drafts final [scripts overview], and writes final [scripts overview] into scripts_overview.md.
+a. create a subagent (code agent, symbol mode), pass [file structure] and [`_lib/repo_map.md`](../../_lib/repo_map.md). the subagent extracts, per source file, its definitions (functions, classes, methods, exported constants) and the identifiers it references, using the best extractor the environment provides (tree-sitter or universal-ctags when installed, else language-aware grep/reading — approximate extraction is acceptable, never install new tooling). then report [symbol inventory] (per-file def/ref lists) to the main agent.
+b. create a subagent (code agent, guided mode), pass [file structure] and ask the agent to read through scripts_overview.md and codebase_overview.md, understand [pipeline], then read files according to [pipeline] (from upstream to downstream). for each code file, write one high-level summary line, its key definition signatures (compact snippet lines), and a one-line dependency note. then report [scripts overview draft] to the main agent.
+2. the main agent ranks the files/symbols in [symbol inventory] by reference-graph centrality per [`_lib/repo_map.md`](../../_lib/repo_map.md) (files referenced from many distinct files rank higher), merges [scripts overview draft]'s summaries onto the ranked order, binary-searches the ranked list for the largest prefix that fits the token budget (below-cut files get at most a one-line index entry), and writes the result into scripts_overview.md.
 3. create a subagent (review agent), the subagent reads scripts_overview.md and codebase_overview.md, follows scripts_overview.md to go through all scripts and files one by one, first reads the original code/text, then validates the summarization of scripts_overview.md and codebase_overview.md. Report inconsistency back to the main agent.
 4. update the scripts_overview.md and codebase_overview.md. 
-
 
 ### 4.3 known_issues_auto_generated.md:
 if the file does not exist, create an empty file (Procedure 2 normally has already created it).
@@ -116,7 +107,6 @@ then:
 ### 4.4 update_logs_auto_generated.md
 Get the git commit history, and create a file with the git commit history logs. Do not add any interpretations; be faithful to the original contents.
 
-
 ### 4.5 known_issues.md:
 if the file exists, do nothing.
 if the file does not exist, create an empty file.
@@ -133,7 +123,6 @@ if the file does not exist, create an empty file.
 if the file exists, do nothing.
 if the file does not exist, create an empty file.
 
-
 ## Procedure 5: Update Internal Path References (Idempotent)
 After completing all file creation in Procedure 4, check whether internal path references need updating for multi-root workspace compatibility.
 
@@ -146,12 +135,10 @@ After completing all file creation in Procedure 4, check whether internal path r
 4. Go through **all `.md` files** under `.github/HarnessFlow/` (including subfolders: `workflow/general_workflow/`, `workflow/token_effective_workflow/`, `workflow/skill_workflow/`, `request_template/`, `repo_info/`, `_lib/`, and root level) and replace every occurrence of `.github/HarnessFlow/` with `[repo folder name]/.github/HarnessFlow/` **only in path references used by agents** (e.g., in `[key md files]` path descriptions, not in prose descriptions of the pack).
 5. Verify that all updated paths now correctly resolve to the right files in the workspace by spot-checking a few key paths (e.g., `[repo folder name]/.github/HarnessFlow/repo_info/codebase_overview.md`).
 
-
 ## Procedure 6: Absolutize Claude Code & Codex Pack Paths (Idempotent)
 
 After completing Procedure 5, follow the canonical procedure in [`_lib/absolutize_pack_paths.md`](../../_lib/absolutize_pack_paths.md): determine `[PACK_ROOT_ABS]`, record it in the git-ignored `.pack_root`, rewrite the in-scope Claude Code/Codex references, and regenerate the `harness_gui.html` template snapshots via `sync_gui_templates.py`.
 If its idempotency guard triggers (this pack is already absolutized), skip to Procedure 7.
-
 
 ## Procedure 7: Copy Entry-Point Files for Cross-Tool Compatibility
 Copy the entry-point files from the pack to their standard discoverable locations. This ensures each tool can auto-discover its instructions without additional configuration, regardless of which tool was used to initialize.
@@ -168,7 +155,6 @@ For each file:
 - If the destination file **already exists** and contains custom user content that differs from the pack version, **do not overwrite** — warn the user that manual reconciliation is needed.
 
 This step ensures the repo works with all supported tools (VS Code Copilot, Copilot CLI, Claude Code CLI, Codex CLI) after any single initialization workflow runs.
-
 
 ## Procedure 8: Record the Initialized Repo Name for the GUI (Idempotent, all tools)
 The Request Builder GUI (`harness_gui.py`) renders its header as `HarnessFlow · <repo name>`. Record the initialized repo's name explicitly so the GUI shows the repo that was **actually initialized** — not an ancestor/parent folder that `git rev-parse --show-toplevel` may resolve to when the initialized folder is not itself a git repository.

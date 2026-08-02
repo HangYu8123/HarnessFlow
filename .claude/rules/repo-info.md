@@ -9,6 +9,8 @@ Files in `repo_info/` (resolved via Pack Path Resolution: `.github/HarnessFlow/r
 
 - Always read these files at the start of any template-triggered workflow
 - Update relevant files at the end of code-modifying workflows
-- Canonical files: codebase_overview.md, scripts_overview.md, update_logs.md, known_issues.md, past_Q&A.md, past_Correctness_Check.md, update_logs_auto_generated.md, known_issues_auto_generated.md
-- Do not create alternate history filenames
+- Canonical files: codebase_overview.md, scripts_overview.md, update_logs.md, update_logs_all.md, known_issues.md, past_Q&A.md, past_Correctness_Check.md, update_logs_auto_generated.md, known_issues_auto_generated.md
+- `update_logs.md` keeps only the 10 most recent entries; the complete history lives in `update_logs_all.md`, which is read **on demand only** (see `_lib/doc_logging.md`)
+- `codebase_overview.md` and `scripts_overview.md` are token-budgeted per `_lib/repo_map.md` (≤4k each; scripts ≤8k for super-large repos)
+- Do not create history filenames other than these canonical ones
 - Multi-layer repos: sub-repos and enclosing/adjacent repos may carry their own `repo_info/` — read their `codebase_overview.md` + `scripts_overview.md` as labeled cross-layer context per `_lib/workflow_contract.md` §Key Context Files → Multi-Layer / Nested Repos (read-only unless that layer's files were changed; never create `repo_info/` in another layer)
