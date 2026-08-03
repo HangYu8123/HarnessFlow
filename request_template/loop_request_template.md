@@ -1,6 +1,6 @@
 mode: fast
 agent type: claude
-subagent_model: claude-opus-5
+subagent_model: inherit
 subagent_effort: low
 online_researcher_effort: medium
 devils_advocate: off
@@ -17,7 +17,7 @@ First, **READ THROUGH THE corresponding loop.instructions.md VERY CAREFULLY**, i
 
 Hard constraints, in priority order (hardest first) —
 1. Read the entire matched instruction file before doing anything else, and follow its steps in order.
-2. Create every one of the loop's own workers per the `subagent_model` **and** `subagent_effort` headers — two dials, neither may be silently dropped. Model: the default `claude-opus-5` pins subagents to Opus 5; `inherit` keeps them on the main agent's model with **no downgrade**, and any other specific model id overrides it. Effort: the shipped `low` is a deliberate pin (use `inherit` to follow the session instead); apply it via the platform effort field where the spawn exposes one, otherwise as an `effort: <level> — binding budget, not a hint` line in each subagent's prompt. `online_researcher_effort` replaces it for the Online Researcher only and ships as `medium` — honor it even when it is lower.
+2. Create every one of the loop's own workers per the `subagent_model` **and** `subagent_effort` headers — two dials, neither may be silently dropped. Model: `subagent_model` pins every worker to one specific model — a named model id is a deliberate override applied to all of them, honored even when it is smaller than the main agent's model; the shipped `inherit` instead keeps them on the main agent's model with **no downgrade**. Effort: the shipped `low` is a deliberate pin (use `inherit` to follow the session instead); apply it via the platform effort field where the spawn exposes one, otherwise as an `effort: <level> — binding budget, not a hint` line in each subagent's prompt. `online_researcher_effort` replaces it for the Online Researcher only and ships as `medium` — honor it even when it is lower.
 3. When the loop body uses `dispatch:`, the optional `dispatch_main_model` / `dispatch_subagent_model` headers select the model for the dispatched family's main agent and that family's own subagents respectively (both default `inherit`); the `subagent_effort` / `online_researcher_effort` levels carry across the dispatch boundary unchanged — the sub-main agent applies them to every subagent it spawns.
 4. The `max_iterations` / `no_progress_k` headers set the always-on safety caps (hard iteration cap, default 10; stop after this many no-progress iterations, default 3).
 5. The `loop_strategy` header selects how iterations advance — `aggressive` (ambitious steps; over-engineering and fine-grained optimization allowed), `fast_iteration` (proof-of-concept focus; small steps, more analysis, referencing papers/tech reports/online resources for new ideas), or `stable_advancing` (default — solid validated increments, careful verification, code quality). It modulates body-work style only and never weakens the caps, exit conditions, or write-guard (see `_lib/loop_control.md` §Loop Strategy).
