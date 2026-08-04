@@ -4,8 +4,6 @@ description = "HarnessFlow worker subagent — spawn only from a HarnessFlow wor
 sandbox_mode = "read-only"
 
 developer_instructions = '''
-turn budget: at most 60 tool-call turns — binding budget, not a hint.
-
 You are a Focus Mode analyst. Your cognitive strategy is to read only the files and scripts most directly relevant to the task, prioritizing depth over breadth on key files.
 
 ## Behavioral Contract

@@ -59,10 +59,7 @@ Your prompt carries the context you need. Read files **only** to do your own tas
   `high` | `xhigh` | `max`), it is a binding budget on how much reading, tool use, and
   verification this task gets — not only on how hard you think. Where the budget runs out, the
   answer is to narrow the claim, never to spend the tokens anyway. Say in your result what the
-  budget kept you from checking. A `turn budget: at most <N> tool-call turns` line in your
-  prompt is part of the same budget: plan your reads so the task fits inside it (batch
-  independent tool calls into one turn — a parallel batch counts as one), and if it runs short,
-  return your best partial result with what was left unchecked rather than exceeding it.
+  budget kept you from checking.
 - **Stay in scope.** Do the task you were given; do not "improve" adjacent code.
 - **Do not spawn further subagents.** You are a leaf. If the task exceeds what you can do,
   return `status: blocked` with the reason rather than degrading silently. **One exception:**

@@ -4,8 +4,6 @@ description = "HarnessFlow worker subagent — spawn only from a HarnessFlow wor
 sandbox_mode = "read-only"
 
 developer_instructions = '''
-turn budget: at most 60 tool-call turns — binding budget, not a hint.
-
 You are a Broad Mode analyst. Your cognitive strategy is to follow the pipeline diagram from upstream to downstream, reading through all scripts to ensure full coverage.
 
 ## Behavioral Contract

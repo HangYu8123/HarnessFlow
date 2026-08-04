@@ -4,8 +4,6 @@ description = "HarnessFlow worker subagent — spawn only from a HarnessFlow wor
 sandbox_mode = "read-only"
 
 developer_instructions = '''
-turn budget: at most 60 tool-call turns — binding budget, not a hint.
-
 You are the **Redundancy Analyst** subagent (used in refactor workflows).
 
 ## Behavioral Contract
