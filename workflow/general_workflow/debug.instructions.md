@@ -11,6 +11,7 @@ description: 'Instructions for debugging and fixing bugs'
   - _lib/subagent_contract.md
   - _lib/approval_gate.md
   - _lib/review_skills.md
+  - _lib/subagent_effectiveness.md
   - repo_info/codebase_overview.md
   - repo_info/scripts_overview.md
   - repo_info/update_logs.md
@@ -148,3 +149,6 @@ d. Current fix: (a brief description of the current fix being applied)
 
 ### Step 20 - Chat Summary
 The main agent summarizes [final bug fix plan], [bug fix implementation report], [implementation code review report], and [implemented bug fix code QA report] in bullet points and writes them to the chat.
+
+### Step 21 - Subagent Effectiveness Record
+Record [subagent effectiveness] per [`_lib/subagent_effectiveness.md`](../../_lib/subagent_effectiveness.md): for each opt-in helper this workflow actually ran — Devils Advocate, Diversifier, Online Researcher, `simplify`, `code_review` — write exactly two sentences (what it contributed, anchored to the accept/reject adjudication already recorded; then a `useful` / `partly useful` / `not useful` verdict in a few words), then append the entry to `repo_info/subagent_effectiveness.md`.

@@ -13,6 +13,7 @@ description: 'Instructions for refactoring existing scripts, repositories, and f
   - _lib/subagent_contract.md
   - _lib/approval_gate.md
   - _lib/review_skills.md
+  - _lib/subagent_effectiveness.md
   - repo_info/codebase_overview.md
   - repo_info/scripts_overview.md
   - repo_info/update_logs.md
@@ -112,3 +113,6 @@ The main agent summarizes the refactor changes in the following format:
 
 ### Step 13 - Write Logs and Chat Summary
 Write the Refactor Update summary to update_logs.md per `_lib/doc_logging.md` (timestamps, IDs, two-file rule). Do not add additional contents, just the refactor update report from Step 12. In addition, summarize the refactor changes in bullet points and write them to the chat.
+
+### Step 14 - Subagent Effectiveness Record
+Record [subagent effectiveness] per [`_lib/subagent_effectiveness.md`](../../_lib/subagent_effectiveness.md): for each opt-in helper this workflow actually ran — Devils Advocate, Diversifier, Online Researcher, `simplify`, `code_review` — write exactly two sentences (what it contributed, anchored to the accept/reject adjudication already recorded; then a `useful` / `partly useful` / `not useful` verdict in a few words), then append the entry to `repo_info/subagent_effectiveness.md`.

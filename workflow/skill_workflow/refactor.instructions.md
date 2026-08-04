@@ -17,6 +17,7 @@ description: 'Unified skill-backed (skill mode) refactor workflow for Claude Cod
   - _lib/subagent_contract.md
   - _lib/approval_gate.md
   - _lib/review_skills.md
+  - _lib/subagent_effectiveness.md
   - skills/skill_workflow_skills.md
   - repo_info/codebase_overview.md
   - repo_info/scripts_overview.md
@@ -92,3 +93,6 @@ Based on whichever of [simplify] + [code-review] + [post-impl challenge report] 
 {Achieved (yes/no, gaps if any)}
 ```
 3. Summarize changes in bullet points to chat.
+
+### Step 8 - Subagent Effectiveness Record
+Record [subagent effectiveness] per [`_lib/subagent_effectiveness.md`](../../_lib/subagent_effectiveness.md): for each opt-in helper this workflow actually ran — Devils Advocate, Diversifier, Online Researcher, `simplify`, `code_review` — write exactly two sentences (what it contributed, anchored to the accept/reject adjudication already recorded; then a `useful` / `partly useful` / `not useful` verdict in a few words), then append the entry to `repo_info/subagent_effectiveness.md`.

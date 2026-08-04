@@ -9,7 +9,7 @@ Files in `repo_info/` (resolved via Pack Path Resolution: `.github/HarnessFlow/r
 
 - Always read these files at the start of any template-triggered workflow
 - Update relevant files at the end of code-modifying workflows
-- Canonical files: codebase_overview.md, scripts_overview.md, update_logs.md, update_logs_all.md, known_issues.md, past_Q&A.md, past_Correctness_Check.md, update_logs_auto_generated.md, known_issues_auto_generated.md
+- Canonical files: codebase_overview.md, scripts_overview.md, update_logs.md, update_logs_all.md, known_issues.md, past_Q&A.md, past_Correctness_Check.md, subagent_effectiveness.md, update_logs_auto_generated.md, known_issues_auto_generated.md
 - `update_logs.md` keeps only the 10 most recent entries; the complete history lives in `update_logs_all.md`, which is read **on demand only** (see `_lib/doc_logging.md`)
 - `codebase_overview.md` and `scripts_overview.md` are token-budgeted per `_lib/repo_map.md` (codebase ≤6k, 8k for super-large repos; scripts ≤8k, 12k for super-large repos)
 - Do not create history filenames other than these canonical ones

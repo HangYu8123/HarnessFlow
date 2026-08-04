@@ -9,6 +9,7 @@ description: 'Instructions for examining, testing, and running an existing repo 
   - _lib/safety_rules.md
   - _lib/workflow_contract.md
   - _lib/subagent_contract.md
+  - _lib/subagent_effectiveness.md
   - repo_info/codebase_overview.md
   - repo_info/scripts_overview.md
   - repo_info/update_logs.md
@@ -88,3 +89,6 @@ Then the main agent must append it to past_Correctness_Check.md, using the exist
 
 ### Step 9 - Cross-Check known_issues.md
 Based on the correctness check results, the main agent checks known_issues.md and checks whether the found problems are marked as fixed in known_issues.md. If yes, add an additional line and say "the attempted fix actually failed."
+
+### Step 10 - Subagent Effectiveness Record
+Record [subagent effectiveness] per [`_lib/subagent_effectiveness.md`](../../_lib/subagent_effectiveness.md): for each opt-in helper this workflow actually ran — Devils Advocate, Diversifier, Online Researcher, `simplify`, `code_review` — write exactly two sentences (what it contributed, anchored to the accept/reject adjudication already recorded; then a `useful` / `partly useful` / `not useful` verdict in a few words), then append the entry to `repo_info/subagent_effectiveness.md`.

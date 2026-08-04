@@ -142,6 +142,7 @@ CANONICAL_FILES=(
     "known_issues_auto_generated.md"
     "past_Q&A.md"
     "past_Correctness_Check.md"
+    "subagent_effectiveness.md"
 )
 
 for f in "${CANONICAL_FILES[@]}"; do

@@ -197,7 +197,7 @@ The source repo stores the pack at the repo root. The installed layout expected 
 | `copilot-instructions.md` | VS Code Copilot router template. |
 | `CLAUDE.md` | Claude Code CLI router template copied to the target repo root by `cli_setup.sh`. |
 | `AGENTS.md` | Codex CLI router template copied to the target repo root by `cli_setup.sh`. |
-| `_lib/` | Shared procedures: the workflow contract (main agent) and its short subagent-facing subset `subagent_contract.md`, safety rules, approval-gate and re-initialization rules, loop-governance and stay-active rules, local-skill discovery, pack-path resolution, and the `simplify` / `code_review` review-skill resolution. |
+| `_lib/` | Shared procedures: the workflow contract (main agent) and its short subagent-facing subset `subagent_contract.md`, safety rules, approval-gate and re-initialization rules, loop-governance and stay-active rules, local-skill discovery, pack-path resolution, the `simplify` / `code_review` review-skill resolution, and the subagent-effectiveness record. |
 | `philosophy/` | Shared behavioral guidance used by workflows and subagents. |
 | `workflow/` | The three shared, platform-adaptive workflow families (`general` / `fast` / `skill`), each used by all supported tools. |
 | `agents/` | Source worker-agent definitions plus `agents/INDEX.md`. |
@@ -272,7 +272,7 @@ It:
 - Creates or refreshes `.github/copilot-instructions.md` when appropriate.
 - Copies `.claude/rules/*.md` into the target repo.
 - Installs the native worker definitions — `.claude/agents/*.md` for Claude Code and `.codex/agents/*.toml` for Codex — so subagents spawn by agent type instead of by inline prompt.
-- Ensures the eight canonical `repo_info/` files exist under the installed pack.
+- Ensures the ten canonical `repo_info/` files exist under the installed pack.
 
 Existing custom files are not overwritten unless they contain this pack's generated markers.
 
@@ -377,9 +377,13 @@ known_issues_auto_generated.md
 past_Correctness_Check.md
 past_Q&A.md
 scripts_overview.md
+subagent_effectiveness.md
 update_logs.md
+update_logs_all.md
 update_logs_auto_generated.md
 ```
+
+`subagent_effectiveness.md` is the per-run record of whether each opt-in helper subagent (Devils Advocate, Diversifier, Online Researcher, `simplify`, `code_review`) actually brought useful information — two sentences per helper, appended by every workflow's final step per `_lib/subagent_effectiveness.md`.
 
 In this source repo, `repo_info/` is ignored by git. In a target repo, initialize or refresh it for that specific codebase before relying on later workflows. Re-running the initialize workflow never discards existing repo_info: it validates the existing claims against the current code, applies a targeted diff-update, and revalidates the repo as a whole (`_lib/reinitialize.md`).
 

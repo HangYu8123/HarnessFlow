@@ -25,6 +25,7 @@ description: 'Unified general (full multi-subagent) loop meta-workflow for Claud
   - _lib/subagent_contract.md
   - _lib/approval_gate.md
   - _lib/review_skills.md
+  - _lib/subagent_effectiveness.md
   - _lib/local_skill_discovery.md
   - repo_info/codebase_overview.md
   - repo_info/scripts_overview.md
@@ -146,3 +147,5 @@ For iteration N = 1, 2, …:
 ```
 
 10. Write the Step 9 Loop Update block to update_logs.md per `_lib/doc_logging.md` (timestamps, IDs, two-file rule) (do not add other content), then summarize the loop outcome (iterations run, exit reason, net code changes, metric trajectory, achieved y/n) in bullet points to chat.
+
+11. **Subagent Effectiveness Record.** Record [subagent effectiveness] per [`_lib/subagent_effectiveness.md`](../../_lib/subagent_effectiveness.md): for each opt-in helper this workflow actually ran — Devils Advocate, Diversifier, Online Researcher, `simplify`, `code_review` — write exactly two sentences (what it contributed, anchored to the accept/reject adjudication already recorded; then a `useful` / `partly useful` / `not useful` verdict in a few words), then append the entry to `repo_info/subagent_effectiveness.md`.

@@ -13,6 +13,7 @@ description: 'Instructions for answering questions about an existing repo'
   - _lib/safety_rules.md
   - _lib/workflow_contract.md
   - _lib/subagent_contract.md
+  - _lib/subagent_effectiveness.md
   - repo_info/codebase_overview.md
   - repo_info/scripts_overview.md
   - repo_info/update_logs.md
@@ -74,3 +75,6 @@ Question: (fill a one sentence summary of the question here.)
 Answer: (fill a brief but precise summary of the answer in bullet points here.)
 ```
 Then the main agent must append it to past_Q&A.md, using the existing contents to determine the last Q&A ID.
+
+### Step 8 - Subagent Effectiveness Record
+Record [subagent effectiveness] per [`_lib/subagent_effectiveness.md`](../../_lib/subagent_effectiveness.md): for each opt-in helper this workflow actually ran — Devils Advocate, Diversifier, Online Researcher, `simplify`, `code_review` — write exactly two sentences (what it contributed, anchored to the accept/reject adjudication already recorded; then a `useful` / `partly useful` / `not useful` verdict in a few words), then append the entry to `repo_info/subagent_effectiveness.md`.

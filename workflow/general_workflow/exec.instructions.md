@@ -16,6 +16,7 @@ description: 'Instructions for executing actions toward a goal with structured p
   - _lib/subagent_contract.md
   - _lib/approval_gate.md
   - _lib/review_skills.md
+  - _lib/subagent_effectiveness.md
   - repo_info/codebase_overview.md
   - repo_info/scripts_overview.md
   - repo_info/update_logs.md
@@ -117,3 +118,6 @@ The main agent summarizes the execution in the following format:
 
 ### Step 12 - Write Logs and Chat Summary
 Write the Execution Update summary to update_logs.md per `_lib/doc_logging.md` (timestamps, IDs, two-file rule). Do not add additional contents, just the execution update report from Step 11. In addition, summarize the execution results in bullet points and write them to the chat.
+
+### Step 13 - Subagent Effectiveness Record
+Record [subagent effectiveness] per [`_lib/subagent_effectiveness.md`](../../_lib/subagent_effectiveness.md): for each opt-in helper this workflow actually ran — Devils Advocate, Diversifier, Online Researcher, `simplify`, `code_review` — write exactly two sentences (what it contributed, anchored to the accept/reject adjudication already recorded; then a `useful` / `partly useful` / `not useful` verdict in a few words), then append the entry to `repo_info/subagent_effectiveness.md`.
