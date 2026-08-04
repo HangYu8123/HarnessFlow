@@ -66,14 +66,14 @@ Generate each overview **once**. **[PARALLEL EXECUTION — launch all listed sub
 | Subagent | Agent | Role | Task |
 |----------|-------|------|------|
 | Codebase | **Free Analyst** (`agents/free-analyst.agent.md`) | Free mode | Read [inputs] + [file structure]. Decide the reading order (entry points → imports → pipeline position), read the files, and construct [codebase_overview draft]. |
-| Scripts | **Focus Analyst** (`agents/focus-analyst.agent.md`) | Repo-map mode | Read [inputs] + [file structure] + [`_lib/repo_map.md`](../../_lib/repo_map.md). Build the ranked repo map per that file: extract each file's definitions/references (best available extractor), rank by reference-graph centrality, render per-file summary + key signatures in rank order, and bisect to the token budget (≤4k; 8k super-large). Return [scripts overview draft]. |
+| Scripts | **Focus Analyst** (`agents/focus-analyst.agent.md`) | Repo-map mode | Read [inputs] + [file structure] + [`_lib/repo_map.md`](../../_lib/repo_map.md). Build the ranked repo map per that file: extract each file's definitions/references (best available extractor), rank by reference-graph centrality, render per-file summary + key signatures in rank order, and bisect to the token budget (≤8k; 12k super-large). Return [scripts overview draft]. |
 
 For an overview in re-initialize mode, additionally pass that analyst the overview's existing content (Free Analyst ← codebase_overview.md, Focus Analyst ← scripts_overview.md): the analyst validates it per [`_lib/reinitialize.md`](../../_lib/reinitialize.md) §Validate Existing Claims, and its draft is the existing overview plus a [validation & diff report] rather than a from-scratch rewrite.
 
 ### Step 4 - Synthesize and Write Codebase Overview
 1. The main agent validates [codebase_overview draft] against the actual files, fixing inaccuracies.
 2. Draft the [pipeline] diagram with associated scripts in each block and validate it against the code.
-3. Write codebase_overview.md with the diagram and repo description, keeping it within its ≤4k-token budget per [`_lib/repo_map.md`](../../_lib/repo_map.md).
+3. Write codebase_overview.md with the diagram and repo description, keeping it within its ≤6k-token budget (8k for super-large repos) per [`_lib/repo_map.md`](../../_lib/repo_map.md).
 
 If codebase_overview.md is in re-initialize mode, apply the [validation & diff report] as targeted edits per [`_lib/reinitialize.md`](../../_lib/reinitialize.md) §Update With Diff — preserve confirmed content, never blank-and-rewrite.
 

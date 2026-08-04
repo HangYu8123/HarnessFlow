@@ -69,7 +69,7 @@ c. create a subagent (code agent, free mode), follow [file structure], the agent
 2. based on [codebase_overview 1], [codebase_overview 2], and [codebase_overview 3], the main agent must combine the advantages of three codebase_overviews, reject the redundant or incorrect parts of each codebase_overview, and draft final [codebase_overview]. The main agent must also check the consistency of final [codebase_overview] with the pipeline diagram in the original codebase_overview.md (if it exists); if there are inconsistencies, update the pipeline diagram accordingly.
 3. the main agent update [pipeline] accordingly.  
 4. the main agent convert [pipeline] into a code diagram. In each block in the diagram, the associated scripts must also be mentioned.
-5. Finally, the main agent create a codebase_overview.md based on the code diagram and [codebase_overview], keeping the file within its ≤4k-token budget per [`_lib/repo_map.md`](../../_lib/repo_map.md). So the codebase_overview.md will have: 
+5. Finally, the main agent create a codebase_overview.md based on the code diagram and [codebase_overview], keeping the file within its ≤6k-token budget (8k for super-large repos) per [`_lib/repo_map.md`](../../_lib/repo_map.md). So the codebase_overview.md will have: 
    a. a very brief repo overview; 
    b. a brief introduction of what the repo is and what is the purpose of the repo;
    c. Repository layout;
@@ -79,7 +79,7 @@ c. create a subagent (code agent, free mode), follow [file structure], the agent
 ### 4.2 scripts_overview.md
 If the file does not exist, create an empty file.
 Then:
-Generate the file as a **ranked repo map** per [`_lib/repo_map.md`](../../_lib/repo_map.md) (budget ≤4k tokens; 8k for super-large repos):
+Generate the file as a **ranked repo map** per [`_lib/repo_map.md`](../../_lib/repo_map.md) (budget ≤8k tokens; 12k for super-large repos):
 1. **[PARALLEL EXECUTION — launch all listed subagents in parallel; see [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Parallel Execution & Fallback]**:
 a. create a subagent (code agent, symbol mode), pass [file structure] and [`_lib/repo_map.md`](../../_lib/repo_map.md). the subagent extracts, per source file, its definitions (functions, classes, methods, exported constants) and the identifiers it references, using the best extractor the environment provides (tree-sitter or universal-ctags when installed, else language-aware grep/reading — approximate extraction is acceptable, never install new tooling). then report [symbol inventory] (per-file def/ref lists) to the main agent.
 b. create a subagent (code agent, guided mode), pass [file structure] and ask the agent to read through scripts_overview.md and codebase_overview.md, understand [pipeline], then read files according to [pipeline] (from upstream to downstream). for each code file, write one high-level summary line, its key definition signatures (compact snippet lines), and a one-line dependency note. then report [scripts overview draft] to the main agent.

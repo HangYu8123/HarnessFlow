@@ -98,7 +98,7 @@ When any workflow instruction tells you to read context files (`[key md files]`)
 3. `update_logs.md`
 4. `known_issues.md`
 
-- **Budgets:** the two overviews are token-budgeted (codebase ≤ 4k; scripts ≤ 4k, 8k for super-large repos) per `_lib/repo_map.md` — any step that updates either overview must first read `_lib/repo_map.md` and keep the file within budget.
+- **Budgets:** the two overviews are token-budgeted (codebase ≤ 6k, 8k for super-large repos; scripts ≤ 8k, 12k for super-large repos) per `_lib/repo_map.md` — any step that updates either overview must first read `_lib/repo_map.md` and keep the file within budget.
 - **`update_logs.md` holds only the 10 most recent entries.** The complete history lives in `repo_info/update_logs_all.md`, which is **not** part of [key md files] and is **not** read by default — open it only when the task depends on history older than the live file.
 - **Documentation steps:** before writing any repo_info log entry (update_logs.md, past_Q&A.md, past_Correctness_Check.md), read `_lib/doc_logging.md` — canonical for entry timestamps, ID continuation, and the update_logs two-file rule.
 

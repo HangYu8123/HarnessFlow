@@ -6,9 +6,9 @@ updates either overview (`_lib/workflow_contract.md` §Key Context Files points 
 
 ## Token Budgets
 
-- `codebase_overview.md`: **≤ 4k tokens** (≈16k characters; estimate tokens as characters/4).
-- `scripts_overview.md`: **≤ 4k tokens**; **≤ 8k** only when the repo is **super-large** (> 2,000 source files or > 1M LOC).
-- These are HarnessFlow's own budgets, not an upstream citation (Aider's repo map defaults to 1k tokens; 4k/8k is a deliberately higher ceiling because these overviews carry prose summaries, not signatures alone).
+- `codebase_overview.md`: **≤ 6k tokens** (≈24k characters; estimate tokens as characters/4); **≤ 8k** only when the repo is **super-large** (> 2,000 source files or > 1M LOC).
+- `scripts_overview.md`: **≤ 8k tokens**; **≤ 12k** only when the repo is **super-large** (> 2,000 source files or > 1M LOC).
+- These are HarnessFlow's own budgets, not an upstream citation (Aider's repo map defaults to 1k tokens; 6k/8k and 8k/12k are deliberately higher ceilings because these overviews carry prose summaries, not signatures alone).
 - **At update time:** any step that updates an overview must keep it within budget — condense prose (codebase overview) or drop the lowest-ranked entries first (scripts overview). Never exceed the budget to preserve detail; full detail lives in the code itself.
 
 ## Scripts Overview — Ranked Repo Map (Aider-style)
