@@ -383,7 +383,7 @@ update_logs_all.md
 update_logs_auto_generated.md
 ```
 
-`subagent_effectiveness.md` is the per-run record of whether each opt-in helper subagent (Devils Advocate, Diversifier, Online Researcher, `simplify`, `code_review`) actually brought useful information — two sentences per helper, appended by every workflow's final step per `_lib/subagent_effectiveness.md`.
+`subagent_effectiveness.md` is the per-run record of whether each opt-in helper subagent (Devils Advocate, Diversifier, Online Researcher, `simplify`, `code_review`) earned its token cost — one line per helper carrying the model and effort it ran under, how many of its items were adopted and what they changed, how novel and how consequential that was, and a `useful` / `partly useful` / `not useful` verdict. It records effect, not activity, so the helpers and their dials can be tuned from evidence; appended by every workflow's final step per `_lib/subagent_effectiveness.md`.
 
 In this source repo, `repo_info/` is ignored by git. In a target repo, initialize or refresh it for that specific codebase before relying on later workflows. Re-running the initialize workflow never discards existing repo_info: it validates the existing claims against the current code, applies a targeted diff-update, and revalidates the repo as a whole (`_lib/reinitialize.md`).
 

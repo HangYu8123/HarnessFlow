@@ -44,7 +44,7 @@ Then, check the existence of the following [repo_info files] under the repo_info
 8. past_Correctness_Check.md
 9. subagent_effectiveness.md
 If the repo_info folder does not exist, create it. Then ensure [repo_info files] exist; create any missing ones as empty files.
-These are the canonical repo memory files. Use `past_Q&A.md` for query history, `past_Correctness_Check.md` for correctness-check history, and `subagent_effectiveness.md` for the per-run record of whether each opt-in helper subagent brought useful information (written by later workflows per [`_lib/subagent_effectiveness.md`](../../_lib/subagent_effectiveness.md); this workflow only creates it); do not create alternate history filenames.
+These are the canonical repo memory files. Use `past_Q&A.md` for query history, `past_Correctness_Check.md` for correctness-check history, and `subagent_effectiveness.md` for the per-run record of how effective each opt-in helper subagent was — adoption, novelty, and the model/effort it ran under (written by later workflows per [`_lib/subagent_effectiveness.md`](../../_lib/subagent_effectiveness.md); this workflow only creates it); do not create alternate history filenames.
 Then determine [init mode] per [`_lib/reinitialize.md`](../../_lib/reinitialize.md) §Mode Detection: an overview file that already has non-empty content is in **re-initialize** mode (validate + diff-update, never regenerate from scratch); a missing or empty one is **fresh**.
 
 ## Procedure 3: Create File Structure

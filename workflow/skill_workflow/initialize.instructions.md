@@ -58,7 +58,7 @@ Then:
    - past_Q&A.md
    - past_Correctness_Check.md
    - subagent_effectiveness.md
-4. Use `past_Q&A.md` for query history, `past_Correctness_Check.md` for correctness-check history, and `subagent_effectiveness.md` for the per-run record of whether each opt-in helper subagent brought useful information (written by later workflows per [`_lib/subagent_effectiveness.md`](../../_lib/subagent_effectiveness.md); this workflow only creates it); do not create alternate history filenames.
+4. Use `past_Q&A.md` for query history, `past_Correctness_Check.md` for correctness-check history, and `subagent_effectiveness.md` for the per-run record of how effective each opt-in helper subagent was — adoption, novelty, and the model/effort it ran under (written by later workflows per [`_lib/subagent_effectiveness.md`](../../_lib/subagent_effectiveness.md); this workflow only creates it); do not create alternate history filenames.
 5. Determine [init mode] per [`_lib/reinitialize.md`](../../_lib/reinitialize.md) §Mode Detection: an overview file that already has non-empty content is in **re-initialize** mode (validate + diff-update, never regenerate from scratch); a missing or empty one is **fresh**.
 
 ### Step 2 - File Structure
