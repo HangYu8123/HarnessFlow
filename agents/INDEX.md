@@ -31,7 +31,7 @@ Worker agents are `user-invocable: false` — they are only accessible as subage
 | `free-analyst` | **Free Analyst** — Free Mode (own judgment) | Read, Grep, Glob | read-only | code, debug, query, correctness_check, refactor, initialize, exec |
 | `senior-engineer` | **Senior Engineer** — Senior Staff Engineer review | Read, Grep, Glob | read-only | code, debug, refactor, exec |
 | `principal-engineer` | **Principal Engineer** — Principal Engineer review (refactor authority) | Read, Grep, Glob | read-only | refactor (general only) |
-| `devils-advocate` | **Devils Advocate** — Critical challenger (finds risks) | Read, Grep, Glob | read-only | code, debug, query, correctness_check, refactor, exec |
+| `devils-advocate` | **Devils Advocate** — Critical challenger (finds risks; at draft stage also grills the main agent, grill-me style) | Read, Grep, Glob | read-only | code, debug, query, correctness_check, refactor, exec |
 | `diversifier` | **Diversifier** — Alternative-plan generation (3–5 constraint-fenced diverse plans + calibrated `P(better)` + `graftable:` components) | Read, Grep, Glob | read-only | code, debug, refactor, exec, pr, correctness_check |
 | `online-researcher` | **Online Researcher** — External resource lookup | Read, Grep, Glob, WebSearch, WebFetch | read-only | code, debug, query, correctness_check, refactor, exec |
 | `implementer` | **Implementer** — Code implementation | Read, Grep, Glob, Edit, Write, Bash | workspace-write | code, debug, refactor |
