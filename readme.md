@@ -378,12 +378,13 @@ past_Correctness_Check.md
 past_Q&A.md
 scripts_overview.md
 subagent_effectiveness.md
+harness_wiki.md
 update_logs.md
 update_logs_all.md
 update_logs_auto_generated.md
 ```
 
-`subagent_effectiveness.md` is the per-run record of whether each opt-in helper subagent (Devils Advocate, Diversifier, Online Researcher, `simplify`, `code_review`) earned its token cost — one line per helper carrying the model and effort it ran under, how many of its items were adopted and what they changed, how novel and how consequential that was, and a `useful` / `partly useful` / `not useful` verdict. It records effect, not activity, so the helpers and their dials can be tuned from evidence; appended by every workflow's final step per `_lib/subagent_effectiveness.md`.
+`subagent_effectiveness.md` is the append-only per-run **run record** — the raw layer of the pack's self-improvement loop, modelled on WikiSkill (arXiv:2608.27454) and written by every workflow's last step in all three modes, initialize included. Each entry is a fixed handful of short lines answering four questions from what the run already holds, so it costs almost nothing: one line per spawned advisory subagent (model and effort, `adopted n/m`, novelty and importance, verdict — the Diversifier's `adopted N / parked M / rejected K` with a computed verdict), a `context:` line saying which `repo_info/` files were load-bearing, unused, stale, or missing, a `plan:` line with the plan-adherence tally (steps as written, adapted, dropped, added) and a computed verdict on whether having a plan helped, and a `workflow:` line naming any step that was ambiguous or wasted with its fix. Every fifth entry, the run consolidates the newest five into `harness_wiki.md`, a budgeted wiki of pattern pages grouped under the same four questions — context utility, subagent effectiveness, plan utility, workflow improvement — plus a skill-impact tracker and an evolution log; the other four runs touch nothing. Pages reaching three supporting runs become proposal-ready; a `code` or `refactor` run on the pack that names the wiki acts as **Skill Proposer**, applies one atomic change per proposal, and the following runs validate it against the tally it targeted. Following the paper's ablation, no workflow reads the wiki at its start — it feeds harness maintenance, not execution (`_lib/subagent_effectiveness.md`, `_lib/harness_wiki.md`).
 
 In this source repo, `repo_info/` is ignored by git. In a target repo, initialize or refresh it for that specific codebase before relying on later workflows. Re-running the initialize workflow never discards existing repo_info: it validates the existing claims against the current code, applies a targeted diff-update, and revalidates the repo as a whole (`_lib/reinitialize.md`).
 

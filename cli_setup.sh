@@ -143,6 +143,7 @@ CANONICAL_FILES=(
     "past_Q&A.md"
     "past_Correctness_Check.md"
     "subagent_effectiveness.md"
+    "harness_wiki.md"
 )
 
 for f in "${CANONICAL_FILES[@]}"; do

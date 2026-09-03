@@ -76,7 +76,7 @@ Fix any mismatch in the overviews before continuing.
 This file defines re-initialization behavior **only** for `codebase_overview.md`,
 `scripts_overview.md`, and `known_issues_auto_generated.md`. Every other initialize step is
 mode-independent and unchanged: the history files (`update_logs.md`, `known_issues.md`,
-`past_Q&A.md`, `past_Correctness_Check.md`, `subagent_effectiveness.md`) are never
+`past_Q&A.md`, `past_Correctness_Check.md`, `subagent_effectiveness.md`, `harness_wiki.md`) are never
 regenerated in either mode,
 `update_logs_auto_generated.md` is always rebuilt faithfully from git history, and the idempotent
 tail steps (path cleanup, absolutization, entry-point copies, `.repo_name`) run unchanged.

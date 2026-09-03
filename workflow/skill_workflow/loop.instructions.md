@@ -26,6 +26,7 @@ description: 'Unified skill-backed (skill mode) loop meta-workflow for Claude Co
   - _lib/approval_gate.md
   - _lib/review_skills.md
   - _lib/subagent_effectiveness.md
+  - _lib/harness_wiki.md
   - _lib/local_skill_discovery.md
   - skills/skill_workflow_skills.md
   - repo_info/codebase_overview.md
@@ -163,5 +164,5 @@ For iteration N = 1, 2, …:
 ```
 3. Summarize the loop outcome (iterations run, exit reason, net code changes, metric trajectory, achieved y/n) in bullet points to chat.
 
-### Step 7 - Subagent Effectiveness Record
-Record [subagent effectiveness] per [`_lib/subagent_effectiveness.md`](../../_lib/subagent_effectiveness.md): for each opt-in helper this workflow actually ran — Devils Advocate, Diversifier, Online Researcher, `simplify`, `code_review` — write one line carrying the dials it ran under (`[model · effort]`, from the launch resolution), its adoption count (`adopted n/m` plus what the accepted items changed), its novelty and importance tokens, and a `useful` / `partly useful` / `not useful` verdict — record effect, never what the helper did — then append the entry to `repo_info/subagent_effectiveness.md`.
+### Step 7 - Run Record and Wiki Maintainer
+Append the [run record] to `repo_info/subagent_effectiveness.md` per [`_lib/subagent_effectiveness.md`](../../_lib/subagent_effectiveness.md), written only from what you already hold — never re-read an artifact or the file: one short line per spawned advisory role (dials `[model · effort]`, `adopted n/m`, novelty/importance, verdict — effect, never activity; executing roles only on fallback or rework), then `context:` (which `repo_info/` files were load-bearing, unused, stale, or missing, from the notes kept since Step 1), `plan:` (the [loop spec] tally — iterations as-specified / adapted / dropped / added, re-plans — and the computed verdict `load-bearing` · `partly` · `not needed`), and `workflow:` (friction as `step — problem → fix`, or `none`, plus remediation / fallback / gate-pause counters). Then the **Wiki Maintainer** pass per [`_lib/harness_wiki.md`](../../_lib/harness_wiki.md) §Cadence: on every fifth entry consolidate the newest five into `repo_info/harness_wiki.md`; otherwise nothing more. End the chat summary with the one-line wiki status.

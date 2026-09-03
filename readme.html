@@ -329,6 +329,7 @@
     .rf-s5 { animation-delay: 11.67s; }
     .rf-s6 { animation-delay: 14s; }
     .rf-aux.rf-s2 { animation: rfPulseAux 14s linear infinite; animation-delay: 4.67s; }
+    .rf-aux.rf-s1 { animation: rfPulseAux 14s linear infinite; animation-delay: 2.33s; }
     @keyframes rfPulseAux {
       0%   { fill: #fbfdfe; stroke: #cfe3e6; }
       2%   { fill: #e6f5ee; stroke: var(--green); }
@@ -337,7 +338,7 @@
       100% { fill: #fbfdfe; stroke: #cfe3e6; }
     }
     @media (prefers-reduced-motion: reduce) {
-      .rf-stage, .rf-aux.rf-s2, .rf-branch, .rf-loop, .rf-tokeng { animation: none !important; }
+      .rf-stage, .rf-aux.rf-s1, .rf-aux.rf-s2, .rf-branch, .rf-loop, .rf-tokeng { animation: none !important; }
     }
 
     /* ---------- responsive ---------- */
@@ -548,7 +549,7 @@
           <div class="fig-frame">
             <svg viewBox="0 0 1180 430" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="rf-t rf-d">
               <title id="rf-t">Animated refactor workflow</title>
-              <desc id="rf-d">A looping animation of the fast refactor workflow. A glowing token travels through seven steps — context gathering, refactor analysis, parallel challenge and research, refine and approval gate, implementation, code review with a remediation loop, and documentation — lighting each step as it arrives. Step three fans out to a Devils Advocate, a Diversifier, and an Online Researcher running in parallel.</desc>
+              <desc id="rf-d">A looping animation of the fast refactor workflow. A glowing token travels through seven steps — context gathering, refactor analysis, parallel challenge and research, refine and approval gate, implementation, code review with a remediation loop, and documentation — lighting each step as it arrives. Step two launches a Diversifier from the goal alongside the main agent's draft; step three fans out to a Devils Advocate and an Online Researcher running in parallel.</desc>
               <defs>
                 <filter id="rfGlow" x="-150%" y="-150%" width="400%" height="400%">
                   <feGaussianBlur stdDeviation="4.5" result="b"/>
@@ -562,23 +563,24 @@
               <!-- spine -->
               <line class="rf-spine" x1="100" y1="250" x2="1072" y2="250"/>
 
+              <!-- parallel branch connectors (step 2, center x=262: Diversifier launches beside the draft) -->
+              <path class="rf-branch" d="M262 208 L 262 150"/>
+              <text class="rf-tag" x="262" y="92">▲ FROM THE GOAL</text>
+
               <!-- parallel branch connectors (step 3, center x=424) -->
-              <path class="rf-branch" d="M424 208 L 424 178"/>
-              <path class="rf-branch" d="M330 178 L 518 178"/>
-              <path class="rf-branch" d="M330 178 L 330 150"/>
-              <path class="rf-branch" d="M518 178 L 518 150"/>
+              <path class="rf-branch" d="M424 208 L 424 150"/>
               <path class="rf-branch" d="M424 292 L 424 352"/>
               <text class="rf-tag" x="424" y="92">▲ PARALLEL ▼</text>
 
-              <!-- Devils Advocate (above left) -->
-              <rect class="rf-aux rf-s2" x="242" y="104" width="176" height="44" rx="9"/>
-              <text class="rf-auxt" x="330" y="124">Devils Advocate</text>
-              <text class="rf-auxs" x="330" y="139">challenge the plan</text>
+              <!-- Diversifier (above step 2) -->
+              <rect class="rf-aux rf-s1" x="174" y="104" width="176" height="44" rx="9"/>
+              <text class="rf-auxt" x="262" y="124">Diversifier</text>
+              <text class="rf-auxs" x="262" y="139">rival plans from the goal</text>
 
-              <!-- Diversifier (above right) -->
-              <rect class="rf-aux rf-s2" x="430" y="104" width="176" height="44" rx="9"/>
-              <text class="rf-auxt" x="518" y="124">Diversifier</text>
-              <text class="rf-auxs" x="518" y="139">5 rival plans</text>
+              <!-- Devils Advocate (above step 3) -->
+              <rect class="rf-aux rf-s2" x="336" y="104" width="176" height="44" rx="9"/>
+              <text class="rf-auxt" x="424" y="124">Devils Advocate</text>
+              <text class="rf-auxs" x="424" y="139">challenge the plan</text>
 
               <!-- Online Researcher (below) -->
               <rect class="rf-aux rf-s2" x="334" y="354" width="180" height="44" rx="9"/>
@@ -639,13 +641,13 @@
           </div>
           <figcaption>
             <b>Figure 2. The fast refactor workflow (looping animation).</b> Seven steps from a single main agent;
-            the only fan-out is step&nbsp;3, where a Devils Advocate, a Diversifier, and an Online Researcher run in parallel, and
+            the fan-out is steps&nbsp;2–3: a Diversifier launches from the goal alongside the main agent's draft in step&nbsp;2 (it never sees the draft), a Devils Advocate and an Online Researcher run in parallel in step&nbsp;3, and
             step&nbsp;6 runs a self-challenge plus one remediation loop before the change is logged.
           </figcaption>
         </figure>
         <div class="legend" aria-hidden="true">
           <span><i style="background:var(--teal)"></i> request token</span>
-          <span><i style="background:var(--green)"></i> parallel subagents (step 3)</span>
+          <span><i style="background:var(--green)"></i> parallel subagents (steps 2–3)</span>
           <span><i style="background:var(--amber)"></i> review &amp; remediation loop (step 6)</span>
         </div>
       </div>

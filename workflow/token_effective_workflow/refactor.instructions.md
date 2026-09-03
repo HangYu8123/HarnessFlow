@@ -16,6 +16,7 @@ description: 'Unified token-effective (fast) refactor workflow for Claude Code, 
   - _lib/approval_gate.md
   - _lib/review_skills.md
   - _lib/subagent_effectiveness.md
+  - _lib/harness_wiki.md
   - repo_info/codebase_overview.md
   - repo_info/scripts_overview.md
   - repo_info/update_logs.md
@@ -45,6 +46,8 @@ Every subagent created by this workflow must instead read and follow [`_lib/suba
 Read [key md files]. If target files are specified in [inputs], read them. Everything read in this step — [key md files] plus any additional files read — is **[full repo context]**; keep it in your own context for the rest of the run. Condense [key md files] (plus any target files read) into a [repo context digest] per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Context Passing for Subagents: pass [inputs], [repo context digest], and the excerpts of [full repo context] each subagent's task needs.
 
 ### Step 2 - Refactor Analysis
+**Diversifier — spawn first, from the goal (gate `diversifier: on` · default `on`):** before drafting, write [invariants] and spawn the **Diversifier** (`agents/diversifier.agent.md`) per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Diversifier Contract on [inputs] + the repo context (per §Context Passing) + [invariants] — never on [plan] or [comparison], which does not exist yet and is never sent to it later. Task: propose 3–5 alternative refactor plans that each achieve the refactor targets — searching the **risky**, **aggressive**, and **rare** archetypes and reporting any archetype with no viable candidate rather than filling it — each structurally different from the expected default and from each other, each declaring `preserves:` and carrying a calibrated `P(better)` and a `graftable:` component, plus an `if you relax <n>` tail of at most two. Return [diverse plans]. Do not wait for it: draft [plan] while it runs and collect the result at Step 4.
+
 
 Based on the repo context ([key md files] and [target files]) + [inputs], the main agent reads the relevant files. Then the main agent proposes a [plan] for addressing the target refactors + a [comparison] report (before/after) indicating the changes + behavior-preservation notes.
 
@@ -70,10 +73,9 @@ ignore the questions that are irrelevant to the refactor request.
 |----------|-------|---------------|------|
 | Challenge | **Devils Advocate** (`agents/devils-advocate.agent.md`) | `devils_advocate: on` · default `off` | Receive the repo context (per §Context Passing) + [plan] + [comparison] + [inputs], and read additional files/scripts if needed. Assume every step in the [plan] is wrong, flawed, and over-engineered; identify overlooked side effects, integration risks, incorrect assumptions, over-engineering, and regressions. Then explain why the items are wrong, flawed, and over-engineered. Distinguish genuine defects from out-of-scope or speculative additions, and report only evidence-backed criticisms (do not manufacture problems). Return [challenge report]. |
 | Research | **Online Researcher** (`agents/online-researcher.agent.md`) | `online_research: on` · default `on` | Receive the repo context (per §Context Passing) + [plan] + [comparison] + [inputs]. Search online for reliable references, established solutions, and available resources. Return [online resource]. |
-| Diversify | **Diversifier** (`agents/diversifier.agent.md`) | `diversifier: on` · default `on` | Receive the repo context (per §Context Passing) + [plan] + [comparison] + [inputs], and read additional files if needed. Propose 3–5 alternative refactor plans that each achieve the refactor targets — searching the **risky**, **aggressive**, and **rare** archetypes and reporting any archetype with no viable candidate rather than filling it — each structurally different from [plan] and from each other, each carrying a calibrated `P(better)` that it beats [plan] and a `graftable:` component. Return [diverse plans]. |
 
 ### Step 4 - Refine and Approval Gate
-The main agent incorporates [challenge report] and [online resource] (when produced) into a [final plan]; when [diverse plans] was produced, it adopts any alternative from them whose `P(better)` and evidence beat the current plan (otherwise keeping it, with a one-line note why), then sweeps the rejected alternatives' `graftable:` fields and merges any component that improves the plan on its own. Print [final plan].
+The main agent incorporates [challenge report] and [online resource] (when produced) into a [final plan]; when [diverse plans] was produced, it dispositions every alternative against its own draft per [`_lib/workflow_contract.md`](../../_lib/workflow_contract.md) §Diversifier Contract → Pick — `adopt` · `adopt-part <what>` · `same-as-draft` · `park` · `reject <reason>`, one line each — restating the plan on an adopted alternative, merging adopt-part components, and writing parked ones to `known_issues.md` §Untaken options. Print [final plan].
 
 **Approval gate (opt-in):** see `_lib/approval_gate.md` — proceed directly to Step 5 unless the user asked for no code/file changes or a plan-only review.
 
@@ -101,5 +103,5 @@ Based on whichever of [simplify] + [code-review] + [direct review] were produced
 ```
 3. Summarize changes in bullet points to chat, and a yes/no answer indicating whether the refactor completed with no issues. If there are gaps, describe them.
 
-### Step 8 - Subagent Effectiveness Record
-Record [subagent effectiveness] per [`_lib/subagent_effectiveness.md`](../../_lib/subagent_effectiveness.md): for each opt-in helper this workflow actually ran — Devils Advocate, Diversifier, Online Researcher, `simplify`, `code_review` — write one line carrying the dials it ran under (`[model · effort]`, from the launch resolution), its adoption count (`adopted n/m` plus what the accepted items changed), its novelty and importance tokens, and a `useful` / `partly useful` / `not useful` verdict — record effect, never what the helper did — then append the entry to `repo_info/subagent_effectiveness.md`.
+### Step 8 - Run Record and Wiki Maintainer
+Append the [run record] to `repo_info/subagent_effectiveness.md` per [`_lib/subagent_effectiveness.md`](../../_lib/subagent_effectiveness.md), written only from what you already hold — never re-read an artifact or the file: one short line per spawned advisory role (dials `[model · effort]`, `adopted n/m`, novelty/importance, verdict — effect, never activity; executing roles only on fallback or rework), then `context:` (which `repo_info/` files were load-bearing, unused, stale, or missing, from the notes kept since Step 1), `plan:` (the thoughts-artifact tally — steps as-written / adapted / dropped / added, re-plans — and the computed verdict `load-bearing` · `partly` · `not needed`), and `workflow:` (friction as `step — problem → fix`, or `none`, plus remediation / fallback / gate-pause counters). Then the **Wiki Maintainer** pass per [`_lib/harness_wiki.md`](../../_lib/harness_wiki.md) §Cadence: on every fifth entry consolidate the newest five into `repo_info/harness_wiki.md`; otherwise nothing more. End the chat summary with the one-line wiki status.

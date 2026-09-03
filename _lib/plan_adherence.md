@@ -46,6 +46,14 @@ The implementation/execution **report stays "changes only, no explanations"** �
 thoughts artifact is the separate reasoning channel. **Always produce the label**: when the
 plan held throughout, record exactly `none — plan held as written`.
 
+## Tally
+
+The thoughts artifact **ends with one line** counting the plan's steps (actions, PRs, or loop
+iterations) by outcome — `tally: steps <t> · as-written <a> · adapted <b> · dropped <c> · added <d>`
+— counted as the work proceeds, never reconstructed afterwards. It costs one line and is the
+only source of the run record's `plan:` line (`_lib/subagent_effectiveness.md` §Plan line),
+which is how the pack learns, across runs, whether planning earns its tokens.
+
 ## Hand-off to review
 
 Whoever implemented/executed returns the thoughts artifact **alongside** the report

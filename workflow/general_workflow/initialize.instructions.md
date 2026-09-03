@@ -11,6 +11,8 @@ description: 'Instructions for creating necessary repo_info memory files to guid
   - _lib/subagent_contract.md
   - _lib/absolutize_pack_paths.md
   - _lib/reinitialize.md
+  - _lib/subagent_effectiveness.md
+  - _lib/harness_wiki.md
   - repo_info/ (created by this workflow)
 -->
 
@@ -43,8 +45,9 @@ Then, check the existence of the following [repo_info files] under the repo_info
 7. past_Q&A.md
 8. past_Correctness_Check.md
 9. subagent_effectiveness.md
+10. harness_wiki.md
 If the repo_info folder does not exist, create it. Then ensure [repo_info files] exist; create any missing ones as empty files.
-These are the canonical repo memory files. Use `past_Q&A.md` for query history, `past_Correctness_Check.md` for correctness-check history, and `subagent_effectiveness.md` for the per-run record of how effective each opt-in helper subagent was — adoption, novelty, and the model/effort it ran under (written by later workflows per [`_lib/subagent_effectiveness.md`](../../_lib/subagent_effectiveness.md); this workflow only creates it); do not create alternate history filenames.
+These are the canonical repo memory files. Use `past_Q&A.md` for query history, `past_Correctness_Check.md` for correctness-check history, `subagent_effectiveness.md` for the per-run [run record] — subagent effectiveness, which `repo_info/` files were load-bearing or stale, and workflow friction — and `harness_wiki.md` for the harness wiki consolidated from those records (both written by later workflows per [`_lib/subagent_effectiveness.md`](../../_lib/subagent_effectiveness.md) and [`_lib/harness_wiki.md`](../../_lib/harness_wiki.md); this workflow only creates them, and no workflow reads `harness_wiki.md` at its start); do not create alternate history filenames.
 Then determine [init mode] per [`_lib/reinitialize.md`](../../_lib/reinitialize.md) §Mode Detection: an overview file that already has non-empty content is in **re-initialize** mode (validate + diff-update, never regenerate from scratch); a missing or empty one is **fresh**.
 
 ## Procedure 3: Create File Structure
@@ -128,6 +131,10 @@ if the file does not exist, create an empty file.
 if the file exists, do nothing.
 if the file does not exist, create an empty file.
 
+### 4.10 harness_wiki.md:
+if the file exists, do nothing.
+if the file does not exist, create an empty file.
+
 ## Procedure 5: Update Internal Path References (Idempotent)
 After completing all file creation in Procedure 4, check whether internal path references need updating for multi-root workspace compatibility.
 
@@ -169,3 +176,6 @@ The Request Builder GUI (`harness_gui.py`) renders its header as `HarnessFlow ·
    - Otherwise use the repo's root folder name — the folder that **contains** `.github/HarnessFlow/` in the installed layout, or the pack root's own folder in the source/pack-root layout. This is the same `[repo folder name]` used in Procedure 5, and it is the repo being initialized (never its parent folder).
 2. Write `[initialized repo name]` as a single line (no surrounding quotes, no extra content) to `.repo_name` at the pack root — the same folder as `harness_gui.py` (i.e., `.github/HarnessFlow/.repo_name` when installed). Create or overwrite it so a later rename stays correct.
 3. Ensure `.repo_name` is git-ignored (like `.pack_root`): add a `.repo_name` line to the enclosing repo's `.gitignore` if it is not already there (create `.gitignore` if missing). Do not commit `.repo_name`; it is machine-local state. `harness_gui.py` reads it first when building the header, so after initialization the GUI shows the initialized repo's name.
+
+## Procedure 9: Run Record and Wiki Maintainer
+Append the [run record] to `repo_info/subagent_effectiveness.md` per [`_lib/subagent_effectiveness.md`](../../_lib/subagent_effectiveness.md), written only from what you already hold: one short line per spawned overview generator or analyst (dials, `adopted n/m` = claims kept in the written overview over claims returned, novelty/importance, verdict), then `context:` (a re-initialization writes the [validation & diff report] outcome per overview — confirmed / stale / obsolete / missing counts; a fresh run writes `fresh`), `plan: n/a`, and `workflow:` (friction as `step — problem → fix`, or `none`, plus fallback counters). Then the **Wiki Maintainer** pass per [`_lib/harness_wiki.md`](../../_lib/harness_wiki.md) §Cadence: on every fifth entry consolidate the newest five into `repo_info/harness_wiki.md`; otherwise nothing more. End the chat summary with the one-line wiki status.

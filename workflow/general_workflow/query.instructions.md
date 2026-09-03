@@ -14,6 +14,7 @@ description: 'Instructions for answering questions about an existing repo'
   - _lib/workflow_contract.md
   - _lib/subagent_contract.md
   - _lib/subagent_effectiveness.md
+  - _lib/harness_wiki.md
   - repo_info/codebase_overview.md
   - repo_info/scripts_overview.md
   - repo_info/update_logs.md
@@ -76,5 +77,5 @@ Answer: (fill a brief but precise summary of the answer in bullet points here.)
 ```
 Then the main agent must append it to past_Q&A.md, using the existing contents to determine the last Q&A ID.
 
-### Step 8 - Subagent Effectiveness Record
-Record [subagent effectiveness] per [`_lib/subagent_effectiveness.md`](../../_lib/subagent_effectiveness.md): for each opt-in helper this workflow actually ran — Devils Advocate, Diversifier, Online Researcher, `simplify`, `code_review` — write one line carrying the dials it ran under (`[model · effort]`, from the launch resolution), its adoption count (`adopted n/m` plus what the accepted items changed), its novelty and importance tokens, and a `useful` / `partly useful` / `not useful` verdict — record effect, never what the helper did — then append the entry to `repo_info/subagent_effectiveness.md`.
+### Step 8 - Run Record and Wiki Maintainer
+Append the [run record] to `repo_info/subagent_effectiveness.md` per [`_lib/subagent_effectiveness.md`](../../_lib/subagent_effectiveness.md), written only from what you already hold — never re-read an artifact or the file: one short line per spawned advisory role (dials `[model · effort]`, `adopted n/m`, novelty/importance, verdict — effect, never activity; executing roles only on fallback or rework), then `context:` (which `repo_info/` files were load-bearing, unused, stale, or missing, from the notes kept since Step 1), `plan:` (`n/a` — this workflow has no plan artifact), and `workflow:` (friction as `step — problem → fix`, or `none`, plus remediation / fallback / gate-pause counters). Then the **Wiki Maintainer** pass per [`_lib/harness_wiki.md`](../../_lib/harness_wiki.md) §Cadence: on every fifth entry consolidate the newest five into `repo_info/harness_wiki.md`; otherwise nothing more. End the chat summary with the one-line wiki status.
